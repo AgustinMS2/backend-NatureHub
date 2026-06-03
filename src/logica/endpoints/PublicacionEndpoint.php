@@ -12,6 +12,8 @@ class PublicacionEndpoint {
     public function altaPublicacion(): void{
         $datos = json_decode(file_get_contents("php://input"));
 
+        $d[] = new array[$datos->areasHabitat]
+
         $dtp = new DTPublicacion(
             0,
             $datos->seccion,
