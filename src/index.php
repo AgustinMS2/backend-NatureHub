@@ -8,8 +8,10 @@ include __DIR__ . "/logica/endpoints/UsuarioEndpoint.php";
 include __DIR__ . "/logica/endpoints/PublicacionEndpoint.php";
 
 include __DIR__ . "/logica/modelos/Usuario.php";
+include __DIR__ . "/logica/modelos/Publicacion.php";
 
 include __DIR__ . "/servicios/DTs/DTUsuario.php";
+include __DIR__ . "/servicios/DTs/DTPublicacion.php";
 
 $metodo = $_SERVER['REQUEST_METHOD'];
 $ruta = $_SERVER['PATH_INFO'] ?? '';
