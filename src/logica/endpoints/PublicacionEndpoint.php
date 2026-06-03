@@ -12,7 +12,7 @@ class PublicacionEndpoint {
     public function altaPublicacion(): void{
         $datos = json_decode(file_get_contents("php://input"));
 
-        $d = [$datos->areasHabitat];
+        //$d = [$datos->areasHabitat];
 
         $dtp = new DTPublicacion(
             0,
@@ -21,7 +21,7 @@ class PublicacionEndpoint {
             $datos->titulo,
             $datos->nombreCientifico,
             $datos->foto,
-            $d,
+            $datos->areasHabitat,
             $datos->dieta,
             $datos->horasActivas,
             null,
