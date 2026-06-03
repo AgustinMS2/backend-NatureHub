@@ -24,6 +24,13 @@ class Usuario {
         $this->publicaciones = $publicaciones;
     }
 
+
+    public function getRol(): string {
+        return "USUARIO";
+    }
+
+    
+
     public function getId(): int {
         return $this->id;
     }

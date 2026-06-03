@@ -70,15 +70,78 @@ class UsuarioController implements IUsuarioController {
 
     }
 
-    public function iniciarSesion(DTUsuario $dtu): DTSesion{
+    public function iniciarSesion(DTUsuario $dtu): array {
         $repositorio = UsuarioRepositorio::getInstance();
 
-    }
-    
-    public function cerrarSesion(DTSesion $dts): void{
-        $repositorio = UsuarioRepositorio::getInstance();
+        $usuario = $repositorio->obtenerUsuarioPorEmail($dtu->getEmail());
+        if ($usuario === null) {
+            throw new Exception("Email inválido");
+        }
+        if (!password_verify($dtu->getPassword(), $usuario->getPasswordHash())) {
+            throw new Exception("Contraseña incorrecta");
+        }
 
+        $idSesion = $repositorio->obtenerSiguienteIdSesion();
+        $token = bin2hex(random_bytes(32));
+        $fechaInicio = new DateTime();
+
+        $sesion = new Sesion(
+            $idSesion, 
+            $usuario, 
+            $token, 
+            $fechaInicio,
+            null,
+            true
+        );
+
+        $repositorio->crearSesion($sesion);
+
+        $dtSesion = new DTSesion(
+            null,
+            null,
+            $token,
+            null,
+            null,
+            true
+        );
+
+        $args = [
+            null,
+            $usuario->getNombre(),
+            $usuario->getApellido(),
+            $usuario->getEmail(),
+            null,
+            null,
+            null
+        ];
+
+        $dtUsuario = match(true) {
+            $usuario instanceof Administrador => new DTAdministrador(...$args),
+            $usuario instanceof Moderador => new DTModerador(...$args),
+            $usuario instanceof Usuario => new DTUsuario(...$args)
+        };
+
+        return ["sesion" => $dtSesion, "usuario" => $dtUsuario];
     }
+
+    public function cerrarSesion(string $token): void {
+        $repositorio = UsuarioRepositorio::getInstance();
+        
+        $fechaFin = new DateTime();
+        $activa = false;
+
+        $sesion = new Sesion(
+            null, 
+            null, 
+            $token, 
+            null, 
+            $fechaFin, 
+            $activa
+        );
+
+        $repositorio->cerrarSesion($sesion);
+    }
+
 
 }
 ?>

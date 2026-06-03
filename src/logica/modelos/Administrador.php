@@ -6,5 +6,9 @@ class Administrador extends Moderador {
         parent::__construct($id, $nombre, $apellido, $email, $passwordHash, $activo, $fechaRegistro, $reportes, $publicaciones);
     }
 
+    public function getRol(): string {
+        return "ADMINISTRADOR";
+    }
+
 }
 ?>

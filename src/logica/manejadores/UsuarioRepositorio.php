@@ -25,7 +25,7 @@ class UsuarioRepositorio {
         $apellido = $usuario->getApellido();
         $email = $usuario->getEmail();
         $passwordHash = $usuario->getPasswordHash();
-        $rol = "USUARIO";
+        $rol = "Usuario";
         $activo = $usuario->getActivo();
         $fechaRegistro = $usuario->getFechaRegistro()->format("Y-m-d H:i:s");
 
@@ -43,7 +43,7 @@ class UsuarioRepositorio {
         $fila = $resultado->fetch_assoc();
 
         if ($fila) {
-            return new Usuario(
+            $args = [
                 $fila["id_usuario"],
                 $fila["nombre"],
                 $fila["apellido"],
@@ -53,7 +53,13 @@ class UsuarioRepositorio {
                 new DateTime($fila["fecha_registro"]),
                 [],
                 []
-            );
+            ];
+
+            return match($fila["rol"]) {
+                "Administrador" => new Administrador(...$args),
+                "Moderador" => new Moderador(...$args),
+                "Usuario" => new Usuario(...$args)
+            };
         }
 
         return null;
@@ -87,6 +93,38 @@ class UsuarioRepositorio {
         return $usuarios;
     }
 
+    public function crearSesion(Sesion $sesion): void {
+        $sql = "INSERT INTO SESION (id_sesion, id_usuario, token, fecha_inicio, fecha_fin, activa) VALUES (?, ?, ?, ?, ?, ?)";
+        $consulta = $this->mysql->prepare($sql);
 
+        $idSesion = $sesion->getId();
+        $idUsuario = $sesion->getUsuario()->getId();
+        $token = $sesion->getToken();
+        $fechaInicio = $sesion->getFechaInicio()->format("Y-m-d H:i:s");
+        $fechaFin = $sesion->getFechaFin();
+        $activa = $sesion->getActiva();
+
+        $consulta->bind_param("iiissi", $idSesion, $idUsuario, $token, $fechaInicio, $fechaFin, $activa);
+        $consulta->execute();
+    }
+
+    public function obtenerSiguienteIdSesion(): int {
+        $sql = "SELECT COALESCE(MAX(id_sesion), 0) + 1 AS proximo_id FROM SESION";
+        $resultado = $this->mysql->query($sql);
+        $fila = $resultado->fetch_assoc();
+        return $fila["proximo_id"];
+    }
+
+    public function cerrarSesion(Sesion $sesion): void {
+        $sql = "UPDATE SESION SET activa = ?, fecha_fin = ? WHERE token = ?";
+        $consulta = $this->mysql->prepare($sql);
+
+        $token = $sesion->getToken();
+        $fechaFin = $sesion->getFechaFin()->format("Y-m-d H:i:s");
+        $activa= $sesion->getActiva();
+
+        $consulta->bind_param("iss", $activa, $fechaFin, $token);
+        $consulta->execute();
+    }
 }
 ?>

@@ -6,5 +6,13 @@ class Moderador extends Usuario {
         parent::__construct($id, $nombre, $apellido, $email, $passwordHash, $activo, $fechaRegistro, $reportes, $publicaciones);
     }
 
+
+    public function getRol(): string {
+        return "MODERADOR";
+    }
+
+
+
+
 }
 ?>
