@@ -14,6 +14,7 @@ include __DIR__ . "/logica/endpoints/PublicacionEndpoint.php";
 
 include __DIR__ . "/logica/modelos/Usuario.php";
 include __DIR__ . "/logica/modelos/Sesion.php";
+include __DIR__ . "/logica/modelos/Publicacion.php";
 
 include __DIR__ . "/servicios/DTs/DTSesion.php";
 include __DIR__ . "/servicios/DTs/DTUsuario.php";
