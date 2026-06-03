@@ -76,4 +76,5 @@ public function obtenerSiguienteId(): int {
         $fila = $resultado->fetch_assoc();
         return $fila["proximo_id"];
     }
+}
 ?>

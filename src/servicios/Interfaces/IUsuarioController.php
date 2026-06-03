@@ -5,7 +5,7 @@ interface IUsuarioController {
     public function modificarUsuario(DTUsuario $dtu): void;
     public function listarUsuarios(): array;
     public function moderarUsuario(): void;
-    public function iniciarSesion(DTUsuario $dtu): DTSesion;
-    public function cerrarSesion(DTSesion $dts): void;
+    public function iniciarSesion(DTUsuario $dtu): array;
+    public function cerrarSesion(string $token): void;
 }
 ?>
