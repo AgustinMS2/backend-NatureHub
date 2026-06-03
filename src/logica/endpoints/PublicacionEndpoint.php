@@ -13,7 +13,7 @@ class PublicacionEndpoint {
         $datos = json_decode(file_get_contents("php://input"));
 
         $dtp = new DTPublicacion(
-            null,
+            0,
             $datos->seccion,
             $datos->autor,
             $datos->titulo,
