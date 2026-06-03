@@ -7,7 +7,7 @@
     protected string $titulo;
     protected string $nombreCientifico;
     protected string $foto;
-    protected string $areasHabitat;
+    protected array $areasHabitat;
     protected string $dieta;
     protected string $horasActivas;
     protected string $estado;
@@ -74,8 +74,8 @@
     public function getAreasHabitat(): array {
         return $this->areasHabitat;
     }
-    public function setAreasHabitat(string $areasHabitat): void {
-        $this->areasHabitat = $areasHabitat;
+    public function setAreasHabitat(array $areasHabitat): void {
+        $this->areasHabitat = [$areasHabitat];
     }
 
     public function getDieta(): string {

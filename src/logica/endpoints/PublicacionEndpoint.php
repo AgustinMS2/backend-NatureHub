@@ -21,7 +21,7 @@ class PublicacionEndpoint {
             $datos->titulo,
             $datos->nombreCientifico,
             $datos->foto,
-            $datos->areasHabitat,
+            $d,
             $datos->dieta,
             $datos->horasActivas,
             null,

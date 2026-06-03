@@ -17,7 +17,7 @@ class PublicacionController implements IPublicacionController {
         $id = $repositorio->obtenerSiguienteId();
         $fechaCreacion = new DateTime();
         $fechaUltimaModificacion = new DateTime();
-        $d = [$dtp->getAreasHabitat()];
+        //$d = [$dtp->getAreasHabitat()];
 
         $publicacion = new Publicacion(
             $id,
@@ -26,7 +26,7 @@ class PublicacionController implements IPublicacionController {
             $dtp->getTitulo(),
             $dtp->getNombreCientifico(),
             $dtp->getFoto(),
-            $d,
+            $dtp->getAreasHabitat(),
             $dtp->getDieta(),
             $dtp->getHorasActivas(),
             'PENDIENTE_REVISION',
