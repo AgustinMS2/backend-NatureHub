@@ -83,6 +83,7 @@ class UsuarioEndpoint {
             echo json_encode([
                 "token" => $dts->getToken(),
                 "activa" => $dts->getActiva(),
+                "idusuario" => $dtu->getId(),
                 "nombre" => $dtu->getNombre(),
                 "apellido" => $dtu->getApellido(),
                 "email" => $dtu->getEmail(),

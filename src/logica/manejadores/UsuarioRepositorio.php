@@ -104,7 +104,7 @@ class UsuarioRepositorio {
         $fechaFin = $sesion->getFechaFin();
         $activa = $sesion->getActiva();
 
-        $consulta->bind_param("iiissi", $idSesion, $idUsuario, $token, $fechaInicio, $fechaFin, $activa);
+        $consulta->bind_param("iisssi", $idSesion, $idUsuario, $token, $fechaInicio, $fechaFin, $activa);
         $consulta->execute();
     }
 

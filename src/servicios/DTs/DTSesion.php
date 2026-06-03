@@ -8,7 +8,7 @@ class DTSesion {
     private ?bool $activa;
     private ?int $usuario;
 
-    public function __construct(?int $id, ?int $usuario, ?string $token, ?bool $activa, ?string $fechaInicio, ?string $fechaFin) {
+    public function __construct(?int $id, ?int $usuario, ?string $token, ?string $fechaInicio, ?string $fechaFin, ?bool $activa) {
         $this->id = $id;
         $this->usuario = $usuario;
         $this->token = $token;

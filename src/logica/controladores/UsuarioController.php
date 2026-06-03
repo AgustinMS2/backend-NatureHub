@@ -106,7 +106,7 @@ class UsuarioController implements IUsuarioController {
         );
 
         $args = [
-            null,
+            $usuario->getId(),
             $usuario->getNombre(),
             $usuario->getApellido(),
             $usuario->getEmail(),
