@@ -26,7 +26,7 @@ class PublicacionRepositorio {
         $titulo = $publicacion->getTitulo();
         $nombreCientifico = $publicacion->getNombreCientifico();
         $foto = $publicacion->getFoto();
-        $areasHabitat = $publicacion->getAreasHabitat();
+        $areasHabitat = json_encode($publicacion->getAreasHabitat());
         $dieta = $publicacion->getDieta();
         $horasActivas = $publicacion->getHorasActivas();
         $estado = 'PENDIENTE_REVISION';

@@ -10,11 +10,11 @@
     protected array $areasHabitat;
     protected string $dieta;
     protected string $horasActivas;
-    protected string $estado;
-    protected string $fechaCreacion;
-    protected string $fechaUltimaModificacion;
+    protected ?string $estado;
+    protected ?string $fechaCreacion;
+    protected ?string $fechaUltimaModificacion;
 
-    public function __construct(int $id, string $titulo, string $foto, string $nombreCientifico, array $areasHabitat, string $dieta, string $horasActivas, EstadoPublicacion $estado, DateTime $fechaCreacion, DateTime $fechaUltimaModificacion, int $autor, array $camposExtra, int $seccion) {
+    public function __construct(int $id, string $titulo, string $foto, string $nombreCientifico, array $areasHabitat, string $dieta, string $horasActivas, ?string $estado, ?DateTime $fechaCreacion, ?DateTime $fechaUltimaModificacion, int $autor, array $camposExtra, int $seccion) {
         $this->id = $id;
         $this->seccion = $seccion;
         $this->autor = $autor;
@@ -92,24 +92,24 @@
         $this->horasActivas = $horasActivas;
     }
 
-    public function getEstado(): string {
+    public function getEstado(): ?string {
         return $this->estado;
     }
-    public function setEstado(string $estado): void {
+    public function setEstado(?string $estado): void {
         $this->estado = $estado;
     }
 
-    public function getFechaCreacion(): string {
+    public function getFechaCreacion(): ?string {
         return $this->fechaCreacion;
     }
-    public function setFechaCreacion(string $fechaCreacion): void {
+    public function setFechaCreacion(?string $fechaCreacion): void {
         $this->fechaCreacion = $fechaCreacion;
     }
 
-    public function getFechaUltimaModificacion(): string {
+    public function getFechaUltimaModificacion(): ?string {
         return $this->fechaUltimaModificacion;
     }
-    public function setFechaUltimaModificacion(string $fechaUltimaModificacion): void {
+    public function setFechaUltimaModificacion(?    string $fechaUltimaModificacion): void {
         $this->fechaUltimaModificacion = $fechaUltimaModificacion;
     }
     

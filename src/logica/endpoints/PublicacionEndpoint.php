@@ -16,17 +16,18 @@ class PublicacionEndpoint {
 
         $dtp = new DTPublicacion(
             0,
-            $datos->seccion,
-            $datos->autor,
             $datos->titulo,
-            $datos->nombreCientifico,
             $datos->foto,
+            $datos->nombreCientifico,
             $datos->areasHabitat,
             $datos->dieta,
             $datos->horasActivas,
             null,
             null,
-            null
+            null,
+            $datos->autor,
+            [],
+            $datos->seccion
         );
 
         $this->controlador->altaPublicacion($dtp);

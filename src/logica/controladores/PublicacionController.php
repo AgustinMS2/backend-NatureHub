@@ -1,6 +1,7 @@
 <?php
 include_once __DIR__ . "/../../servicios/Interfaces/IPublicacionController.php";
 include_once __DIR__ . "/../../logica/manejadores/PublicacionRepositorio.php";
+include_once __DIR__ . "/../../logica/modelos/EstadoPublicacion.php";
 
 class PublicacionController implements IPublicacionController {
 
@@ -21,20 +22,18 @@ class PublicacionController implements IPublicacionController {
 
         $publicacion = new Publicacion(
             $id,
-            $dtp->getSeccion(),
-            $dtp->getAutor(),
             $dtp->getTitulo(),
-            $dtp->getNombreCientifico(),
             $dtp->getFoto(),
+            $dtp->getNombreCientifico(),
             $dtp->getAreasHabitat(),
             $dtp->getDieta(),
             $dtp->getHorasActivas(),
-            'PENDIENTE_REVISION',
+            EstadoPublicacion::PENDIENTE_REVISION,
             $fechaCreacion,
             $fechaUltimaModificacion,
+            $dtp->getAutor(),
             [],
-            [],
-            []
+            $dtp->getSeccion()
         );
 
         $repositorio->agregarPublicacion($publicacion);

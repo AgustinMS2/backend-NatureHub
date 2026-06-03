@@ -1,6 +1,6 @@
 <?php
 
-abstract class Publicacion {
+class Publicacion {
     protected int $id;
     protected int $seccion;
     protected int $autor;
@@ -10,7 +10,7 @@ abstract class Publicacion {
     protected array $areasHabitat;
     protected string $dieta;
     protected string $horasActivas;
-    protected string $estado;
+    protected EstadoPublicacion $estado;
     protected DateTime $fechaCreacion;
     protected DateTime $fechaUltimaModificacion;
     protected array $camposExtra;
@@ -84,10 +84,10 @@ abstract class Publicacion {
         $this->horasActivas = $horasActivas;
     }
 
-    public function getEstado(): string {
+    public function getEstado(): EstadoPublicacion {
         return $this->estado;
     }
-    public function setEstado(string $estado): void {
+    public function setEstado(EstadoPublicacion $estado): void {
         $this->estado = $estado;
     }
 
