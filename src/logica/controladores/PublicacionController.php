@@ -54,15 +54,87 @@ class PublicacionController implements IPublicacionController {
     public function modificarPublicacion(DTPublicacion $dtp): void{
         $repositorio = PublicacionRepositorio::getInstance();
 
+        $publicacionExistente = $repositorio->obtenerPublicacionTitulo($dtp->getTitulo());
+        if ($publicacionExistente == null){
+            throw new Exception("No existe una publicacion con ese Titulo");
+        }
+
+        $fechaCreacion = new DateTime();
+        $fechaUltimaModificacion = new DateTime();
+
+        $publicacion = new Publicacion(
+            0,
+            $dtp->getTitulo(),
+            $dtp->getFoto(),
+            $dtp->getNombreCientifico(),
+            $dtp->getAreasHabitat(),
+            $dtp->getDieta(),
+            $dtp->getHorasActivas(),
+            EstadoPublicacion::PENDIENTE_REVISION,
+            $fechaCreacion,
+            $fechaUltimaModificacion,
+            $dtp->getAutor(),
+            [],
+            $dtp->getSeccion()
+        );
+
+        $repositorio->modificarPublicacion($publicacion);
+
     }
 
     public function listarPublicaciones(): array{
         $repositorio = PublicacionRepositorio::getInstance();
 
+        $publicaciones = $repositorio->listarPublicaciones();
+
+        $resultado = [];
+        foreach ($publicaciones as $publicacion) {
+            $dtp = new DTPublicacion(
+                $publicacion->getId(),
+                $publicacion->getSeccion(),
+                $publicacion->getAutor(),
+                $publicacion->getTitulo(),
+                $publicacion->getNombreCientifico(),
+                $publicacion->getFoto(),
+                $publicacion->getAreasHabitat(),
+                $publicacion->getDieta(),
+                $publicacion->getHorasActivas(),
+                $publicacion->getEstado(),
+                $publicacion->getFechaCreacion()->format("Y-m-d H-i-s"),
+                $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s")
+            );
+            $resultado[] = $dtp;
+        }
+
+        return $resultado;
+
     }
 
-    public function listadoPublicacionesPropias(int $id): void{
+    public function listarPublicacionesPropias(int $id): array{
         $repositorio = PublicacionRepositorio::getInstance();
+
+        $publicaciones = $repositorio->listarPublicacionesPropias($id);
+
+        $resultado = [];
+        foreach ($publicaciones as $publicacion) {
+            $dtp = new DTPublicacion(
+                $publicacion->getId(),
+                $publicacion->getSeccion(),
+                $publicacion->getAutor(),
+                $publicacion->getTitulo(),
+                $publicacion->getNombreCientifico(),
+                $publicacion->getFoto(),
+                $publicacion->getAreasHabitat(),
+                $publicacion->getDieta(),
+                $publicacion->getHorasActivas(),
+                $publicacion->getEstado(),
+                $publicacion->getFechaCreacion()->format("Y-m-d H-i-s"),
+                $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s")
+            );
+            $resultado[] = $dtp;
+        }
+
+        return $resultado;
     }
 
     public function agregarCampoExtra(): void{

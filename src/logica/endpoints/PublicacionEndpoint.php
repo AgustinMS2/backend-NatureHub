@@ -36,30 +36,113 @@ class PublicacionEndpoint {
         echo json_encode(["mensaje" => "Publicacion creada correctamente"]);
     }
 
-    public function bajaPublicacion(int $id): void{
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/bajaPublicacion
+    public function bajaPublicacion(): void{
+        $dato = json_decode(file_get_contents("php://input"));
 
+        $id = $dato->id;
+
+        $this->controlador->bajaPublicacion($id);
+
+        http_response_code(201);
+        echo json_encode(["mensaje" => "Publicacion creada correctamente"]);
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/modificarPublicacion
     public function modificarPublicacion(): void{
+        $datos = json_decode(file_get_contents("php://input"));
+
+        $dtp = new DTPublicacion(
+            0,
+            $datos->titulo,
+            $datos->foto,
+            $datos->nombreCientifico,
+            $datos->areasHabitat,
+            $datos->dieta,
+            $datos->horasActivas,
+            null,
+            null,
+            null,
+            $datos->autor,
+            [],
+            $datos->seccion
+        );
+
+        $this->controlador->modificarPublicacion($dtp);
+
+        http_response_code(201);
+        echo json_encode(["mensaje" => "Publicacion creada correctamente"]);
 
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicaciones
     public function listarPublicaciones(): void{
+    $publicaciones = $this->controlador->listarPublicaciones();
+
+    $resultado = [];
+    foreach ($publicaciones as $dpu) {
+        $resultado[] = [
+            "id" => $dpu->getId(),
+            "seccion" => $dpu->getSeccion(),
+            "autor" => $dpu->getAutor(),
+            "titulo" => $dpu->getTitulo(),
+            "nombreCientifico" => $dpu->getNombreCientifico(),
+            "foto" => $dpu->getFoto(),
+            "areasHabitat" => $dpu->getAreasHabitat(),
+            "dieta" => $dpu->getDieta(),
+            "horasActivas" => $dpu->getHorasActivas(),
+            "estado" => $dpu->getEstado(),
+            "fechaCreacion" => $dpu->getFechaCreacion(),
+            "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion()
+        ];
+    }
+    
+    http_response_code(200);
+    echo json_encode($resultado);
 
     }
 
-    public function listadoPublicacionesPropias(int $id): void{
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionesPropias
+    public function listarPublicacionesPropias(): void{
+        $dato = json_decode(file_get_contents("php://input"));
 
+        $id = $dato->id;
+
+        $publicaciones = $this->controlador->listarPublicacionesPropias($id);
+
+        $resultado = [];
+        foreach ($publicaciones as $dpu) {
+            $resultado[] = [
+                "id" => $dpu->getId(),
+                "seccion" => $dpu->getSeccion(),
+                "autor" => $dpu->getAutor(),
+                "titulo" => $dpu->getTitulo(),
+                "nombreCientifico" => $dpu->getNombreCientifico(),
+                "foto" => $dpu->getFoto(),
+                "areasHabitat" => $dpu->getAreasHabitat(),
+                "dieta" => $dpu->getDieta(),
+                "horasActivas" => $dpu->getHorasActivas(),
+                "estado" => $dpu->getEstado(),
+                "fechaCreacion" => $dpu->getFechaCreacion(),
+                "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion()
+            ];
+        }
+        
+        http_response_code(200);
+        echo json_encode($resultado);
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/agregarCampoExtra
     public function agregarCampoExtra(): void{
         
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/eliminarCampoExtra
     public function eliminarCampoExtra(int $id): void{
         
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionFiltro
     public function listarPublicacionFiltro(string $filtro): void{
         
     }
