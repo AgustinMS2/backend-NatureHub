@@ -67,14 +67,21 @@ class PublicacionRepositorio {
     }
 
     return null;
-    
-}
+    }
 
-public function obtenerSiguienteId(): int {
+    public function obtenerSiguienteId(): int {
         $sql = "SELECT COALESCE(MAX(id_publicacion), 0) + 1 AS proximo_id FROM PUBLICACION";
         $resultado = $this->mysql->query($sql);
         $fila = $resultado->fetch_assoc();
         return $fila["proximo_id"];
     }
+
+    public function eliminarPublicacion(int $id): void {
+        $sql = "DELETE FROM PUBLICACION WHERE id_publicacion = ?";
+        $consulta = $this->mysql->prepare($sql);
+        $consulta->bind_param("i", $id);
+        $consulta->execute();
+    }
 }
+
 ?>

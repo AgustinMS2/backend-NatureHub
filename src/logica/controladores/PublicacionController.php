@@ -43,6 +43,12 @@ class PublicacionController implements IPublicacionController {
     public function bajaPublicacion(int $id): void{
         $repositorio = PublicacionRepositorio::getInstance();
 
+        $publicacion = $repositorio->obtenerPublicacionPorId($id);
+        if ($publicacion === null) {
+            throw new Exception("No existe una publicación con ese id");
+        }
+
+        $repositorio->eliminarPublicacion($id);
     }
 
     public function modificarPublicacion(DTPublicacion $dtp): void{
