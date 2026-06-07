@@ -38,7 +38,7 @@ class PublicacionRepositorio {
     }
 
     public function obtenerPublicacionId(int $id): ?Publicacion{
-        $sql = "SELECT * FROM PUBLICACION WHERE id = ?";
+        $sql = "SELECT * FROM PUBLICACION WHERE id_publicacion = ?";
         $consulta = $this->mysql->prepare($sql);
         $consulta->bind_param("i", $id);
         $consulta->execute();
@@ -49,22 +49,22 @@ class PublicacionRepositorio {
         if ($fila) {
             return new Publicacion(
                 $fila["id_publicacion"],
-                $fila["id_seccion"],
-                $fila["id_autor"],
                 $fila["titulo"],
-                $fila["nombre_cientifico"],
                 $fila["foto_url"],
-                $fila["areas_habitat"],
+                $fila["nombre_cientifico"],
+                json_decode($fila["areas_habitat"], true),
                 $fila["dieta"],
                 $fila["horas_activas"],
-                $fila["estado"],
+                EstadoPublicacion::from($fila["estado"]),
                 new DateTime($fila["fecha_creacion"]),
                 new DateTime($fila["fecha_modificacion"]),
+                $fila["id_autor"],
                 [],
-                [],
-                []
+                $fila["id_seccion"]
             );
         }
+
+        return null;
     }
 
     public function obtenerPublicacionTitulo(string $titulo): ?Publicacion{
@@ -79,20 +79,18 @@ class PublicacionRepositorio {
         if ($fila) {
             return new Publicacion(
                 $fila["id_publicacion"],
-                $fila["id_seccion"],
-                $fila["id_autor"],
                 $fila["titulo"],
-                $fila["nombre_cientifico"],
                 $fila["foto_url"],
-                $fila["areas_habitat"],
+                $fila["nombre_cientifico"],
+                json_decode($fila["areas_habitat"], true),
                 $fila["dieta"],
                 $fila["horas_activas"],
-                $fila["estado"],
+                EstadoPublicacion::from($fila["estado"]),
                 new DateTime($fila["fecha_creacion"]),
                 new DateTime($fila["fecha_modificacion"]),
+                $fila["id_autor"],
                 [],
-                [],
-                []
+                $fila["id_seccion"]
             );
     }
 
@@ -114,7 +112,8 @@ class PublicacionRepositorio {
         $areasHabitat = json_encode($publicacion->getAreasHabitat());
         $dieta = $publicacion->getDieta();
         $horasActivas = $publicacion->getHorasActivas();
-        $estado = 'PENDIENTE_REVISION';
+        //$estado = 'PENDIENTE_REVISION';
+        $estado= EstadoPublicacion::from('PENDIENTE_REVISION')->value;
         $fechaUltimaModificacion = $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s");
 
         $consulta->bind_param("iissssssssi", $seccion, $autor, $titulo, $nombreCientifico, $foto, $areasHabitat, $dieta, $horasActivas, $estado, $fechaUltimaModificacion, $id);
@@ -143,50 +142,48 @@ class PublicacionRepositorio {
         foreach ($resultado as $fila) {
             $publicaciones[] = new Publicacion(
                 $fila["id_publicacion"],
-                $fila["id_seccion"],
-                $fila["id_autor"],
                 $fila["titulo"],
-                $fila["nombre_cientifico"],
                 $fila["foto_url"],
-                $fila["areas_habitat"],
+                $fila["nombre_cientifico"],
+                json_decode($fila["areas_habitat"], true),
                 $fila["dieta"],
                 $fila["horas_activas"],
-                $fila["estado"],
+                EstadoPublicacion::from($fila["estado"]),
                 new DateTime($fila["fecha_creacion"]),
                 new DateTime($fila["fecha_modificacion"]),
+                $fila["id_autor"],
                 [],
-                [],
-                []
+                $fila["id_seccion"]
             );
         }
         return $publicaciones;
     }
 
     public function listarPublicacionesPropias(int $id): array {
-        $sql = "SELECT * FROM PUBLICACION WHERE id = ?";
-        $resultado = $this->mysql->prepare($sql);
+        $sql = "SELECT * FROM PUBLICACION WHERE id_autor = ?";
+        $consulta = $this->mysql->prepare($sql);
 
-        $resultado->bind_param("i", $id);
-        $resultado->execute();
+        $consulta->bind_param("i", $id);
+        $consulta->execute();
+
+        $resultado = $consulta->get_result();
 
         $publicaciones = [];
         foreach ($resultado as $fila) {
             $publicaciones[] = new Publicacion(
-                $fila["id_publicacion"],
-                $fila["id_seccion"],
-                $fila["id_autor"],
+                 $fila["id_publicacion"],
                 $fila["titulo"],
-                $fila["nombre_cientifico"],
                 $fila["foto_url"],
-                $fila["areas_habitat"],
+                $fila["nombre_cientifico"],
+                json_decode($fila["areas_habitat"], true),
                 $fila["dieta"],
                 $fila["horas_activas"],
-                $fila["estado"],
+                EstadoPublicacion::from($fila["estado"]),
                 new DateTime($fila["fecha_creacion"]),
                 new DateTime($fila["fecha_modificacion"]),
+                $fila["id_autor"],
                 [],
-                [],
-                []
+                $fila["id_seccion"]
             );
         }
         return $publicaciones;

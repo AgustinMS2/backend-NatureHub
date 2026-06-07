@@ -45,7 +45,7 @@ class PublicacionEndpoint {
         $this->controlador->bajaPublicacion($id);
 
         http_response_code(201);
-        echo json_encode(["mensaje" => "Publicacion creada correctamente"]);
+        echo json_encode(["mensaje" => "Publicacion eliminada correctamente"]);
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/modificarPublicacion
@@ -71,7 +71,7 @@ class PublicacionEndpoint {
         $this->controlador->modificarPublicacion($dtp);
 
         http_response_code(201);
-        echo json_encode(["mensaje" => "Publicacion creada correctamente"]);
+        echo json_encode(["mensaje" => "Publicacion modificada correctamente"]);
 
     }
 
@@ -83,17 +83,18 @@ class PublicacionEndpoint {
     foreach ($publicaciones as $dpu) {
         $resultado[] = [
             "id" => $dpu->getId(),
-            "seccion" => $dpu->getSeccion(),
-            "autor" => $dpu->getAutor(),
             "titulo" => $dpu->getTitulo(),
-            "nombreCientifico" => $dpu->getNombreCientifico(),
             "foto" => $dpu->getFoto(),
+            "nombreCientifico" => $dpu->getNombreCientifico(),
             "areasHabitat" => $dpu->getAreasHabitat(),
             "dieta" => $dpu->getDieta(),
             "horasActivas" => $dpu->getHorasActivas(),
             "estado" => $dpu->getEstado(),
             "fechaCreacion" => $dpu->getFechaCreacion(),
-            "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion()
+            "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
+            "autor" => $dpu->getAutor(),
+            [],
+            "seccion" => $dpu->getSeccion()
         ];
     }
     
@@ -114,17 +115,18 @@ class PublicacionEndpoint {
         foreach ($publicaciones as $dpu) {
             $resultado[] = [
                 "id" => $dpu->getId(),
-                "seccion" => $dpu->getSeccion(),
-                "autor" => $dpu->getAutor(),
-                "titulo" => $dpu->getTitulo(),
-                "nombreCientifico" => $dpu->getNombreCientifico(),
-                "foto" => $dpu->getFoto(),
-                "areasHabitat" => $dpu->getAreasHabitat(),
-                "dieta" => $dpu->getDieta(),
-                "horasActivas" => $dpu->getHorasActivas(),
-                "estado" => $dpu->getEstado(),
-                "fechaCreacion" => $dpu->getFechaCreacion(),
-                "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion()
+            "titulo" => $dpu->getTitulo(),
+            "foto" => $dpu->getFoto(),
+            "nombreCientifico" => $dpu->getNombreCientifico(),
+            "areasHabitat" => $dpu->getAreasHabitat(),
+            "dieta" => $dpu->getDieta(),
+            "horasActivas" => $dpu->getHorasActivas(),
+            "estado" => $dpu->getEstado(),
+            "fechaCreacion" => $dpu->getFechaCreacion(),
+            "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
+            "autor" => $dpu->getAutor(),
+            [],
+            "seccion" => $dpu->getSeccion()
             ];
         }
         

@@ -1,9 +1,8 @@
 <?php
-enum EstadoPublicacion {
-    case BORRADOR;
-    case PENDIENTE_REVISION;
-    case APROBADA;
-    case RECHAZADA;
-    case PUBLICADA;
+enum EstadoPublicacion: string {
+    case BORRADOR = 'BORRADOR';
+    case PENDIENTE_REVISION = 'PENDIENTE_REVISION';
+    case APROBADA = 'APROBADA';
+    case RECHAZADA = 'RECHAZADA';
 }
 ?>

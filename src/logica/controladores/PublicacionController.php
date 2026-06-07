@@ -43,7 +43,7 @@ class PublicacionController implements IPublicacionController {
     public function bajaPublicacion(int $id): void{
         $repositorio = PublicacionRepositorio::getInstance();
 
-        $publicacion = $repositorio->obtenerPublicacionPorId($id);
+        $publicacion = $repositorio->obtenerPublicacionId($id);
         if ($publicacion === null) {
             throw new Exception("No existe una publicación con ese id");
         }
@@ -63,7 +63,7 @@ class PublicacionController implements IPublicacionController {
         $fechaUltimaModificacion = new DateTime();
 
         $publicacion = new Publicacion(
-            0,
+            $publicacionExistente->getId(),
             $dtp->getTitulo(),
             $dtp->getFoto(),
             $dtp->getNombreCientifico(),
@@ -91,17 +91,18 @@ class PublicacionController implements IPublicacionController {
         foreach ($publicaciones as $publicacion) {
             $dtp = new DTPublicacion(
                 $publicacion->getId(),
-                $publicacion->getSeccion(),
-                $publicacion->getAutor(),
                 $publicacion->getTitulo(),
-                $publicacion->getNombreCientifico(),
                 $publicacion->getFoto(),
+                $publicacion->getNombreCientifico(),
                 $publicacion->getAreasHabitat(),
                 $publicacion->getDieta(),
                 $publicacion->getHorasActivas(),
-                $publicacion->getEstado(),
+                $publicacion->getEstado()->value,
                 $publicacion->getFechaCreacion()->format("Y-m-d H-i-s"),
-                $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s")
+                $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
+                $publicacion->getAutor(),
+                [],
+                $publicacion->getSeccion()
             );
             $resultado[] = $dtp;
         }
@@ -119,17 +120,18 @@ class PublicacionController implements IPublicacionController {
         foreach ($publicaciones as $publicacion) {
             $dtp = new DTPublicacion(
                 $publicacion->getId(),
-                $publicacion->getSeccion(),
-                $publicacion->getAutor(),
                 $publicacion->getTitulo(),
-                $publicacion->getNombreCientifico(),
                 $publicacion->getFoto(),
+                $publicacion->getNombreCientifico(),
                 $publicacion->getAreasHabitat(),
                 $publicacion->getDieta(),
                 $publicacion->getHorasActivas(),
-                $publicacion->getEstado(),
+                $publicacion->getEstado()->value,
                 $publicacion->getFechaCreacion()->format("Y-m-d H-i-s"),
-                $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s")
+                $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
+                $publicacion->getAutor(),
+                [],
+                $publicacion->getSeccion()
             );
             $resultado[] = $dtp;
         }

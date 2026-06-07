@@ -14,7 +14,7 @@
     protected ?string $fechaCreacion;
     protected ?string $fechaUltimaModificacion;
 
-    public function __construct(int $id, string $titulo, string $foto, string $nombreCientifico, array $areasHabitat, string $dieta, string $horasActivas, ?string $estado, ?DateTime $fechaCreacion, ?DateTime $fechaUltimaModificacion, int $autor, array $camposExtra, int $seccion) {
+    public function __construct(int $id, string $titulo, string $foto, string $nombreCientifico, array $areasHabitat, string $dieta, string $horasActivas, ?string $estado, ?string $fechaCreacion, ?string $fechaUltimaModificacion, int $autor, array $camposExtra, int $seccion) {
         $this->id = $id;
         $this->seccion = $seccion;
         $this->autor = $autor;

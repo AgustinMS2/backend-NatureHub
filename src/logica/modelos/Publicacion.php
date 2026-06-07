@@ -2,8 +2,8 @@
 
 class Publicacion {
     protected int $id;
-    protected int $seccion;
-    protected int $autor;
+    protected ?int $seccion;
+    protected ?int $autor;
     protected string $titulo;
     protected string $nombreCientifico;
     protected string $foto;
@@ -17,7 +17,7 @@ class Publicacion {
     protected array $moderaciones;
     protected array $reportes;
 
-    public function __construct(int $id, string $titulo, string $foto, string $nombreCientifico, array $areasHabitat, string $dieta, string $horasActivas, EstadoPublicacion $estado, DateTime $fechaCreacion, DateTime $fechaUltimaModificacion, int $autor, array $camposExtra, int $seccion) {
+    public function __construct(int $id, string $titulo, string $foto, string $nombreCientifico, array $areasHabitat, string $dieta, string $horasActivas, EstadoPublicacion $estado, DateTime $fechaCreacion, DateTime $fechaUltimaModificacion, ?int $autor, array $camposExtra, ?int $seccion) {
         $this->id = $id;
         $this->seccion = $seccion;
         $this->autor = $autor;
