@@ -27,20 +27,90 @@ class UsuarioController implements IUsuarioController {
         true,
         $fechaRegistro,
         [],
-        []
+        [],
+        $dtu->getSexo(),
+        $dtu->getFechaNacimiento(),
+        $dtu->getPais(),
+        $dtu->getBio()
     );
 
     $repositorio->agregarUsuario($usuario);
 }
 
+    public function altaModerador(DTUsuario $dtu): void {
+        $repositorio = UsuarioRepositorio::getInstance();
+
+        $usuarioExistente = $repositorio->obtenerUsuarioPorEmail($dtu->getEmail());
+        if ($usuarioExistente != null) {
+            throw new Exception("Ya existe un usuario con ese email");
+        }
+
+        $id = $repositorio->obtenerSiguienteId();
+        $passwordHash = password_hash($dtu->getPassword(), PASSWORD_DEFAULT);
+        $fechaRegistro = new DateTime();
+
+        $moderador = new Moderador(
+            $id,
+            $dtu->getNombre(),
+            $dtu->getApellido(),
+            $dtu->getEmail(),
+            $passwordHash,
+            true,
+            $fechaRegistro,
+            [],
+            []
+        );
+
+        $repositorio->agregarModerador($moderador);
+    }
+
     public function bajaUsuario(int $id): void{
         $repositorio = UsuarioRepositorio::getInstance();
 
+        $usuario = $repositorio->obtenerUsuarioPorId($id);
+        if ($usuario === null) {
+            throw new Exception("No existe un usuario con ese id");
+        }
+        if (!$usuario->getActivo()) {
+            throw new Exception("El usuario ya se encuentra dado de baja");
+        }
+
+        $repositorio->bajaUsuario($id);
     }
 
     public function modificarUsuario(DTUsuario $dtu): void{
         $repositorio = UsuarioRepositorio::getInstance();
 
+        $usuario = $repositorio->obtenerUsuarioPorId($dtu->getId());
+        if ($usuario === null) {
+            throw new Exception("No existe un usuario con ese id");
+        }
+        if (!$usuario->getActivo()) {
+            throw new Exception("El usuario se encuentra dado de baja");
+        }
+
+        $usuarioConEmail = $repositorio->obtenerUsuarioPorEmail($dtu->getEmail());
+        if ($usuarioConEmail !== null && $usuarioConEmail->getId() !== $dtu->getId()) {
+            throw new Exception("Ya existe un usuario con ese email");
+        }
+
+        $usuarioModificado = new Usuario(
+            $usuario->getId(),
+            $dtu->getNombre(),
+            $dtu->getApellido(),
+            $dtu->getEmail(),
+            $usuario->getPasswordHash(),
+            $usuario->getActivo(),
+            $usuario->getFechaRegistro(),
+            [],
+            [],
+            $dtu->getSexo(),
+            $dtu->getFechaNacimiento(),
+            $dtu->getPais(),
+            $dtu->getBio()
+        );
+
+        $repositorio->modificarUsuario($usuarioModificado);
     }
 
     public function listarUsuarios(): array {

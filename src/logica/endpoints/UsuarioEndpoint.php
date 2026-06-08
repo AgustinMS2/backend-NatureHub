@@ -19,7 +19,11 @@ class UsuarioEndpoint {
         $datos->email,
         $datos->password,
         null,
-        null
+        null,
+        $datos->sexo ?? null,
+        $datos->fechaNacimiento ?? null,
+        $datos->pais ?? null,
+        $datos->bio ?? null
     );
 
     $this->controlador->altaUsuario($dtu);
@@ -28,12 +32,68 @@ class UsuarioEndpoint {
     echo json_encode(["mensaje" => "Usuario creado correctamente"]);
 }
 
-    public function bajaUsuario(int $id): void {
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/altaModerador
+    public function altaModerador(): void {
+        $datos = json_decode(file_get_contents("php://input"));
 
+        $dtu = new DTUsuario(
+            null,
+            $datos->nombre,
+            $datos->apellido,
+            $datos->email,
+            $datos->password,
+            null,
+            null
+        );
+
+        try {
+            $this->controlador->altaModerador($dtu);
+            http_response_code(201);
+            echo json_encode(["mensaje" => "Moderador creado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
     }
 
-    public function modificarUsuario(): void {
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/bajaUsuario
+    public function bajaUsuario(): void {
+        $dato = json_decode(file_get_contents("php://input"));
 
+        $id = $dato->id;
+
+        try {
+            $this->controlador->bajaUsuario($id);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Usuario dado de baja correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/modificarUsuario
+    public function modificarUsuario(): void {
+        $datos = json_decode(file_get_contents("php://input"));
+
+        $dtu = new DTUsuario(
+            $datos->id,
+            $datos->nombre,
+            $datos->apellido,
+            $datos->email,
+            null,
+            null,
+            null
+        );
+
+        try {
+            $this->controlador->modificarUsuario($dtu);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Usuario modificado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
     }
 
     // http://localhost/backend-NatureHub/src/index.php/usuarios/listarUsuarios

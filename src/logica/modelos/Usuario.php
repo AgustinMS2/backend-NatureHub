@@ -8,11 +8,15 @@ class Usuario {
     protected string $passwordHash;
     protected bool $activo;
     protected DateTime $fechaRegistro;
+    protected ?string $sexo;
+    protected ?string $fechaNacimiento;
+    protected ?string $pais;
+    protected ?string $bio;
     protected Sesion $sesion;
     protected array $reportes;
     protected array $publicaciones;
 
-    public function __construct(int $id, string $nombre, string $apellido, string $email, string $passwordHash, bool $activo, DateTime $fechaRegistro, array $reportes, array $publicaciones) {
+    public function __construct(int $id, string $nombre, string $apellido, string $email, string $passwordHash, bool $activo, DateTime $fechaRegistro, array $reportes, array $publicaciones, ?string $sexo = null, ?string $fechaNacimiento = null, ?string $pais = null, ?string $bio = null) {
         $this->id = $id;
         $this->nombre = $nombre;
         $this->apellido = $apellido;
@@ -22,6 +26,10 @@ class Usuario {
         $this->fechaRegistro = $fechaRegistro;
         $this->reportes = $reportes;
         $this->publicaciones = $publicaciones;
+        $this->sexo = $sexo;
+        $this->fechaNacimiento = $fechaNacimiento;
+        $this->pais = $pais;
+        $this->bio = $bio;
     }
 
     public function getId(): int {
@@ -94,5 +102,33 @@ class Usuario {
         $this->publicaciones = $publicaciones;
     }
 
-}  
+    public function getSexo(): ?string {
+        return $this->sexo;
+    }
+    public function setSexo(?string $sexo): void {
+        $this->sexo = $sexo;
+    }
+
+    public function getFechaNacimiento(): ?string {
+        return $this->fechaNacimiento;
+    }
+    public function setFechaNacimiento(?string $fechaNacimiento): void {
+        $this->fechaNacimiento = $fechaNacimiento;
+    }
+
+    public function getPais(): ?string {
+        return $this->pais;
+    }
+    public function setPais(?string $pais): void {
+        $this->pais = $pais;
+    }
+
+    public function getBio(): ?string {
+        return $this->bio;
+    }
+    public function setBio(?string $bio): void {
+        $this->bio = $bio;
+    }
+
+}
 ?>

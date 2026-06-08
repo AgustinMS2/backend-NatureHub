@@ -8,8 +8,12 @@ class DTUsuario {
     private ?string $password;
     private ?bool $activo;
     private ?string $fechaRegistro;
+    private ?string $sexo;
+    private ?string $fechaNacimiento;
+    private ?string $pais;
+    private ?string $bio;
 
-    public function __construct(?int $id, ?string $nombre, ?string $apellido, ?string $email, ?string $password, ?bool $activo, ?string $fechaRegistro) {
+    public function __construct(?int $id, ?string $nombre, ?string $apellido, ?string $email, ?string $password, ?bool $activo, ?string $fechaRegistro, ?string $sexo = null, ?string $fechaNacimiento = null, ?string $pais = null, ?string $bio = null) {
         $this->id = $id;
         $this->nombre = $nombre;
         $this->apellido = $apellido;
@@ -17,6 +21,10 @@ class DTUsuario {
         $this->password = $password;
         $this->activo = $activo;
         $this->fechaRegistro = $fechaRegistro;
+        $this->sexo = $sexo;
+        $this->fechaNacimiento = $fechaNacimiento;
+        $this->pais = $pais;
+        $this->bio = $bio;
     }
 
     public function getId(): ?int {
@@ -66,6 +74,34 @@ class DTUsuario {
     }
     public function setFechaRegistro(?string $fechaRegistro): void {
         $this->fechaRegistro = $fechaRegistro;
+    }
+
+    public function getSexo(): ?string {
+        return $this->sexo;
+    }
+    public function setSexo(?string $sexo): void {
+        $this->sexo = $sexo;
+    }
+
+    public function getFechaNacimiento(): ?string {
+        return $this->fechaNacimiento;
+    }
+    public function setFechaNacimiento(?string $fechaNacimiento): void {
+        $this->fechaNacimiento = $fechaNacimiento;
+    }
+
+    public function getPais(): ?string {
+        return $this->pais;
+    }
+    public function setPais(?string $pais): void {
+        $this->pais = $pais;
+    }
+
+    public function getBio(): ?string {
+        return $this->bio;
+    }
+    public function setBio(?string $bio): void {
+        $this->bio = $bio;
     }
 
 }

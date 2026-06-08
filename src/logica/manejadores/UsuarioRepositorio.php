@@ -17,7 +17,7 @@ class UsuarioRepositorio {
     }
 
     public function agregarUsuario(Usuario $usuario): void {
-        $sql = "INSERT INTO USUARIO (id_usuario, nombre, apellido, email, password_hash, rol, activo, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO USUARIO (id_usuario, nombre, apellido, email, password_hash, rol, activo, fecha_registro, sexo, fecha_nacimiento, pais, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $consulta = $this->mysql->prepare($sql);
 
         $id = $usuario->getId();
@@ -28,8 +28,12 @@ class UsuarioRepositorio {
         $rol = "Usuario";
         $activo = $usuario->getActivo();
         $fechaRegistro = $usuario->getFechaRegistro()->format("Y-m-d H:i:s");
+        $sexo = $usuario->getSexo();
+        $fechaNacimiento = $usuario->getFechaNacimiento();
+        $pais = $usuario->getPais();
+        $bio = $usuario->getBio();
 
-        $consulta->bind_param("isssssss", $id, $nombre, $apellido, $email, $passwordHash, $rol, $activo, $fechaRegistro);
+        $consulta->bind_param("isssssssssss", $id, $nombre, $apellido, $email, $passwordHash, $rol, $activo, $fechaRegistro, $sexo, $fechaNacimiento, $pais, $bio);
         $consulta->execute();
     }
 
@@ -52,7 +56,11 @@ class UsuarioRepositorio {
                 $fila["activo"],
                 new DateTime($fila["fecha_registro"]),
                 [],
-                []
+                [],
+                $fila["sexo"] ?? null,
+                $fila["fecha_nacimiento"] ?? null,
+                $fila["pais"] ?? null,
+                $fila["bio"] ?? null
             ];
 
             return match($fila["rol"]) {
@@ -126,5 +134,83 @@ class UsuarioRepositorio {
         $consulta->bind_param("iss", $activa, $fechaFin, $token);
         $consulta->execute();
     }
+
+    public function obtenerUsuarioPorId(int $id): ?Usuario {
+        $sql = "SELECT * FROM USUARIO WHERE id_usuario = ?";
+        $consulta = $this->mysql->prepare($sql);
+        $consulta->bind_param("i", $id);
+        $consulta->execute();
+
+        $resultado = $consulta->get_result();
+        $fila = $resultado->fetch_assoc();
+
+        if ($fila) {
+            $args = [
+                $fila["id_usuario"],
+                $fila["nombre"],
+                $fila["apellido"],
+                $fila["email"],
+                $fila["password_hash"],
+                $fila["activo"],
+                new DateTime($fila["fecha_registro"]),
+                [],
+                [],
+                $fila["sexo"] ?? null,
+                $fila["fecha_nacimiento"] ?? null,
+                $fila["pais"] ?? null,
+                $fila["bio"] ?? null
+            ];
+
+            return match($fila["rol"]) {
+                "Administrador" => new Administrador(...$args),
+                "Moderador" => new Moderador(...$args),
+                "Usuario" => new Usuario(...$args)
+            };
+        }
+
+        return null;
+    }
+
+    public function bajaUsuario(int $id): void {
+        $sql = "UPDATE USUARIO SET activo = false WHERE id_usuario = ?";
+        $consulta = $this->mysql->prepare($sql);
+        $consulta->bind_param("i", $id);
+        $consulta->execute();
+    }
+
+    public function agregarModerador(Usuario $usuario): void {
+        $sql = "INSERT INTO USUARIO (id_usuario, nombre, apellido, email, password_hash, rol, activo, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $consulta = $this->mysql->prepare($sql);
+
+        $id = $usuario->getId();
+        $nombre = $usuario->getNombre();
+        $apellido = $usuario->getApellido();
+        $email = $usuario->getEmail();
+        $passwordHash = $usuario->getPasswordHash();
+        $rol = "Moderador";
+        $activo = $usuario->getActivo();
+        $fechaRegistro = $usuario->getFechaRegistro()->format("Y-m-d H:i:s");
+
+        $consulta->bind_param("isssssss", $id, $nombre, $apellido, $email, $passwordHash, $rol, $activo, $fechaRegistro);
+        $consulta->execute();
+    }
+
+    public function modificarUsuario(Usuario $usuario): void {
+        $sql = "UPDATE USUARIO SET nombre = ?, apellido = ?, email = ?, sexo = ?, fecha_nacimiento = ?, pais = ?, bio = ? WHERE id_usuario = ?";
+        $consulta = $this->mysql->prepare($sql);
+
+        $nombre = $usuario->getNombre();
+        $apellido = $usuario->getApellido();
+        $email = $usuario->getEmail();
+        $sexo = $usuario->getSexo();
+        $fechaNacimiento = $usuario->getFechaNacimiento();
+        $pais = $usuario->getPais();
+        $bio = $usuario->getBio();
+        $id = $usuario->getId();
+
+        $consulta->bind_param("ssssssi", $nombre, $apellido, $email, $sexo, $fechaNacimiento, $pais, $bio, $id);
+        $consulta->execute();
+    }
+
 }
 ?>
