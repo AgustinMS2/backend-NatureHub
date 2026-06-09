@@ -12,8 +12,9 @@ class DTUsuario {
     private ?string $fechaNacimiento;
     private ?string $pais;
     private ?string $bio;
+    private ?string $fotoUrl;
 
-    public function __construct(?int $id, ?string $nombre, ?string $apellido, ?string $email, ?string $password, ?bool $activo, ?string $fechaRegistro, ?string $sexo = null, ?string $fechaNacimiento = null, ?string $pais = null, ?string $bio = null) {
+    public function __construct(?int $id, ?string $nombre, ?string $apellido, ?string $email, ?string $password, ?bool $activo, ?string $fechaRegistro, ?string $sexo, ?string $fechaNacimiento, ?string $pais, ?string $bio, ?string $fotoUrl) {
         $this->id = $id;
         $this->nombre = $nombre;
         $this->apellido = $apellido;
@@ -25,6 +26,7 @@ class DTUsuario {
         $this->fechaNacimiento = $fechaNacimiento;
         $this->pais = $pais;
         $this->bio = $bio;
+        $this->fotoUrl = $fotoUrl;
     }
 
     public function getId(): ?int {
@@ -102,6 +104,13 @@ class DTUsuario {
     }
     public function setBio(?string $bio): void {
         $this->bio = $bio;
+    }
+
+    public function getFotoUrl(): ?string {
+        return $this->fotoUrl;
+    }
+    public function setFotoUrl(?string $fotoUrl): void {
+        $this->fotoUrl = $fotoUrl;
     }
 
 }

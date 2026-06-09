@@ -9,14 +9,15 @@ class Usuario {
     protected bool $activo;
     protected DateTime $fechaRegistro;
     protected ?string $sexo;
-    protected ?string $fechaNacimiento;
+    protected ?DateTime $fechaNacimiento;
     protected ?string $pais;
     protected ?string $bio;
+    protected ?string $fotoUrl;
     protected Sesion $sesion;
     protected array $reportes;
     protected array $publicaciones;
 
-    public function __construct(int $id, string $nombre, string $apellido, string $email, string $passwordHash, bool $activo, DateTime $fechaRegistro, array $reportes, array $publicaciones, ?string $sexo = null, ?string $fechaNacimiento = null, ?string $pais = null, ?string $bio = null) {
+    public function __construct(int $id, string $nombre, string $apellido, string $email, string $passwordHash, bool $activo, DateTime $fechaRegistro, array $reportes, array $publicaciones, ?string $sexo, ?DateTime $fechaNacimiento, ?string $pais, ?string $bio, ?string $fotoUrl) {
         $this->id = $id;
         $this->nombre = $nombre;
         $this->apellido = $apellido;
@@ -30,6 +31,7 @@ class Usuario {
         $this->fechaNacimiento = $fechaNacimiento;
         $this->pais = $pais;
         $this->bio = $bio;
+        $this->fotoUrl = $fotoUrl;
     }
 
     public function getId(): int {
@@ -109,10 +111,10 @@ class Usuario {
         $this->sexo = $sexo;
     }
 
-    public function getFechaNacimiento(): ?string {
+    public function getFechaNacimiento(): ?DateTime {
         return $this->fechaNacimiento;
     }
-    public function setFechaNacimiento(?string $fechaNacimiento): void {
+    public function setFechaNacimiento(?DateTime $fechaNacimiento): void {
         $this->fechaNacimiento = $fechaNacimiento;
     }
 
@@ -128,6 +130,13 @@ class Usuario {
     }
     public function setBio(?string $bio): void {
         $this->bio = $bio;
+    }
+
+    public function getFotoUrl(): ?string {
+        return $this->fotoUrl;
+    }
+    public function setFotoUrl(?string $fotoUrl): void {
+        $this->fotoUrl = $fotoUrl;
     }
 
 }

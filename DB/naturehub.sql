@@ -13,9 +13,28 @@ CREATE TABLE USUARIO (
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    rol ENUM('Usuario', 'Moderador', 'Administrador') NOT NULL,
     activo BOOLEAN NOT NULL,
     fecha_registro TIMESTAMP NOT NULL
+);
+
+CREATE TABLE PERFIL (
+    id_usuario INT PRIMARY KEY,
+    bio TEXT,
+    foto_url VARCHAR(500),
+    sexo VARCHAR(20),
+    fecha_nacimiento DATE,
+    pais VARCHAR(100),
+    FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario)
+);
+
+CREATE TABLE MODERADOR (
+    id_usuario INT PRIMARY KEY,
+    FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario)
+);
+
+CREATE TABLE ADMINISTRADOR (
+    id_usuario INT PRIMARY KEY,
+    FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario)
 );
 
 CREATE TABLE SESION (
@@ -62,7 +81,7 @@ CREATE TABLE MODERA (
     motivo_rechazo TEXT,
     fecha_revision TIMESTAMP NOT NULL,
     FOREIGN KEY (id_publicacion) REFERENCES PUBLICACION(id_publicacion),
-    FOREIGN KEY (id_moderador) REFERENCES USUARIO(id_usuario)
+    FOREIGN KEY (id_moderador) REFERENCES MODERADOR(id_usuario)
 );
 
 CREATE TABLE REPORTE (

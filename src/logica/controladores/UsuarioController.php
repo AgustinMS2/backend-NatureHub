@@ -7,37 +7,6 @@ class UsuarioController implements IUsuarioController {
     public function __construct() {}
 
     public function altaUsuario(DTUsuario $dtu): void {
-    $repositorio = UsuarioRepositorio::getInstance();
-
-    $usuarioExistente = $repositorio->obtenerUsuarioPorEmail($dtu->getEmail());
-    if ($usuarioExistente != null) {
-        throw new Exception("Ya existe un usuario con ese email");
-    }
-
-    $id = $repositorio->obtenerSiguienteId();
-    $passwordHash = password_hash($dtu->getPassword(), PASSWORD_DEFAULT);
-    $fechaRegistro = new DateTime();
-
-    $usuario = new Usuario(
-        $id,
-        $dtu->getNombre(),
-        $dtu->getApellido(),
-        $dtu->getEmail(),
-        $passwordHash,
-        true,
-        $fechaRegistro,
-        [],
-        [],
-        $dtu->getSexo(),
-        $dtu->getFechaNacimiento(),
-        $dtu->getPais(),
-        $dtu->getBio()
-    );
-
-    $repositorio->agregarUsuario($usuario);
-}
-
-    public function altaModerador(DTUsuario $dtu): void {
         $repositorio = UsuarioRepositorio::getInstance();
 
         $usuarioExistente = $repositorio->obtenerUsuarioPorEmail($dtu->getEmail());
@@ -48,8 +17,9 @@ class UsuarioController implements IUsuarioController {
         $id = $repositorio->obtenerSiguienteId();
         $passwordHash = password_hash($dtu->getPassword(), PASSWORD_DEFAULT);
         $fechaRegistro = new DateTime();
+        $fechaNac = $dtu->getFechaNacimiento() ? new DateTime($dtu->getFechaNacimiento()) : null;
 
-        $moderador = new Moderador(
+        $usuario = new Usuario(
             $id,
             $dtu->getNombre(),
             $dtu->getApellido(),
@@ -58,10 +28,15 @@ class UsuarioController implements IUsuarioController {
             true,
             $fechaRegistro,
             [],
-            []
+            [],
+            $dtu->getSexo(),
+            $fechaNac,
+            $dtu->getPais(),
+            $dtu->getBio(),
+            $dtu->getFotoUrl()
         );
 
-        $repositorio->agregarModerador($moderador);
+        $repositorio->agregarUsuario($usuario);
     }
 
     public function bajaUsuario(int $id): void{
@@ -94,6 +69,8 @@ class UsuarioController implements IUsuarioController {
             throw new Exception("Ya existe un usuario con ese email");
         }
 
+        $fechaNac = $dtu->getFechaNacimiento() ? new DateTime($dtu->getFechaNacimiento()) : null;
+
         $usuarioModificado = new Usuario(
             $usuario->getId(),
             $dtu->getNombre(),
@@ -105,34 +82,40 @@ class UsuarioController implements IUsuarioController {
             [],
             [],
             $dtu->getSexo(),
-            $dtu->getFechaNacimiento(),
+            $fechaNac,
             $dtu->getPais(),
-            $dtu->getBio()
+            $dtu->getBio(),
+            $dtu->getFotoUrl()
         );
 
         $repositorio->modificarUsuario($usuarioModificado);
     }
 
     public function listarUsuarios(): array {
-    $repositorio = UsuarioRepositorio::getInstance();
+        $repositorio = UsuarioRepositorio::getInstance();
 
-    $usuarios = $repositorio->listarUsuarios();
+        $usuarios = $repositorio->listarUsuarios();
 
-    $resultado = [];
-    foreach ($usuarios as $usuario) {
-        $dtu = new DTUsuario(
-            $usuario->getId(),
-            $usuario->getNombre(),
-            $usuario->getApellido(),
-            $usuario->getEmail(),
-            null,
-            $usuario->getActivo(),
-            $usuario->getFechaRegistro()->format("Y-m-d H:i:s")
-        );
-        $resultado[] = $dtu;
-    }
+        $resultado = [];
+        foreach ($usuarios as $usuario) {
+            $dtu = new DTUsuario(
+                $usuario->getId(),
+                $usuario->getNombre(),
+                $usuario->getApellido(),
+                $usuario->getEmail(),
+                null,
+                $usuario->getActivo(),
+                $usuario->getFechaRegistro()->format("Y-m-d H:i:s"),
+                $usuario->getSexo(),
+                $usuario->getFechaNacimiento()->format("Y-m-d H:i:s"),
+                $usuario->getPais(),
+                $usuario->getBio(),
+                $usuario->getFotoUrl()
+            );
+            $resultado[] = $dtu;
+        }
 
-    return $resultado;
+        return $resultado;
 }
 
     public function moderarUsuario(): void{
@@ -181,8 +164,13 @@ class UsuarioController implements IUsuarioController {
             $usuario->getApellido(),
             $usuario->getEmail(),
             null,
-            null,
-            null
+            $usuario->getActivo(),
+            $usuario->getFechaRegistro()->format("Y-m-d H:i:s"),
+            $usuario->getSexo(),
+            $usuario->getFechaNacimiento()->format("Y-m-d H:i:s"),
+            $usuario->getPais(),
+            $usuario->getBio(),
+            $usuario->getFotoUrl()
         ];
 
         $dtUsuario = match(true) {
@@ -211,6 +199,40 @@ class UsuarioController implements IUsuarioController {
 
         $repositorio->cerrarSesion($sesion);
     }
+
+    public function altaModerador(DTUsuario $dtu): void {
+        $repositorio = UsuarioRepositorio::getInstance();
+
+        $usuarioExistente = $repositorio->obtenerUsuarioPorEmail($dtu->getEmail());
+        if ($usuarioExistente != null) {
+            throw new Exception("Ya existe un usuario con ese email");
+        }
+
+        $id = $repositorio->obtenerSiguienteId();
+        $passwordHash = password_hash($dtu->getPassword(), PASSWORD_DEFAULT);
+        $fechaRegistro = new DateTime();
+
+        $moderador = new Moderador(
+            $id,
+            $dtu->getNombre(),
+            $dtu->getApellido(),
+            $dtu->getEmail(),
+            $passwordHash,
+            true,
+            $fechaRegistro,
+            [],
+            [],
+            $dtu->getSexo(),
+            $dtu->getFechaNacimiento(),
+            $dtu->getPais(),
+            $dtu->getBio(),
+            $dtu->getFotoUrl()
+
+        );
+
+        $repositorio->agregarModerador($moderador);
+    }
+    
 
 
 }

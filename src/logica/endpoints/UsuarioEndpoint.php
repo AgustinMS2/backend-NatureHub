@@ -10,32 +10,8 @@ class UsuarioEndpoint {
 
     // http://localhost/backend-NatureHub/src/index.php/usuarios/altaUsuario
     public function altaUsuario(): void {
-    $datos = json_decode(file_get_contents("php://input"));
-    
-    $dtu = new DTUsuario(
-        null,
-        $datos->nombre,
-        $datos->apellido,
-        $datos->email,
-        $datos->password,
-        null,
-        null,
-        $datos->sexo ?? null,
-        $datos->fechaNacimiento ?? null,
-        $datos->pais ?? null,
-        $datos->bio ?? null
-    );
-
-    $this->controlador->altaUsuario($dtu);
-    
-    http_response_code(201);
-    echo json_encode(["mensaje" => "Usuario creado correctamente"]);
-}
-
-    // http://localhost/backend-NatureHub/src/index.php/usuarios/altaModerador
-    public function altaModerador(): void {
         $datos = json_decode(file_get_contents("php://input"));
-
+        
         $dtu = new DTUsuario(
             null,
             $datos->nombre,
@@ -43,13 +19,19 @@ class UsuarioEndpoint {
             $datos->email,
             $datos->password,
             null,
-            null
+            null,
+            $datos->sexo ?? null,
+            $datos->fechaNacimiento ?? null,
+            $datos->pais ?? null,
+            $datos->bio ?? null,
+            $datos->fotoUrl ?? null
         );
 
+
         try {
-            $this->controlador->altaModerador($dtu);
+            $this->controlador->altaUsuario($dtu);
             http_response_code(201);
-            echo json_encode(["mensaje" => "Moderador creado correctamente"]);
+            echo json_encode(["mensaje" => "Usuario creado correctamente"]);
         } catch (Exception $e) {
             http_response_code(400);
             echo json_encode(["error" => $e->getMessage()]);
@@ -83,7 +65,12 @@ class UsuarioEndpoint {
             $datos->email,
             null,
             null,
-            null
+            null,
+            $datos->sexo ?? null,
+            $datos->fechaNacimiento ?? null,
+            $datos->pais ?? null,
+            $datos->bio ?? null,
+            $datos->fotoUrl ?? null
         );
 
         try {
@@ -98,24 +85,30 @@ class UsuarioEndpoint {
 
     // http://localhost/backend-NatureHub/src/index.php/usuarios/listarUsuarios
     public function listarUsuarios(): void {
-    $usuarios = $this->controlador->listarUsuarios();
-    
-    $resultado = [];
-    foreach ($usuarios as $dtu) {
-        $resultado[] = [
-            "id" => $dtu->getId(),
-            "nombre" => $dtu->getNombre(),
-            "apellido" => $dtu->getApellido(),
-            "email" => $dtu->getEmail(),
-            "activo" => $dtu->getActivo(),
-            "fechaRegistro" => $dtu->getFechaRegistro()
-        ];
-    }
-    
-    http_response_code(200);
-    echo json_encode($resultado);
+        $usuarios = $this->controlador->listarUsuarios();
+        
+        $resultado = [];
+        foreach ($usuarios as $dtu) {
+            $resultado[] = [
+                "id" => $dtu->getId(),
+                "nombre" => $dtu->getNombre(),
+                "apellido" => $dtu->getApellido(),
+                "email" => $dtu->getEmail(),
+                "activo" => $dtu->getActivo(),
+                "fechaRegistro" => $dtu->getFechaRegistro(),
+                "sexo" => $dtu->getSexo(),
+                "fechaNacimiento" => $dtu->getFechaNacimiento(),
+                "pais" => $dtu->getPais(),
+                "bio" => $dtu->getBio(),
+                "fotoUrl" => $dtu->getFotoUrl()
+            ];
+        }
+        
+        http_response_code(200);
+        echo json_encode($resultado);
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/moderarUsuario
     public function moderarUsuario(): void {
 
     }
@@ -124,30 +117,48 @@ class UsuarioEndpoint {
     public function iniciarSesion(): void {
         $datos = json_decode(file_get_contents("php://input"));
 
-        $dtu = new DTUsuario(
+        $dtu1 = new DTUsuario(
             null, 
             null, 
             null,
             $datos->email,
             $datos->password,
             null, 
-            null
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
         );
 
         try {
-            $resultado  = $this->controlador->iniciarSesion($dtu);
+            $resultado  = $this->controlador->iniciarSesion($dtu1);
             $dts = $resultado["sesion"];
-            $dtu = $resultado["usuario"];
+            $dtu2 = $resultado["usuario"];
+
+            $rol = match(true) {
+                $dtu2 instanceof DTAdministrador => "ADMINISTRADOR",
+                $dtu2 instanceof DTModerador => "MODERADOR",
+                default => "USUARIO"
+            };
 
             http_response_code(200);
             echo json_encode([
                 "token" => $dts->getToken(),
                 "activa" => $dts->getActiva(),
-                "idusuario" => $dtu->getId(),
-                "nombre" => $dtu->getNombre(),
-                "apellido" => $dtu->getApellido(),
-                "email" => $dtu->getEmail(),
-                "rol" => $dtu instanceof Administrador ? "ADMINISTRADOR" : ($dtu instanceof Moderador ? "MODERADOR" : "USUARIO")
+                "idusuario" => $dtu2->getId(),
+                "nombre" => $dtu2->getNombre(),
+                "apellido" => $dtu2->getApellido(),
+                "email" => $dtu2->getEmail(),
+                "fechaRegistro" => $dtu2->getFechaRegistro(),
+                "sexo" => $dtu2->getSexo(),
+                "fechaNacimiento" => $dtu2->getFechaNacimiento(),
+                "pais" => $dtu2->getPais(),
+                "bio" => $dtu2->getBio(),
+                "fotoUrl" => $dtu2->getFotoUrl(),
+                "rol" => $rol
             ]);
         } catch (Exception $e) {
             http_response_code(401);
@@ -163,6 +174,35 @@ class UsuarioEndpoint {
             $this->controlador->cerrarSesion($datos->token);
             http_response_code(200);
             echo json_encode(["mensaje" => "Sesión cerrada correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/altaModerador
+    public function altaModerador(): void {
+        $datos = json_decode(file_get_contents("php://input"));
+
+        $dtu = new DTUsuario(
+            null,
+            $datos->nombre,
+            $datos->apellido,
+            $datos->email,
+            $datos->password,
+            null,
+            null,
+            $datos->sexo ?? null,
+            $datos->fechaNacimiento ?? null,
+            $datos->pais ?? null,
+            $datos->bio ?? null,
+            $datos->fotoUrl ?? null
+        );
+
+        try {
+            $this->controlador->altaModerador($dtu);
+            http_response_code(201);
+            echo json_encode(["mensaje" => "Moderador creado correctamente"]);
         } catch (Exception $e) {
             http_response_code(400);
             echo json_encode(["error" => $e->getMessage()]);
