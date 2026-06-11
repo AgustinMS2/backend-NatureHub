@@ -103,11 +103,9 @@ class PublicacionEndpoint {
 
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionesPropias
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionesPropias?id=X
     public function listarPublicacionesPropias(): void{
-        $dato = json_decode(file_get_contents("php://input"));
-
-        $id = $dato->id;
+        $id = (int)($_GET['id'] ?? 0);
 
         $publicaciones = $this->controlador->listarPublicacionesPropias($id);
 
