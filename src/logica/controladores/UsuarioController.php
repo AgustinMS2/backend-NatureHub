@@ -4,33 +4,26 @@ include_once __DIR__ . "/../../logica/manejadores/UsuarioRepositorio.php";
 
 class UsuarioController implements IUsuarioController {
 
-    public function __construct() {}
-
     public function altaUsuario(DTUsuario $dtu): void {
-        $repositorio = UsuarioRepositorio::getInstance();
+        $this->validarDatosAlta($dtu);
 
-        $usuarioExistente = $repositorio->obtenerUsuarioPorEmail($dtu->getEmail());
-        if ($usuarioExistente != null) {
+        $repositorio = UsuarioRepositorio::getInstance();
+        if ($repositorio->obtenerUsuarioPorEmail($dtu->getEmail()) !== null) {
             throw new Exception("Ya existe un usuario con ese email");
         }
 
-        $id = $repositorio->obtenerSiguienteId();
-        $passwordHash = password_hash($dtu->getPassword(), PASSWORD_DEFAULT);
-        $fechaRegistro = new DateTime();
-        $fechaNac = $dtu->getFechaNacimiento() ? new DateTime($dtu->getFechaNacimiento()) : null;
-
         $usuario = new Usuario(
-            $id,
+            $repositorio->obtenerSiguienteId(),
             $dtu->getNombre(),
             $dtu->getApellido(),
             $dtu->getEmail(),
-            $passwordHash,
+            password_hash($dtu->getPassword(), PASSWORD_DEFAULT),
             true,
-            $fechaRegistro,
+            new DateTime(),
             [],
             [],
             $dtu->getSexo(),
-            $fechaNac,
+            $this->crearFecha($dtu->getFechaNacimiento()),
             $dtu->getPais(),
             $dtu->getBio(),
             $dtu->getFotoUrl()
@@ -39,9 +32,12 @@ class UsuarioController implements IUsuarioController {
         $repositorio->agregarUsuario($usuario);
     }
 
-    public function bajaUsuario(int $id): void{
-        $repositorio = UsuarioRepositorio::getInstance();
+    public function bajaUsuario(int $id): void {
+        if ($id <= 0) {
+            throw new Exception("Id de usuario invalido");
+        }
 
+        $repositorio = UsuarioRepositorio::getInstance();
         $usuario = $repositorio->obtenerUsuarioPorId($id);
         if ($usuario === null) {
             throw new Exception("No existe un usuario con ese id");
@@ -53,9 +49,13 @@ class UsuarioController implements IUsuarioController {
         $repositorio->bajaUsuario($id);
     }
 
-    public function modificarUsuario(DTUsuario $dtu): void{
-        $repositorio = UsuarioRepositorio::getInstance();
+    public function modificarUsuario(DTUsuario $dtu): void {
+        if (($dtu->getId() ?? 0) <= 0) {
+            throw new Exception("Id de usuario invalido");
+        }
+        $this->validarDatosBasicos($dtu);
 
+        $repositorio = UsuarioRepositorio::getInstance();
         $usuario = $repositorio->obtenerUsuarioPorId($dtu->getId());
         if ($usuario === null) {
             throw new Exception("No existe un usuario con ese id");
@@ -69,8 +69,6 @@ class UsuarioController implements IUsuarioController {
             throw new Exception("Ya existe un usuario con ese email");
         }
 
-        $fechaNac = $dtu->getFechaNacimiento() ? new DateTime($dtu->getFechaNacimiento()) : null;
-
         $usuarioModificado = new Usuario(
             $usuario->getId(),
             $dtu->getNombre(),
@@ -82,7 +80,7 @@ class UsuarioController implements IUsuarioController {
             [],
             [],
             $dtu->getSexo(),
-            $fechaNac,
+            $this->crearFecha($dtu->getFechaNacimiento()),
             $dtu->getPais(),
             $dtu->getBio(),
             $dtu->getFotoUrl()
@@ -92,57 +90,34 @@ class UsuarioController implements IUsuarioController {
     }
 
     public function listarUsuarios(): array {
-        $repositorio = UsuarioRepositorio::getInstance();
+        return array_map(
+            fn(Usuario $usuario): DTUsuario => $this->usuarioADTO($usuario),
+            UsuarioRepositorio::getInstance()->listarUsuarios()
+        );
+    }
 
-        $usuarios = $repositorio->listarUsuarios();
-
-        $resultado = [];
-        foreach ($usuarios as $usuario) {
-            $dtu = new DTUsuario(
-                $usuario->getId(),
-                $usuario->getNombre(),
-                $usuario->getApellido(),
-                $usuario->getEmail(),
-                null,
-                $usuario->getActivo(),
-                $usuario->getFechaRegistro()->format("Y-m-d H:i:s"),
-                $usuario->getSexo(),
-                $usuario->getFechaNacimiento()->format("Y-m-d H:i:s"),
-                $usuario->getPais(),
-                $usuario->getBio(),
-                $usuario->getFotoUrl()
-            );
-            $resultado[] = $dtu;
-        }
-
-        return $resultado;
-}
-
-    public function moderarUsuario(): void{
-        $repositorio = UsuarioRepositorio::getInstance();
-
+    public function moderarUsuario(): void {
     }
 
     public function iniciarSesion(DTUsuario $dtu): array {
-        $repositorio = UsuarioRepositorio::getInstance();
+        if (!$dtu->getEmail() || !$dtu->getPassword()) {
+            throw new Exception("Email y contraseña son obligatorios");
+        }
 
+        $repositorio = UsuarioRepositorio::getInstance();
         $usuario = $repositorio->obtenerUsuarioPorEmail($dtu->getEmail());
-        if ($usuario === null) {
-            throw new Exception("Email inválido");
+        if ($usuario === null || !$usuario->getActivo()) {
+            throw new Exception("Email invalido");
         }
         if (!password_verify($dtu->getPassword(), $usuario->getPasswordHash())) {
             throw new Exception("Contraseña incorrecta");
         }
 
-        $idSesion = $repositorio->obtenerSiguienteIdSesion();
-        $token = bin2hex(random_bytes(32));
-        $fechaInicio = new DateTime();
-
         $sesion = new Sesion(
-            $idSesion, 
-            $usuario, 
-            $token, 
-            $fechaInicio,
+            $repositorio->obtenerSiguienteIdSesion(),
+            $usuario,
+            bin2hex(random_bytes(32)),
+            new DateTime(),
             null,
             true
         );
@@ -150,14 +125,80 @@ class UsuarioController implements IUsuarioController {
         $repositorio->crearSesion($sesion);
 
         $dtSesion = new DTSesion(
-            null,
-            null,
-            $token,
-            null,
+            $sesion->getId(),
+            $usuario->getId(),
+            $sesion->getToken(),
+            $this->formatearFecha($sesion->getFechaInicio()),
             null,
             true
         );
 
+        return [
+            "sesion" => $dtSesion,
+            "usuario" => $this->usuarioADTO($usuario)
+        ];
+    }
+
+    public function cerrarSesion(string $token): void {
+        if (trim($token) === "") {
+            throw new Exception("Token obligatorio");
+        }
+
+        UsuarioRepositorio::getInstance()->cerrarSesion(new Sesion(
+            null,
+            null,
+            $token,
+            null,
+            new DateTime(),
+            false
+        ));
+    }
+
+    public function altaModerador(DTUsuario $dtu): void {
+        $this->validarDatosAlta($dtu);
+
+        $repositorio = UsuarioRepositorio::getInstance();
+        if ($repositorio->obtenerUsuarioPorEmail($dtu->getEmail()) !== null) {
+            throw new Exception("Ya existe un usuario con ese email");
+        }
+
+        $moderador = new Moderador(
+            $repositorio->obtenerSiguienteId(),
+            $dtu->getNombre(),
+            $dtu->getApellido(),
+            $dtu->getEmail(),
+            password_hash($dtu->getPassword(), PASSWORD_DEFAULT),
+            true,
+            new DateTime(),
+            [],
+            [],
+            $dtu->getSexo(),
+            $this->crearFecha($dtu->getFechaNacimiento()),
+            $dtu->getPais(),
+            $dtu->getBio(),
+            $dtu->getFotoUrl()
+        );
+
+        $repositorio->agregarModerador($moderador);
+    }
+
+    private function validarDatosAlta(DTUsuario $dtu): void {
+        $this->validarDatosBasicos($dtu);
+        if (!$dtu->getPassword() || strlen($dtu->getPassword()) < 6) {
+            throw new Exception("La contraseña debe tener al menos 6 caracteres");
+        }
+    }
+
+    private function validarDatosBasicos(DTUsuario $dtu): void {
+        if (!$dtu->getNombre() || !$dtu->getApellido()) {
+            throw new Exception("Nombre y apellido son obligatorios");
+        }
+        if (!$dtu->getEmail() || !filter_var($dtu->getEmail(), FILTER_VALIDATE_EMAIL)) {
+            throw new Exception("Email invalido");
+        }
+    }
+
+    private function usuarioADTO(Usuario $usuario): DTUsuario {
         $args = [
             $usuario->getId(),
             $usuario->getNombre(),
@@ -165,75 +206,30 @@ class UsuarioController implements IUsuarioController {
             $usuario->getEmail(),
             null,
             $usuario->getActivo(),
-            $usuario->getFechaRegistro()->format("Y-m-d H:i:s"),
+            $this->formatearFecha($usuario->getFechaRegistro()),
             $usuario->getSexo(),
-            $usuario->getFechaNacimiento()->format("Y-m-d H:i:s"),
+            $this->formatearFecha($usuario->getFechaNacimiento(), "Y-m-d"),
             $usuario->getPais(),
             $usuario->getBio(),
             $usuario->getFotoUrl()
         ];
 
-        $dtUsuario = match(true) {
+        return match (true) {
             $usuario instanceof Administrador => new DTAdministrador(...$args),
             $usuario instanceof Moderador => new DTModerador(...$args),
-            $usuario instanceof Usuario => new DTUsuario(...$args)
+            default => new DTUsuario(...$args)
         };
-
-        return ["sesion" => $dtSesion, "usuario" => $dtUsuario];
     }
 
-    public function cerrarSesion(string $token): void {
-        $repositorio = UsuarioRepositorio::getInstance();
-        
-        $fechaFin = new DateTime();
-        $activa = false;
-
-        $sesion = new Sesion(
-            null, 
-            null, 
-            $token, 
-            null, 
-            $fechaFin, 
-            $activa
-        );
-
-        $repositorio->cerrarSesion($sesion);
-    }
-
-    public function altaModerador(DTUsuario $dtu): void {
-        $repositorio = UsuarioRepositorio::getInstance();
-
-        $usuarioExistente = $repositorio->obtenerUsuarioPorEmail($dtu->getEmail());
-        if ($usuarioExistente != null) {
-            throw new Exception("Ya existe un usuario con ese email");
+    private function crearFecha(?string $fecha): ?DateTime {
+        if ($fecha === null || trim($fecha) === "") {
+            return null;
         }
 
-        $id = $repositorio->obtenerSiguienteId();
-        $passwordHash = password_hash($dtu->getPassword(), PASSWORD_DEFAULT);
-        $fechaRegistro = new DateTime();
-
-        $moderador = new Moderador(
-            $id,
-            $dtu->getNombre(),
-            $dtu->getApellido(),
-            $dtu->getEmail(),
-            $passwordHash,
-            true,
-            $fechaRegistro,
-            [],
-            [],
-            $dtu->getSexo(),
-            $dtu->getFechaNacimiento(),
-            $dtu->getPais(),
-            $dtu->getBio(),
-            $dtu->getFotoUrl()
-
-        );
-
-        $repositorio->agregarModerador($moderador);
+        return new DateTime($fecha);
     }
-    
 
-
+    private function formatearFecha(?DateTime $fecha, string $formato = "Y-m-d H:i:s"): ?string {
+        return $fecha?->format($formato);
+    }
 }
-?>

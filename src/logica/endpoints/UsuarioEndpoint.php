@@ -8,188 +8,140 @@ class UsuarioEndpoint {
         $this->controlador = Fabrica::getInstance()->getIUsuarioController();
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/usuarios/altaUsuario
     public function altaUsuario(): void {
-        $datos = json_decode(file_get_contents("php://input"));
-        
-        $dtu = new DTUsuario(
-            null,
-            $datos->nombre,
-            $datos->apellido,
-            $datos->email,
-            $datos->password,
-            null,
-            null,
-            $datos->sexo ?? null,
-            $datos->fechaNacimiento ?? null,
-            $datos->pais ?? null,
-            $datos->bio ?? null,
-            $datos->fotoUrl ?? null
-        );
-
-
         try {
+            $datos = $this->leerJson();
+            $dtu = $this->crearDTUsuario($datos, true);
+
             $this->controlador->altaUsuario($dtu);
-            http_response_code(201);
-            echo json_encode(["mensaje" => "Usuario creado correctamente"]);
-        } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode(["error" => $e->getMessage()]);
+            $this->responder(["mensaje" => "Usuario creado correctamente"], 201);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 400);
         }
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/usuarios/bajaUsuario
     public function bajaUsuario(): void {
-        $dato = json_decode(file_get_contents("php://input"));
-
-        $id = $dato->id;
-
         try {
-            $this->controlador->bajaUsuario($id);
-            http_response_code(200);
-            echo json_encode(["mensaje" => "Usuario dado de baja correctamente"]);
-        } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode(["error" => $e->getMessage()]);
+            $datos = $this->leerJson();
+            $this->controlador->bajaUsuario((int)($datos->id ?? 0));
+            $this->responder(["mensaje" => "Usuario dado de baja correctamente"]);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 400);
         }
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/usuarios/modificarUsuario
     public function modificarUsuario(): void {
-        $datos = json_decode(file_get_contents("php://input"));
-
-        $dtu = new DTUsuario(
-            $datos->id,
-            $datos->nombre,
-            $datos->apellido,
-            $datos->email,
-            null,
-            null,
-            null,
-            $datos->sexo ?? null,
-            $datos->fechaNacimiento ?? null,
-            $datos->pais ?? null,
-            $datos->bio ?? null,
-            $datos->fotoUrl ?? null
-        );
-
         try {
+            $datos = $this->leerJson();
+            $dtu = new DTUsuario(
+                (int)($datos->id ?? 0),
+                $datos->nombre ?? null,
+                $datos->apellido ?? null,
+                $datos->email ?? null,
+                null,
+                null,
+                null,
+                $datos->sexo ?? null,
+                $datos->fechaNacimiento ?? null,
+                $datos->pais ?? null,
+                $datos->bio ?? null,
+                $datos->fotoUrl ?? null
+            );
+
             $this->controlador->modificarUsuario($dtu);
-            http_response_code(200);
-            echo json_encode(["mensaje" => "Usuario modificado correctamente"]);
-        } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode(["error" => $e->getMessage()]);
+            $this->responder(["mensaje" => "Usuario modificado correctamente"]);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 400);
         }
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/usuarios/listarUsuarios
     public function listarUsuarios(): void {
-        $usuarios = $this->controlador->listarUsuarios();
-        
-        $resultado = [];
-        foreach ($usuarios as $dtu) {
-            $resultado[] = [
-                "id" => $dtu->getId(),
-                "nombre" => $dtu->getNombre(),
-                "apellido" => $dtu->getApellido(),
-                "email" => $dtu->getEmail(),
-                "activo" => $dtu->getActivo(),
-                "fechaRegistro" => $dtu->getFechaRegistro(),
-                "sexo" => $dtu->getSexo(),
-                "fechaNacimiento" => $dtu->getFechaNacimiento(),
-                "pais" => $dtu->getPais(),
-                "bio" => $dtu->getBio(),
-                "fotoUrl" => $dtu->getFotoUrl()
-            ];
+        try {
+            $usuarios = array_map(fn(DTUsuario $dtu): array => $this->usuarioAArray($dtu), $this->controlador->listarUsuarios());
+            $this->responder($usuarios);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 500);
         }
-        
-        http_response_code(200);
-        echo json_encode($resultado);
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/usuarios/moderarUsuario
     public function moderarUsuario(): void {
-
+        $this->responderError("Caso de uso no implementado", 501);
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/usuarios/iniciarSesion
     public function iniciarSesion(): void {
-        $datos = json_decode(file_get_contents("php://input"));
-
-        $dtu1 = new DTUsuario(
-            null, 
-            null, 
-            null,
-            $datos->email,
-            $datos->password,
-            null, 
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-        );
-
         try {
-            $resultado  = $this->controlador->iniciarSesion($dtu1);
+            $datos = $this->leerJson();
+            $dtu = new DTUsuario(
+                null,
+                null,
+                null,
+                $datos->email ?? null,
+                $datos->password ?? null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            );
+
+            $resultado = $this->controlador->iniciarSesion($dtu);
             $dts = $resultado["sesion"];
-            $dtu2 = $resultado["usuario"];
+            $dtu = $resultado["usuario"];
 
-            $rol = match(true) {
-                $dtu2 instanceof DTAdministrador => "ADMINISTRADOR",
-                $dtu2 instanceof DTModerador => "MODERADOR",
-                default => "USUARIO"
-            };
+            $respuesta = $this->usuarioAArray($dtu);
+            $respuesta["token"] = $dts->getToken();
+            $respuesta["activa"] = $dts->getActiva();
+            $respuesta["idusuario"] = $dtu->getId();
+            $respuesta["rol"] = $this->rolDesdeDTO($dtu);
 
-            http_response_code(200);
-            echo json_encode([
-                "token" => $dts->getToken(),
-                "activa" => $dts->getActiva(),
-                "idusuario" => $dtu2->getId(),
-                "nombre" => $dtu2->getNombre(),
-                "apellido" => $dtu2->getApellido(),
-                "email" => $dtu2->getEmail(),
-                "fechaRegistro" => $dtu2->getFechaRegistro(),
-                "sexo" => $dtu2->getSexo(),
-                "fechaNacimiento" => $dtu2->getFechaNacimiento(),
-                "pais" => $dtu2->getPais(),
-                "bio" => $dtu2->getBio(),
-                "fotoUrl" => $dtu2->getFotoUrl(),
-                "rol" => $rol
-            ]);
-        } catch (Exception $e) {
-            http_response_code(401);
-            echo json_encode(["error" => $e->getMessage()]);
+            $this->responder($respuesta);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 401);
         }
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/usuarios/cerrarSesion
     public function cerrarSesion(): void {
-        $datos = json_decode(file_get_contents("php://input"));
-
         try {
-            $this->controlador->cerrarSesion($datos->token);
-            http_response_code(200);
-            echo json_encode(["mensaje" => "Sesión cerrada correctamente"]);
-        } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode(["error" => $e->getMessage()]);
+            $datos = $this->leerJson();
+            $this->controlador->cerrarSesion((string)($datos->token ?? ""));
+            $this->responder(["mensaje" => "Sesion cerrada correctamente"]);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 400);
         }
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/usuarios/altaModerador
     public function altaModerador(): void {
-        $datos = json_decode(file_get_contents("php://input"));
+        try {
+            $datos = $this->leerJson();
+            $dtu = $this->crearDTUsuario($datos, true);
 
-        $dtu = new DTUsuario(
-            null,
-            $datos->nombre,
-            $datos->apellido,
-            $datos->email,
-            $datos->password,
+            $this->controlador->altaModerador($dtu);
+            $this->responder(["mensaje" => "Moderador creado correctamente"], 201);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 400);
+        }
+    }
+
+    private function leerJson(): object {
+        $raw = file_get_contents("php://input");
+        $datos = json_decode($raw ?: "{}");
+
+        if (!is_object($datos)) {
+            throw new InvalidArgumentException("El cuerpo debe ser JSON valido");
+        }
+
+        return $datos;
+    }
+
+    private function crearDTUsuario(object $datos, bool $incluyePassword): DTUsuario {
+        return new DTUsuario(
+            isset($datos->id) ? (int)$datos->id : null,
+            $datos->nombre ?? null,
+            $datos->apellido ?? null,
+            $datos->email ?? null,
+            $incluyePassword ? ($datos->password ?? null) : null,
             null,
             null,
             $datos->sexo ?? null,
@@ -198,15 +150,39 @@ class UsuarioEndpoint {
             $datos->bio ?? null,
             $datos->fotoUrl ?? null
         );
+    }
 
-        try {
-            $this->controlador->altaModerador($dtu);
-            http_response_code(201);
-            echo json_encode(["mensaje" => "Moderador creado correctamente"]);
-        } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode(["error" => $e->getMessage()]);
-        }
+    private function usuarioAArray(DTUsuario $dtu): array {
+        return [
+            "id" => $dtu->getId(),
+            "idusuario" => $dtu->getId(),
+            "nombre" => $dtu->getNombre(),
+            "apellido" => $dtu->getApellido(),
+            "email" => $dtu->getEmail(),
+            "activo" => $dtu->getActivo(),
+            "fechaRegistro" => $dtu->getFechaRegistro(),
+            "sexo" => $dtu->getSexo(),
+            "fechaNacimiento" => $dtu->getFechaNacimiento(),
+            "pais" => $dtu->getPais(),
+            "bio" => $dtu->getBio(),
+            "fotoUrl" => $dtu->getFotoUrl()
+        ];
+    }
+
+    private function rolDesdeDTO(DTUsuario $dtu): string {
+        return match (true) {
+            $dtu instanceof DTAdministrador => "ADMINISTRADOR",
+            $dtu instanceof DTModerador => "MODERADOR",
+            default => "USUARIO"
+        };
+    }
+
+    private function responder(mixed $datos, int $codigo = 200): void {
+        http_response_code($codigo);
+        echo json_encode($datos, JSON_UNESCAPED_UNICODE);
+    }
+
+    private function responderError(string $mensaje, int $codigo): void {
+        $this->responder(["error" => $mensaje], $codigo);
     }
 }
-?>

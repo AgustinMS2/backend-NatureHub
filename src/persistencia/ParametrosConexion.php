@@ -1,6 +1,5 @@
 <?php
 define("SERVIDOR", "localhost");
 define("USUARIO", "root");
-define("CONTRASEÑA", "");
+define("CONTRASENA", "");
 define("BASEDATOS", "naturehub");
-?>

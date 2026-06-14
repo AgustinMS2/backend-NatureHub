@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS naturehub;
+CREATE DATABASE IF NOT EXISTS naturehub CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE naturehub;
 
 CREATE TABLE SECCION (
@@ -6,6 +6,14 @@ CREATE TABLE SECCION (
     nombre VARCHAR(50) NOT NULL,
     descripcion TEXT
 );
+
+INSERT INTO SECCION (id_seccion, nombre, descripcion) VALUES
+(1, 'Mamíferos', 'Vertebrados de sangre caliente con pelo o pelaje y lactancia de sus crías'),
+(2, 'Aves', 'Vertebrados con plumas, bípedos, generalmente alados y de sangre caliente'),
+(3, 'Reptiles', 'Vertebrados ectotérmicos con escamas o placas óseas en la piel')
+ON DUPLICATE KEY UPDATE
+    nombre = VALUES(nombre),
+    descripcion = VALUES(descripcion);
 
 CREATE TABLE USUARIO (
     id_usuario INT PRIMARY KEY,

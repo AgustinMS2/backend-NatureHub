@@ -8,145 +8,194 @@ class PublicacionEndpoint {
         $this->controlador = Fabrica::getInstance()->getIPublicacionController();
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/publicaciones/altaPublicacion
-    public function altaPublicacion(): void{
-        $datos = json_decode(file_get_contents("php://input"));
+    public function altaPublicacion(): void {
+        try {
+            $datos = $this->leerJson();
+            $dtp = $this->crearDTPublicacion($datos);
 
-        //$d = [$datos->areasHabitat];
+            $this->controlador->altaPublicacion($dtp);
+            $this->responder(["mensaje" => "Publicacion creada correctamente"], 201);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 400);
+        }
+    }
 
-        $dtp = new DTPublicacion(
-            0,
-            $datos->titulo,
-            $datos->foto,
-            $datos->nombreCientifico,
-            $datos->areasHabitat,
-            $datos->dieta,
-            $datos->horasActivas,
+    public function bajaPublicacion(): void {
+        try {
+            $datos = $this->leerJson();
+            $this->controlador->bajaPublicacion((int)($datos->id ?? 0));
+            $this->responder(["mensaje" => "Publicacion eliminada correctamente"]);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 400);
+        }
+    }
+
+    public function modificarPublicacion(): void {
+        try {
+            $datos = $this->leerJson();
+            $dtp = $this->crearDTPublicacion($datos, (int)($datos->id ?? 0));
+
+            $this->controlador->modificarPublicacion($dtp);
+            $this->responder(["mensaje" => "Publicacion modificada correctamente"]);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 400);
+        }
+    }
+
+    public function listarPublicaciones(): void {
+        try {
+            $publicaciones = array_map(fn(DTPublicacion $dtp): array => $this->publicacionAArray($dtp), $this->controlador->listarPublicaciones());
+            $this->responder($publicaciones);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 500);
+        }
+    }
+
+    public function listarPublicacionesPropias(): void {
+        try {
+            $id = (int)($_GET["id"] ?? 0);
+            $publicaciones = array_map(fn(DTPublicacion $dtp): array => $this->publicacionAArray($dtp), $this->controlador->listarPublicacionesPropias($id));
+            $this->responder($publicaciones);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 400);
+        }
+    }
+
+    public function agregarCampoExtra(): void {
+        try {
+            $datos = $this->leerJson();
+            $campo = new DTCampoExtra(
+                null,
+                isset($datos->idPublicacion) ? (int)$datos->idPublicacion : (isset($datos->id_publicacion) ? (int)$datos->id_publicacion : null),
+                trim((string)($datos->etiqueta ?? "")),
+                (string)($datos->valor ?? ""),
+                (string)($datos->tipo ?? "TEXTO")
+            );
+
+            $this->controlador->agregarCampoExtra($campo);
+            $this->responder(["mensaje" => "Campo extra agregado correctamente"], 201);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 400);
+        }
+    }
+
+    public function eliminarCampoExtra(int $id): void {
+        try {
+            $this->controlador->eliminarCampoExtra($id);
+            $this->responder(["mensaje" => "Campo extra eliminado correctamente"]);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 400);
+        }
+    }
+
+    public function listarPublicacionFiltro(string $filtro): void {
+        try {
+            $publicaciones = array_map(fn(DTPublicacion $dtp): array => $this->publicacionAArray($dtp), $this->controlador->listarPublicacionFiltro($filtro));
+            $this->responder($publicaciones);
+        } catch (Throwable $e) {
+            $this->responderError($e->getMessage(), 400);
+        }
+    }
+
+    private function leerJson(): object {
+        $raw = file_get_contents("php://input");
+        $datos = json_decode($raw ?: "{}");
+
+        if (!is_object($datos)) {
+            throw new InvalidArgumentException("El cuerpo debe ser JSON valido");
+        }
+
+        return $datos;
+    }
+
+    private function crearDTPublicacion(object $datos, int $id = 0): DTPublicacion {
+        return new DTPublicacion(
+            $id,
+            trim((string)($datos->titulo ?? "")),
+            (string)($datos->foto ?? $datos->fotoUrl ?? ""),
+            trim((string)($datos->nombreCientifico ?? "")),
+            $this->normalizarAreas($datos->areasHabitat ?? []),
+            trim((string)($datos->dieta ?? "")),
+            trim((string)($datos->horasActivas ?? "")),
             null,
             null,
             null,
-            $datos->autor,
-            [],
-            $datos->seccion
+            (int)($datos->autor ?? 0),
+            $this->normalizarCamposExtra($datos->camposExtra ?? []),
+            (int)($datos->seccion ?? 0)
         );
-
-        $this->controlador->altaPublicacion($dtp);
-
-        http_response_code(201);
-        echo json_encode(["mensaje" => "Publicacion creada correctamente"]);
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/publicaciones/bajaPublicacion
-    public function bajaPublicacion(): void{
-        $dato = json_decode(file_get_contents("php://input"));
+    private function normalizarAreas(mixed $areas): array {
+        if (is_array($areas)) {
+            return array_values(array_filter(array_map(fn($area) => trim((string)$area), $areas)));
+        }
 
-        $id = $dato->id;
+        if (is_string($areas)) {
+            return array_values(array_filter(array_map("trim", explode(",", $areas))));
+        }
 
-        $this->controlador->bajaPublicacion($id);
-
-        http_response_code(201);
-        echo json_encode(["mensaje" => "Publicacion eliminada correctamente"]);
+        return [];
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/publicaciones/modificarPublicacion
-    public function modificarPublicacion(): void{
-        $datos = json_decode(file_get_contents("php://input"));
-
-        $dtp = new DTPublicacion(
-            0,
-            $datos->titulo,
-            $datos->foto,
-            $datos->nombreCientifico,
-            $datos->areasHabitat,
-            $datos->dieta,
-            $datos->horasActivas,
-            null,
-            null,
-            null,
-            $datos->autor,
-            [],
-            $datos->seccion
-        );
-
-        $this->controlador->modificarPublicacion($dtp);
-
-        http_response_code(201);
-        echo json_encode(["mensaje" => "Publicacion modificada correctamente"]);
-
-    }
-
-    // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicaciones
-    public function listarPublicaciones(): void{
-    $publicaciones = $this->controlador->listarPublicaciones();
-
-    $resultado = [];
-    foreach ($publicaciones as $dpu) {
-        $resultado[] = [
-            "id" => $dpu->getId(),
-            "titulo" => $dpu->getTitulo(),
-            "foto" => $dpu->getFoto(),
-            "nombreCientifico" => $dpu->getNombreCientifico(),
-            "areasHabitat" => $dpu->getAreasHabitat(),
-            "dieta" => $dpu->getDieta(),
-            "horasActivas" => $dpu->getHorasActivas(),
-            "estado" => $dpu->getEstado(),
-            "fechaCreacion" => $dpu->getFechaCreacion(),
-            "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
-            "autor" => $dpu->getAutor(),
-            [],
-            "seccion" => $dpu->getSeccion()
-        ];
-    }
-    
-    http_response_code(200);
-    echo json_encode($resultado);
-
-    }
-
-    // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionesPropias?id=X
-    public function listarPublicacionesPropias(): void{
-        $id = (int)($_GET['id'] ?? 0);
-
-        $publicaciones = $this->controlador->listarPublicacionesPropias($id);
+    private function normalizarCamposExtra(mixed $campos): array {
+        if (!is_array($campos)) {
+            return [];
+        }
 
         $resultado = [];
-        foreach ($publicaciones as $dpu) {
-            $resultado[] = [
-                "id" => $dpu->getId(),
-            "titulo" => $dpu->getTitulo(),
-            "foto" => $dpu->getFoto(),
-            "nombreCientifico" => $dpu->getNombreCientifico(),
-            "areasHabitat" => $dpu->getAreasHabitat(),
-            "dieta" => $dpu->getDieta(),
-            "horasActivas" => $dpu->getHorasActivas(),
-            "estado" => $dpu->getEstado(),
-            "fechaCreacion" => $dpu->getFechaCreacion(),
-            "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
-            "autor" => $dpu->getAutor(),
-            [],
-            "seccion" => $dpu->getSeccion()
-            ];
+        foreach ($campos as $campo) {
+            if (!is_object($campo)) {
+                continue;
+            }
+
+            $etiqueta = trim((string)($campo->etiqueta ?? ""));
+            if ($etiqueta === "") {
+                continue;
+            }
+
+            $resultado[] = new DTCampoExtra(
+                isset($campo->id) ? (int)$campo->id : null,
+                isset($campo->idPublicacion) ? (int)$campo->idPublicacion : null,
+                $etiqueta,
+                (string)($campo->valor ?? ""),
+                (string)($campo->tipo ?? "TEXTO")
+            );
         }
-        
-        http_response_code(200);
-        echo json_encode($resultado);
+
+        return $resultado;
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/publicaciones/agregarCampoExtra
-    public function agregarCampoExtra(): void{
-        
+    private function publicacionAArray(DTPublicacion $dtp): array {
+        return [
+            "id" => $dtp->getId(),
+            "titulo" => $dtp->getTitulo(),
+            "foto" => $dtp->getFoto(),
+            "nombreCientifico" => $dtp->getNombreCientifico(),
+            "areasHabitat" => $dtp->getAreasHabitat(),
+            "dieta" => $dtp->getDieta(),
+            "horasActivas" => $dtp->getHorasActivas(),
+            "estado" => $dtp->getEstado(),
+            "fechaCreacion" => $dtp->getFechaCreacion(),
+            "fechaUltimaModificacion" => $dtp->getFechaUltimaModificacion(),
+            "autor" => $dtp->getAutor(),
+            "seccion" => $dtp->getSeccion(),
+            "camposExtra" => array_map(fn(DTCampoExtra $campo): array => [
+                "id" => $campo->getId(),
+                "idPublicacion" => $campo->getIdPublicacion(),
+                "etiqueta" => $campo->getEtiqueta(),
+                "valor" => $campo->getValor(),
+                "tipo" => $campo->getTipo()
+            ], $dtp->getCamposExtra())
+        ];
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/publicaciones/eliminarCampoExtra
-    public function eliminarCampoExtra(int $id): void{
-        
+    private function responder(mixed $datos, int $codigo = 200): void {
+        http_response_code($codigo);
+        echo json_encode($datos, JSON_UNESCAPED_UNICODE);
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionFiltro
-    public function listarPublicacionFiltro(string $filtro): void{
-        
+    private function responderError(string $mensaje, int $codigo): void {
+        $this->responder(["error" => $mensaje], $codigo);
     }
-
 }
-
-?>
