@@ -24,7 +24,7 @@
         $this->titulo = $titulo;
         $this->nombreCientifico = $nombreCientifico;
         $this->foto = $foto;
-        $this->areasHabitat = $areasHabitat;
+        $this->areasHabitat = is_array($areasHabitat) ? $areasHabitat : [$areasHabitat];
         $this->dieta = $dieta;
         $this->horasActivas = $horasActivas;
         $this->estado = $estado;
