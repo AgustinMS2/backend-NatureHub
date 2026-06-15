@@ -30,7 +30,7 @@ match([$metodo, $ruta]) {
     ['POST', '/usuarios/altaUsuario'] => $usuarioEndpoint->altaUsuario(),
     ['POST', '/usuarios/altaModerador'] => $usuarioEndpoint->altaModerador(),
     ['DELETE','/usuarios/bajaUsuario'] => $usuarioEndpoint->bajaUsuario(),
-    ['PUT',  '/usuarios/modificarUsuario'] => $usuarioEndpoint->modificarUsuario(),
+    ['POST',  '/usuarios/modificarUsuario'] => $usuarioEndpoint->modificarUsuario(),
     ['GET',  '/usuarios/listarUsuarios'] => $usuarioEndpoint->listarUsuarios(),
     ['POST', '/usuarios/iniciarSesion'] => $usuarioEndpoint->iniciarSesion(),
     ['POST', '/usuarios/cerrarSesion'] => $usuarioEndpoint->cerrarSesion(),
