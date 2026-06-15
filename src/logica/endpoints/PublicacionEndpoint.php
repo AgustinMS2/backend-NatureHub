@@ -14,6 +14,9 @@ class PublicacionEndpoint {
 
         //$d = [$datos->areasHabitat];
 
+        //var_dump($datos);
+        //die();
+
         $dtp = new DTPublicacion(
             0,
             $datos->titulo,
@@ -138,12 +141,53 @@ class PublicacionEndpoint {
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/agregarCampoExtra
     public function agregarCampoExtra(): void{
-        
+        $datos = json_decode(file_get_contents("php://input"));
+
+        $dtc = new DTCampoExtra(
+            0,
+            $datos->idPublicacion,
+            $datos->etiqueta,
+            $datos->valor,
+            DTTipoCampo::from($datos->tipo)
+        );
+
+        $this->controlador->agregarCampoExtra($dtc);
+
+         http_response_code(201);
+        echo json_encode(["mensaje" => "Campo Extra agregado correctamente"]);
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/eliminarCampoExtra
-    public function eliminarCampoExtra(int $id): void{
+    public function eliminarCampoExtra(): void{
+
+        $dato = json_decode(file_get_contents("php://input"));
+
+        $idCampo = $dato->idCampo;
+
+        $this->controlador->eliminarCampoExtra($idCampo);
         
+        http_response_code(201);
+        echo json_encode(["mensaje" => "Campo Extra eliminado correctamente"]);
+        
+    }
+
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/modificarCampoExtra
+    public function modificarCampoExtra(): void{
+        $datos = json_decode(file_get_contents("php://input"));
+
+        var_dump($datos->id);
+        $dtc = new DTCampoExtra(
+            $datos->id,
+            $datos->idPublicacion,
+            $datos->etiqueta,
+            $datos->valor,
+            DTTipoCampo::from($datos->tipo)
+        );
+
+        $this->controlador->modificarCampoExtra($dtc);
+
+         http_response_code(201);
+        echo json_encode(["mensaje" => "Campo Extra modificado correctamente"]);
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionFiltro

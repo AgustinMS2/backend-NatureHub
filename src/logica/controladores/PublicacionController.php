@@ -146,12 +146,54 @@ class PublicacionController implements IPublicacionController {
         return $resultado;
     }
 
-    public function agregarCampoExtra(): void{
+    public function agregarCampoExtra(DTCampoExtra $dtc): void{
         $repositorio = PublicacionRepositorio::getInstance();
+
+        $campoExistente = $repositorio->verificarExistenciaCampoExtra($dtc->getIdPublicacion(), $dtc->getEtiqueta());
+        if($campoExistente != null){
+            throw new Exception("Ya existe este campo en esta publicación");
+        }
+
+        //var_dump($dtc->getTipo());
+        //var_dump($dtc->getTipo()->value);
+        $campoExtra = new CampoExtra(
+            $dtc->getIdPublicacion(),
+            $dtc->getEtiqueta(),
+            $dtc->getValor(),
+            TipoCampo::from($dtc->getTipo()->value)
+        );
+
+        $repositorio->agregarCampoExtra($campoExtra);
     }
 
-    public function eliminarCampoExtra(int $id): void{
+    public function eliminarCampoExtra(int $idCampo): void{
         $repositorio = PublicacionRepositorio::getInstance();
+
+        $campoExistente = $repositorio->verificarExistenciaCampoExtraId($idCampo);
+        if($campoExistente == null){
+            throw new Exception("No existe un campo con esta id");
+        }
+
+        $repositorio->eliminarCampoExtra($idCampo);
+    }
+
+    public function modificarCampoExtra(DTCampoExtra $dtc): void{
+        $repositorio = PublicacionRepositorio::getInstance();
+
+        $campoExistente = $repositorio->verificarExistenciaCampoExtraId($dtc->getId());
+        if($campoExistente == null){
+            throw new Exception("No existe este campo en esta publicación");
+        }
+
+        $campoExtra = new CampoExtra(
+            $dtc->getId(),
+            $dtc->getIdPublicacion(),
+            $dtc->getEtiqueta(),
+            $dtc->getValor(),
+            TipoCampo::from($dtc->getTipo()->value)
+        );
+
+        $repositorio->modificarCampoExtra($campoExtra);
     }
 
     public function listarPublicacionFiltro(string $filtro): void{

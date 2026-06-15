@@ -2,12 +2,14 @@
 
 class CampoExtra {
     private int $id;
+    private int $idPublicacion;
     private string $etiqueta;
     private string $valor;
     private TipoCampo $tipo;
 
-    public function __construct(int $id, string $etiqueta, TipoCampo $tipo, string $valor) {
+    public function __construct(int $id, int $idPublicacion, string $etiqueta, string $valor, TipoCampo $tipo) {
         $this->id = $id;
+        $this->idPublicacion = $idPublicacion;
         $this->etiqueta = $etiqueta;
         $this->tipo = $tipo;
         $this->valor = $valor;
@@ -18,6 +20,13 @@ class CampoExtra {
     }
     public function setId(int $id): void {
         $this->id = $id;
+    }
+
+    public function getIdPublicacion(): int {
+        return $this->idPublicacion;
+    }
+    public function setIdPublicacion(int $idPublicacion): void {
+        $this->idPublicacion = $idPublicacion;
     }
 
     public function getEtiqueta(): string {
