@@ -116,7 +116,7 @@ class Publicacion {
         return $this->camposExtra;
     }
     public function setCamposExtra(array $camposExtra): void {
-        $this->camposExtra = $camposExtra;
+        $this->camposExtra[] = $camposExtra;
     }
 
     public function getSeccion(): int {

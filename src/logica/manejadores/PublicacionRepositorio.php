@@ -17,250 +17,319 @@ class PublicacionRepositorio {
     }
 
     public function agregarPublicacion(Publicacion $publicacion): void {
-        try {
-            $this->mysql->begin_transaction();
+        $sql = "INSERT INTO PUBLICACION (id_publicacion, id_seccion, id_autor, titulo, nombre_cientifico, foto_url, areas_habitat, dieta, horas_activas, estado, fecha_creacion, fecha_modificacion, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+        $consulta = $this->mysql->prepare($sql);
 
-            $sql = "INSERT INTO PUBLICACION (id_publicacion, id_seccion, id_autor, titulo, nombre_cientifico, foto_url, areas_habitat, dieta, horas_activas, estado, fecha_creacion, fecha_modificacion)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $consulta = $this->mysql->prepare($sql);
+        $id = $publicacion->getId();
+        $seccion = $publicacion->getSeccion();
+        $autor = $publicacion->getAutor();
+        $titulo = $publicacion->getTitulo();
+        $nombreCientifico = $publicacion->getNombreCientifico();
+        $foto = $publicacion->getFoto();
+        $areasHabitat = json_encode($publicacion->getAreasHabitat());
+        $dieta = $publicacion->getDieta();
+        $horasActivas = $publicacion->getHorasActivas();
+        $estado = 'PENDIENTE_REVISION';
+        $fechaCreacion = $publicacion->getFechaCreacion()->format("Y-m-d H:i:s");
+        $fechaUltimaModificacion = $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s");
+        $activo = true;
 
-            $id = $publicacion->getId();
-            $seccion = $publicacion->getSeccion();
-            $autor = $publicacion->getAutor();
-            $titulo = $publicacion->getTitulo();
-            $nombreCientifico = $publicacion->getNombreCientifico();
-            $foto = $publicacion->getFoto();
-            $areasHabitat = json_encode($publicacion->getAreasHabitat(), JSON_UNESCAPED_UNICODE);
-            $dieta = $publicacion->getDieta();
-            $horasActivas = $publicacion->getHorasActivas();
-            $estado = $publicacion->getEstado()->value;
-            $fechaCreacion = $publicacion->getFechaCreacion()->format("Y-m-d H:i:s");
-            $fechaUltimaModificacion = $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s");
+        $consulta->bind_param("iiissssssssss", $id, $seccion, $autor, $titulo, $nombreCientifico, $foto, $areasHabitat, $dieta, $horasActivas, $estado, $fechaCreacion, $fechaUltimaModificacion, $activo);
+        $consulta->execute();
+        
+        $camposExtra = $publicacion->getCamposExtra();
 
-            $consulta->bind_param("iiisssssssss", $id, $seccion, $autor, $titulo, $nombreCientifico, $foto, $areasHabitat, $dieta, $horasActivas, $estado, $fechaCreacion, $fechaUltimaModificacion);
-            $consulta->execute();
+        $sqlCampo = "INSERT INTO CAMPO_EXTRA(id_publicacion, etiqueta, valor, tipo) VALUES (?, ?, ?, ?)";
 
-            foreach ($publicacion->getCamposExtra() as $campo) {
-                $this->agregarCampoExtraEnTransaccion($id, $campo);
-            }
+        $consultaCampo = $this->mysql->prepare($sqlCampo);
 
-            $this->mysql->commit();
-        } catch (Throwable $e) {
-            $this->mysql->rollback();
-            throw $e;
+        foreach ($camposExtra as $campo) {
+
+            $idPublicacion = $publicacion->getId();
+
+            $etiqueta = $campo->etiqueta;
+            $valor = $campo->valor;
+            $tipo = $campo->tipo;
+
+            $consultaCampo->bind_param("isss", $idPublicacion, $etiqueta, $valor, $tipo);
+
+            $consultaCampo->execute();
         }
     }
 
-    public function obtenerPublicacionId(int $id): ?Publicacion {
+    public function obtenerPublicacionId(int $id): ?Publicacion{
         $sql = "SELECT * FROM PUBLICACION WHERE id_publicacion = ?";
         $consulta = $this->mysql->prepare($sql);
         $consulta->bind_param("i", $id);
         $consulta->execute();
 
-        $fila = $consulta->get_result()->fetch_assoc();
-        return $fila ? $this->publicacionDesdeFila($fila) : null;
+        $resultado = $consulta->get_result();
+        $fila = $resultado->fetch_assoc();
+
+        if ($fila) {
+            return new Publicacion(
+                $fila["id_publicacion"],
+                $fila["titulo"],
+                $fila["foto_url"],
+                $fila["nombre_cientifico"],
+                json_decode($fila["areas_habitat"], true),
+                $fila["dieta"],
+                $fila["horas_activas"],
+                EstadoPublicacion::from($fila["estado"]),
+                new DateTime($fila["fecha_creacion"]),
+                new DateTime($fila["fecha_modificacion"]),
+                $fila["id_autor"],
+                [],
+                $fila["id_seccion"]
+            );
+        }
+
+        return null;
     }
 
-    public function obtenerPublicacionTitulo(string $titulo): ?Publicacion {
+    public function obtenerPublicacionTitulo(string $titulo): ?Publicacion{
         $sql = "SELECT * FROM PUBLICACION WHERE titulo = ?";
         $consulta = $this->mysql->prepare($sql);
         $consulta->bind_param("s", $titulo);
         $consulta->execute();
 
-        $fila = $consulta->get_result()->fetch_assoc();
-        return $fila ? $this->publicacionDesdeFila($fila) : null;
+        $resultado = $consulta->get_result();
+        $fila = $resultado->fetch_assoc();
+
+        if ($fila) {
+            return new Publicacion(
+                $fila["id_publicacion"],
+                $fila["titulo"],
+                $fila["foto_url"],
+                $fila["nombre_cientifico"],
+                json_decode($fila["areas_habitat"], true),
+                $fila["dieta"],
+                $fila["horas_activas"],
+                EstadoPublicacion::from($fila["estado"]),
+                new DateTime($fila["fecha_creacion"]),
+                new DateTime($fila["fecha_modificacion"]),
+                $fila["id_autor"],
+                [],
+                $fila["id_seccion"]
+            );
+    }
+
+    return null;
     }
 
     public function modificarPublicacion(Publicacion $publicacion): void {
-        try {
-            $this->mysql->begin_transaction();
+        //"UPDATE Proponente pro SET pro.eliminado = true, pro.fechaEliminacion = :fechaEliminacion WHERE pro.nickname = :nick"
+        //"INSERT INTO PUBLICACION (id_publicacion, id_seccion, id_autor, titulo, nombre_cientifico, foto_url, areas_habitat, dieta, horas_activas, estado, fecha_creacion, fecha_modificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+        $sql = "UPDATE PUBLICACION SET id_seccion = ?, id_autor = ?, titulo = ?, nombre_cientifico = ?, foto_url = ?, areas_habitat = ?, dieta = ?, horas_activas = ?, estado = ?, fecha_modificacion = ? WHERE id_publicacion = ?";
+        $consulta = $this->mysql->prepare($sql);
 
-            $sql = "UPDATE PUBLICACION
-                    SET id_seccion = ?, id_autor = ?, titulo = ?, nombre_cientifico = ?, foto_url = ?, areas_habitat = ?, dieta = ?, horas_activas = ?, estado = ?, fecha_modificacion = ?
-                    WHERE id_publicacion = ?";
-            $consulta = $this->mysql->prepare($sql);
+        $id = $publicacion->getId();
+        $seccion = $publicacion->getSeccion();
+        $autor = $publicacion->getAutor();
+        $titulo = $publicacion->getTitulo();
+        $nombreCientifico = $publicacion->getNombreCientifico();
+        $foto = $publicacion->getFoto();
+        $areasHabitat = json_encode($publicacion->getAreasHabitat());
+        $dieta = $publicacion->getDieta();
+        $horasActivas = $publicacion->getHorasActivas();
+        //$estado = 'PENDIENTE_REVISION';
+        $estado= EstadoPublicacion::from('PENDIENTE_REVISION')->value;
+        $fechaUltimaModificacion = $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s");
 
-            $id = $publicacion->getId();
-            $seccion = $publicacion->getSeccion();
-            $autor = $publicacion->getAutor();
-            $titulo = $publicacion->getTitulo();
-            $nombreCientifico = $publicacion->getNombreCientifico();
-            $foto = $publicacion->getFoto();
-            $areasHabitat = json_encode($publicacion->getAreasHabitat(), JSON_UNESCAPED_UNICODE);
-            $dieta = $publicacion->getDieta();
-            $horasActivas = $publicacion->getHorasActivas();
-            $estado = $publicacion->getEstado()->value;
-            $fechaUltimaModificacion = $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s");
-
-            $consulta->bind_param("iissssssssi", $seccion, $autor, $titulo, $nombreCientifico, $foto, $areasHabitat, $dieta, $horasActivas, $estado, $fechaUltimaModificacion, $id);
-            $consulta->execute();
-
-            $this->eliminarCamposExtraPorPublicacion($id);
-            foreach ($publicacion->getCamposExtra() as $campo) {
-                $this->agregarCampoExtraEnTransaccion($id, $campo);
-            }
-
-            $this->mysql->commit();
-        } catch (Throwable $e) {
-            $this->mysql->rollback();
-            throw $e;
-        }
+        $consulta->bind_param("iissssssssi", $seccion, $autor, $titulo, $nombreCientifico, $foto, $areasHabitat, $dieta, $horasActivas, $estado, $fechaUltimaModificacion, $id);
+        $consulta->execute();
     }
 
     public function obtenerSiguienteId(): int {
         $sql = "SELECT COALESCE(MAX(id_publicacion), 0) + 1 AS proximo_id FROM PUBLICACION";
-        $fila = $this->mysql->query($sql)->fetch_assoc();
-        return (int)$fila["proximo_id"];
+        $resultado = $this->mysql->query($sql);
+        $fila = $resultado->fetch_assoc();
+        return $fila["proximo_id"];
     }
 
     public function eliminarPublicacion(int $id): void {
-        try {
-            $this->mysql->begin_transaction();
-            $this->eliminarCamposExtraPorPublicacion($id);
-
-            $sql = "DELETE FROM PUBLICACION WHERE id_publicacion = ?";
-            $consulta = $this->mysql->prepare($sql);
-            $consulta->bind_param("i", $id);
-            $consulta->execute();
-
-            $this->mysql->commit();
-        } catch (Throwable $e) {
-            $this->mysql->rollback();
-            throw $e;
-        }
+        $sql = "UPDATE PUBLICACION SET activo = false WHERE id_publicacion = ?";
+        $consulta = $this->mysql->prepare($sql);
+        $consulta->bind_param("i", $id);
+        $consulta->execute();
     }
 
     public function listarPublicaciones(): array {
-        $resultado = $this->mysql->query("SELECT * FROM PUBLICACION ORDER BY fecha_creacion DESC");
+        $sql = "SELECT p.*, c.id_campo, c.etiqueta, c.valor, c.tipo FROM PUBLICACION p LEFT JOIN CAMPO_EXTRA c ON p.id_publicacion = c.id_publicacion WHERE p.activo = true ORDER BY p.id_publicacion";
+
+        $resultado = $this->mysql->query($sql);
 
         $publicaciones = [];
-        while ($fila = $resultado->fetch_assoc()) {
-            $publicaciones[] = $this->publicacionDesdeFila($fila);
+
+        foreach ($resultado as $fila) {
+
+            $idPublicacion = $fila["id_publicacion"];
+
+            if (!isset($publicaciones[$idPublicacion])) {
+
+                $publicaciones[$idPublicacion] = new Publicacion(
+                    $fila["id_publicacion"],
+                    $fila["titulo"],
+                    $fila["foto_url"],
+                    $fila["nombre_cientifico"],
+                    json_decode($fila["areas_habitat"], true),
+                    $fila["dieta"],
+                    $fila["horas_activas"],
+                    EstadoPublicacion::from($fila["estado"]),
+                    new DateTime($fila["fecha_creacion"]),
+                    new DateTime($fila["fecha_modificacion"]),
+                    $fila["id_autor"],
+                    [],
+                    $fila["id_seccion"]
+                );
+            }
+
+            if ($fila["id_campo"] !== null) {
+
+                $publicaciones[$idPublicacion]->setCamposExtra([
+                    "id" => $fila["id_campo"],
+                    "etiqueta" => $fila["etiqueta"],
+                    "valor" => $fila["valor"],
+                    "tipo" => $fila["tipo"]
+                ]);
+            }
         }
 
-        return $publicaciones;
+        return array_values($publicaciones);
     }
 
     public function listarPublicacionesPropias(int $id): array {
-        $sql = "SELECT * FROM PUBLICACION WHERE id_autor = ? ORDER BY fecha_creacion DESC";
+        $sql = "SELECT p.*, c.id_campo, c.etiqueta, c.valor, c.tipo FROM PUBLICACION p LEFT JOIN CAMPO_EXTRA c ON p.id_publicacion = c.id_publicacion WHERE p.activo = true AND id_autor = ? ORDER BY p.id_publicacion";
+        //$sql = "SELECT * FROM PUBLICACION WHERE id_autor = ?";
         $consulta = $this->mysql->prepare($sql);
+
         $consulta->bind_param("i", $id);
         $consulta->execute();
 
-        $publicaciones = [];
         $resultado = $consulta->get_result();
-        while ($fila = $resultado->fetch_assoc()) {
-            $publicaciones[] = $this->publicacionDesdeFila($fila);
-        }
-
-        return $publicaciones;
-    }
-
-    public function agregarCampoExtra(int $idPublicacion, CampoExtra $campo): void {
-        $this->agregarCampoExtraEnTransaccion($idPublicacion, $campo);
-    }
-
-    public function eliminarCampoExtra(int $id): void {
-        $sql = "DELETE FROM CAMPO_EXTRA WHERE id_campo = ?";
-        $consulta = $this->mysql->prepare($sql);
-        $consulta->bind_param("i", $id);
-        $consulta->execute();
-    }
-
-    public function listarPublicacionFiltro(string $filtro): array {
-        $like = "%" . $filtro . "%";
-        $sql = "SELECT * FROM PUBLICACION
-                WHERE titulo LIKE ? OR nombre_cientifico LIKE ? OR areas_habitat LIKE ?
-                ORDER BY fecha_creacion DESC";
-        $consulta = $this->mysql->prepare($sql);
-        $consulta->bind_param("sss", $like, $like, $like);
-        $consulta->execute();
 
         $publicaciones = [];
-        $resultado = $consulta->get_result();
-        while ($fila = $resultado->fetch_assoc()) {
-            $publicaciones[] = $this->publicacionDesdeFila($fila);
+
+        foreach ($resultado as $fila) {
+
+            $idPublicacion = $fila["id_publicacion"];
+
+            if (!isset($publicaciones[$idPublicacion])) {
+
+                $publicaciones[$idPublicacion] = new Publicacion(
+                    $fila["id_publicacion"],
+                    $fila["titulo"],
+                    $fila["foto_url"],
+                    $fila["nombre_cientifico"],
+                    json_decode($fila["areas_habitat"], true),
+                    $fila["dieta"],
+                    $fila["horas_activas"],
+                    EstadoPublicacion::from($fila["estado"]),
+                    new DateTime($fila["fecha_creacion"]),
+                    new DateTime($fila["fecha_modificacion"]),
+                    $fila["id_autor"],
+                    [],
+                    $fila["id_seccion"]
+                );
+            }
+
+            if ($fila["id_campo"] !== null) {
+
+                $publicaciones[$idPublicacion]->setCamposExtra([
+                    "id" => $fila["id_campo"],
+                    "etiqueta" => $fila["etiqueta"],
+                    "valor" => $fila["valor"],
+                    "tipo" => $fila["tipo"]
+                ]);
+            }
         }
 
-        return $publicaciones;
+        return array_values($publicaciones);
     }
 
-    private function publicacionDesdeFila(array $fila): Publicacion {
-        $id = (int)$fila["id_publicacion"];
+    public function verificarExistenciaCampoExtra(int $idPublicacion, string $etiqueta): ?CampoExtra{
+        $sql = "SELECT * FROM CAMPO_EXTRA WHERE id_publicacion = ? AND etiqueta = ?";
 
-        return new Publicacion(
-            $id,
-            $fila["titulo"],
-            $fila["foto_url"] ?? "",
-            $fila["nombre_cientifico"] ?? "",
-            $this->decodificarAreas($fila["areas_habitat"] ?? ""),
-            $fila["dieta"] ?? "",
-            $fila["horas_activas"] ?? "",
-            EstadoPublicacion::from($fila["estado"]),
-            new DateTime($fila["fecha_creacion"]),
-            new DateTime($fila["fecha_modificacion"]),
-            (int)$fila["id_autor"],
-            $this->listarCamposExtra($id),
-            (int)$fila["id_seccion"]
-        );
-    }
-
-    private function decodificarAreas(?string $areas): array {
-        if ($areas === null || trim($areas) === "") {
-            return [];
-        }
-
-        $json = json_decode($areas, true);
-        if (is_array($json)) {
-            return $json;
-        }
-
-        return [$areas];
-    }
-
-    private function listarCamposExtra(int $idPublicacion): array {
-        $sql = "SELECT * FROM CAMPO_EXTRA WHERE id_publicacion = ? ORDER BY id_campo";
         $consulta = $this->mysql->prepare($sql);
-        $consulta->bind_param("i", $idPublicacion);
+
+        $consulta->bind_param("is", $idPublicacion, $etiqueta);
         $consulta->execute();
 
-        $campos = [];
         $resultado = $consulta->get_result();
-        while ($fila = $resultado->fetch_assoc()) {
-            $campos[] = new CampoExtra(
-                (int)$fila["id_campo"],
+        $fila = $resultado->fetch_assoc();
+
+        if($fila){
+            return new CampoExtra(
+                $fila["id_campo"],
+                $fila["id_publicacion"],
                 $fila["etiqueta"],
-                TipoCampo::from($fila["tipo"]),
-                $fila["valor"] ?? ""
+                $fila["valor"],
+                TipoCampo::from($fila["tipo"])
             );
         }
 
-        return $campos;
+        return null;
     }
 
-    private function agregarCampoExtraEnTransaccion(int $idPublicacion, CampoExtra $campo): void {
-        $sql = "INSERT INTO CAMPO_EXTRA (id_campo, id_publicacion, etiqueta, valor, tipo) VALUES (?, ?, ?, ?, ?)";
+    public function verificarExistenciaCampoExtraId(int $idCampo): ?CampoExtra{
+        $sql = "SELECT * FROM CAMPO_EXTRA WHERE id_campo = ?";
+
         $consulta = $this->mysql->prepare($sql);
 
-        $idCampo = $this->obtenerSiguienteIdCampoExtra();
-        $etiqueta = $campo->getEtiqueta();
-        $valor = $campo->getValor();
-        $tipo = $campo->getTipo()->name;
+        $consulta->bind_param("i", $idCampo);
+        $consulta->execute();
 
-        $consulta->bind_param("iisss", $idCampo, $idPublicacion, $etiqueta, $valor, $tipo);
+        $resultado = $consulta->get_result();
+        $fila = $resultado->fetch_assoc();
+
+        if($fila){
+            return new CampoExtra(
+                $fila["id_campo"],
+                $fila["id_publicacion"],
+                $fila["etiqueta"],
+                $fila["valor"],
+                TipoCampo::from($fila["tipo"])
+            );
+        }
+
+        return null;
+    }
+
+    public function agregarCampoExtra(CampoExtra $campoExtra): void{
+        $sql = "INSERT INTO CAMPO_EXTRA (id_publicacion, etiqueta, valor, tipo) VALUES (?, ?, ?, ?)";
+
+        $consulta = $this->mysql->prepare($sql);
+
+        $idPublicacion = $campoExtra->getIdPublicacion();
+        $etiqueta = $campoExtra->getEtiqueta();
+        $valor = $campoExtra->getValor();
+        $tipo = $campoExtra->getTipo()->value;
+
+        $consulta->bind_param("isss", $idPublicacion, $etiqueta, $valor, $tipo);
         $consulta->execute();
     }
 
-    private function eliminarCamposExtraPorPublicacion(int $idPublicacion): void {
-        $sql = "DELETE FROM CAMPO_EXTRA WHERE id_publicacion = ?";
+    public function eliminarCampoExtra(int $idCampo): void{
+        $sql = "DELETE FROM CAMPO_EXTRA WHERE id_campo = ?";
         $consulta = $this->mysql->prepare($sql);
-        $consulta->bind_param("i", $idPublicacion);
+        $consulta->bind_param("i", $idCampo);
         $consulta->execute();
     }
 
-    private function obtenerSiguienteIdCampoExtra(): int {
-        $sql = "SELECT COALESCE(MAX(id_campo), 0) + 1 AS proximo_id FROM CAMPO_EXTRA";
-        $fila = $this->mysql->query($sql)->fetch_assoc();
-        return (int)$fila["proximo_id"];
+    public function modificarCampoExtra(CampoExtra $campoExtra): void{
+        $sql = "UPDATE CAMPO_EXTRA SET etiqueta = ?, valor = ?, tipo = ? WHERE id_campo = ?";
+
+        $consulta = $this->mysql->prepare($sql);
+
+        $etiqueta = $campoExtra->getEtiqueta();
+        $valor = $campoExtra->getValor();
+        $tipo = $campoExtra->getTipo()->value;
+        $idCampo = $campoExtra->getId();
+
+        $consulta->bind_param("sssi", $etiqueta, $valor, $tipo, $idCampo);
+        $consulta->execute();
+
     }
+
 }
+?>

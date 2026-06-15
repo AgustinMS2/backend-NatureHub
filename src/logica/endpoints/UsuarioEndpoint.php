@@ -8,140 +8,238 @@ class UsuarioEndpoint {
         $this->controlador = Fabrica::getInstance()->getIUsuarioController();
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/altaUsuario
     public function altaUsuario(): void {
-        try {
-            $datos = $this->leerJson();
-            $dtu = $this->crearDTUsuario($datos, true);
+        $datos = (object) $_POST;
 
+        $fotoUrl = $datos->fotoUrl ?? null;
+        if (!empty($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/../../uploads/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $file = $_FILES['foto'];
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = uniqid('profile_', true) . ($extension ? ".{$extension}" : '');
+            $destination = $uploadDir . $filename;
+
+            if (!move_uploaded_file($file['tmp_name'], $destination)) {
+                throw new Exception("No se pudo guardar la imagen de perfil.");
+            }
+
+            $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+            $fotoUrl = sprintf('%s://%s%s/uploads/%s', $scheme, $host, $path, $filename);
+        }
+        
+        $dtu = new DTUsuario(
+            null,
+            $datos->nombre,
+            $datos->apellido,
+            $datos->email,
+            $datos->password,
+            null,
+            null,
+            $datos->sexo ?? null,
+            $datos->fechaNacimiento ?? null,
+            $datos->pais ?? null,
+            $datos->bio ?? null,
+            $fotoUrl
+        );
+
+
+        try {
             $this->controlador->altaUsuario($dtu);
-            $this->responder(["mensaje" => "Usuario creado correctamente"], 201);
-        } catch (Throwable $e) {
-            $this->responderError($e->getMessage(), 400);
+            http_response_code(201);
+            echo json_encode(["mensaje" => "Usuario creado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
         }
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/bajaUsuario
     public function bajaUsuario(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        $id = $dato->id;
+
         try {
-            $datos = $this->leerJson();
-            $this->controlador->bajaUsuario((int)($datos->id ?? 0));
-            $this->responder(["mensaje" => "Usuario dado de baja correctamente"]);
-        } catch (Throwable $e) {
-            $this->responderError($e->getMessage(), 400);
+            $this->controlador->bajaUsuario($id);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Usuario dado de baja correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
         }
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/modificarUsuario
     public function modificarUsuario(): void {
-        try {
-            $datos = $this->leerJson();
-            $dtu = new DTUsuario(
-                (int)($datos->id ?? 0),
-                $datos->nombre ?? null,
-                $datos->apellido ?? null,
-                $datos->email ?? null,
-                null,
-                null,
-                null,
-                $datos->sexo ?? null,
-                $datos->fechaNacimiento ?? null,
-                $datos->pais ?? null,
-                $datos->bio ?? null,
-                $datos->fotoUrl ?? null
-            );
+        $datos = (object) $_POST;
+        $fotoUrl = $datos->fotoUrl ?? null;
+        if (!empty($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/../../uploads/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
 
+            $file = $_FILES['foto'];
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = uniqid('profile_', true) . ($extension ? ".{$extension}" : '');
+            $destination = $uploadDir . $filename;
+
+            if (!move_uploaded_file($file['tmp_name'], $destination)) {
+                throw new Exception("No se pudo guardar la imagen de perfil.");
+            }
+
+            $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+            $fotoUrl = sprintf('%s://%s%s/uploads/%s', $scheme, $host, $path, $filename);
+        }
+
+        $dtu = new DTUsuario(
+            $datos->id,
+            $datos->nombre,
+            $datos->apellido,
+            $datos->email,
+            null,
+            null,
+            null,
+            $datos->sexo ?? null,
+            $datos->fechaNacimiento ?? null,
+            $datos->pais ?? null,
+            $datos->bio ?? null,
+            $fotoUrl
+        );
+
+        try {
             $this->controlador->modificarUsuario($dtu);
-            $this->responder(["mensaje" => "Usuario modificado correctamente"]);
-        } catch (Throwable $e) {
-            $this->responderError($e->getMessage(), 400);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Usuario modificado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
         }
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/listarUsuarios
     public function listarUsuarios(): void {
-        try {
-            $usuarios = array_map(fn(DTUsuario $dtu): array => $this->usuarioAArray($dtu), $this->controlador->listarUsuarios());
-            $this->responder($usuarios);
-        } catch (Throwable $e) {
-            $this->responderError($e->getMessage(), 500);
+        $usuarios = $this->controlador->listarUsuarios();
+        
+        $resultado = [];
+        foreach ($usuarios as $dtu) {
+            $rol = match(true) {
+                $dtu instanceof DTAdministrador => "ADMINISTRADOR",
+                $dtu instanceof DTModerador => "MODERADOR",
+                default => "USUARIO"
+            };
+
+            $resultado[] = [
+                "id" => $dtu->getId(),
+                "nombre" => $dtu->getNombre(),
+                "apellido" => $dtu->getApellido(),
+                "email" => $dtu->getEmail(),
+                "activo" => $dtu->getActivo(),
+                "fechaRegistro" => $dtu->getFechaRegistro(),
+                "sexo" => $dtu->getSexo(),
+                "fechaNacimiento" => $dtu->getFechaNacimiento(),
+                "pais" => $dtu->getPais(),
+                "bio" => $dtu->getBio(),
+                "fotoUrl" => $dtu->getFotoUrl(),
+                "rol" => $rol
+            ];
         }
+        
+        http_response_code(200);
+        echo json_encode($resultado);
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/moderarUsuario
     public function moderarUsuario(): void {
-        $this->responderError("Caso de uso no implementado", 501);
+
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/iniciarSesion
     public function iniciarSesion(): void {
-        try {
-            $datos = $this->leerJson();
-            $dtu = new DTUsuario(
-                null,
-                null,
-                null,
-                $datos->email ?? null,
-                $datos->password ?? null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-            );
+        $datos = json_decode(file_get_contents("php://input"));
 
-            $resultado = $this->controlador->iniciarSesion($dtu);
+        $dtu1 = new DTUsuario(
+            null, 
+            null, 
+            null,
+            $datos->email,
+            $datos->password,
+            null, 
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+        );
+
+        try {
+            $resultado  = $this->controlador->iniciarSesion($dtu1);
             $dts = $resultado["sesion"];
-            $dtu = $resultado["usuario"];
+            $dtu2 = $resultado["usuario"];
 
-            $respuesta = $this->usuarioAArray($dtu);
-            $respuesta["token"] = $dts->getToken();
-            $respuesta["activa"] = $dts->getActiva();
-            $respuesta["idusuario"] = $dtu->getId();
-            $respuesta["rol"] = $this->rolDesdeDTO($dtu);
+            $rol = match(true) {
+                $dtu2 instanceof DTAdministrador => "ADMINISTRADOR",
+                $dtu2 instanceof DTModerador => "MODERADOR",
+                default => "USUARIO"
+            };
 
-            $this->responder($respuesta);
-        } catch (Throwable $e) {
-            $this->responderError($e->getMessage(), 401);
+            http_response_code(200);
+            echo json_encode([
+                "token" => $dts->getToken(),
+                "activa" => $dts->getActiva(),
+                "idusuario" => $dtu2->getId(),
+                "nombre" => $dtu2->getNombre(),
+                "apellido" => $dtu2->getApellido(),
+                "email" => $dtu2->getEmail(),
+                "fechaRegistro" => $dtu2->getFechaRegistro(),
+                "sexo" => $dtu2->getSexo(),
+                "fechaNacimiento" => $dtu2->getFechaNacimiento(),
+                "pais" => $dtu2->getPais(),
+                "bio" => $dtu2->getBio(),
+                "fotoUrl" => $dtu2->getFotoUrl(),
+                "rol" => $rol
+            ]);
+        } catch (Exception $e) {
+            http_response_code(401);
+            echo json_encode(["error" => $e->getMessage()]);
         }
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/cerrarSesion
     public function cerrarSesion(): void {
+        $datos = json_decode(file_get_contents("php://input"));
+
         try {
-            $datos = $this->leerJson();
-            $this->controlador->cerrarSesion((string)($datos->token ?? ""));
-            $this->responder(["mensaje" => "Sesion cerrada correctamente"]);
-        } catch (Throwable $e) {
-            $this->responderError($e->getMessage(), 400);
+            $this->controlador->cerrarSesion($datos->token);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Sesión cerrada correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
         }
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/altaModerador
     public function altaModerador(): void {
-        try {
-            $datos = $this->leerJson();
-            $dtu = $this->crearDTUsuario($datos, true);
+        $datos = json_decode(file_get_contents("php://input"));
 
-            $this->controlador->altaModerador($dtu);
-            $this->responder(["mensaje" => "Moderador creado correctamente"], 201);
-        } catch (Throwable $e) {
-            $this->responderError($e->getMessage(), 400);
-        }
-    }
-
-    private function leerJson(): object {
-        $raw = file_get_contents("php://input");
-        $datos = json_decode($raw ?: "{}");
-
-        if (!is_object($datos)) {
-            throw new InvalidArgumentException("El cuerpo debe ser JSON valido");
-        }
-
-        return $datos;
-    }
-
-    private function crearDTUsuario(object $datos, bool $incluyePassword): DTUsuario {
-        return new DTUsuario(
-            isset($datos->id) ? (int)$datos->id : null,
-            $datos->nombre ?? null,
-            $datos->apellido ?? null,
-            $datos->email ?? null,
-            $incluyePassword ? ($datos->password ?? null) : null,
+        $dtu = new DTUsuario(
+            null,
+            $datos->nombre,
+            $datos->apellido,
+            $datos->email,
+            $datos->password,
             null,
             null,
             $datos->sexo ?? null,
@@ -150,39 +248,72 @@ class UsuarioEndpoint {
             $datos->bio ?? null,
             $datos->fotoUrl ?? null
         );
+
+        try {
+            $this->controlador->altaModerador($dtu);
+            http_response_code(201);
+            echo json_encode(["mensaje" => "Moderador creado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
     }
 
-    private function usuarioAArray(DTUsuario $dtu): array {
-        return [
-            "id" => $dtu->getId(),
-            "idusuario" => $dtu->getId(),
-            "nombre" => $dtu->getNombre(),
-            "apellido" => $dtu->getApellido(),
-            "email" => $dtu->getEmail(),
-            "activo" => $dtu->getActivo(),
-            "fechaRegistro" => $dtu->getFechaRegistro(),
-            "sexo" => $dtu->getSexo(),
-            "fechaNacimiento" => $dtu->getFechaNacimiento(),
-            "pais" => $dtu->getPais(),
-            "bio" => $dtu->getBio(),
-            "fotoUrl" => $dtu->getFotoUrl()
-        ];
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/promoverUsuario
+    public function promoverUsuario(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try {
+            $this->controlador->promoverUsuario($dato->id);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Usuario ascendido a moderador correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
     }
 
-    private function rolDesdeDTO(DTUsuario $dtu): string {
-        return match (true) {
-            $dtu instanceof DTAdministrador => "ADMINISTRADOR",
-            $dtu instanceof DTModerador => "MODERADOR",
-            default => "USUARIO"
-        };
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/degradarModerador
+    public function degradarModerador(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try {
+            $this->controlador->degradarModerador($dato->id);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Moderador degradado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
     }
 
-    private function responder(mixed $datos, int $codigo = 200): void {
-        http_response_code($codigo);
-        echo json_encode($datos, JSON_UNESCAPED_UNICODE);
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/promoverModerador
+    public function promoverModerador(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try {
+            $this->controlador->promoverModerador($dato->id);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Moderador ascendido a administrador correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
     }
 
-    private function responderError(string $mensaje, int $codigo): void {
-        $this->responder(["error" => $mensaje], $codigo);
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/degradarAdministrador
+    public function degradarAdministrador(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try {
+            $this->controlador->degradarAdministrador($dato->id);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Administrador degradado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
     }
 }
+
+?>

@@ -4,4 +4,5 @@ enum TipoCampo: string {
     case BOOLEANO = 'BOOLEANO';
     case NUMERICO = 'NUMERICO';
     case FECHA = 'FECHA';
-}
+}   
+?>
