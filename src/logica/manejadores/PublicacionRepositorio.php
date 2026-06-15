@@ -17,7 +17,7 @@ class PublicacionRepositorio {
     }
 
     public function agregarPublicacion(Publicacion $publicacion): void {
-        $sql = "INSERT INTO PUBLICACION (id_publicacion, id_seccion, id_autor, titulo, nombre_cientifico, foto_url, areas_habitat, dieta, horas_activas, estado, fecha_creacion, fecha_modificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+        $sql = "INSERT INTO PUBLICACION (id_publicacion, id_seccion, id_autor, titulo, nombre_cientifico, foto_url, areas_habitat, dieta, horas_activas, estado, fecha_creacion, fecha_modificacion, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
         $consulta = $this->mysql->prepare($sql);
 
         $id = $publicacion->getId();
@@ -32,9 +32,29 @@ class PublicacionRepositorio {
         $estado = 'PENDIENTE_REVISION';
         $fechaCreacion = $publicacion->getFechaCreacion()->format("Y-m-d H:i:s");
         $fechaUltimaModificacion = $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s");
+        $activo = true;
 
-        $consulta->bind_param("iiisssssssss", $id, $seccion, $autor, $titulo, $nombreCientifico, $foto, $areasHabitat, $dieta, $horasActivas, $estado, $fechaCreacion, $fechaUltimaModificacion);
+        $consulta->bind_param("iiissssssssss", $id, $seccion, $autor, $titulo, $nombreCientifico, $foto, $areasHabitat, $dieta, $horasActivas, $estado, $fechaCreacion, $fechaUltimaModificacion, $activo);
         $consulta->execute();
+        
+        $camposExtra = $publicacion->getCamposExtra();
+
+        $sqlCampo = "INSERT INTO CAMPO_EXTRA(id_publicacion, etiqueta, valor, tipo) VALUES (?, ?, ?, ?)";
+
+        $consultaCampo = $this->mysql->prepare($sqlCampo);
+
+        foreach ($camposExtra as $campo) {
+
+            $idPublicacion = $publicacion->getId();
+
+            $etiqueta = $campo->etiqueta;
+            $valor = $campo->valor;
+            $tipo = $campo->tipo;
+
+            $consultaCampo->bind_param("isss", $idPublicacion, $etiqueta, $valor, $tipo);
+
+            $consultaCampo->execute();
+        }
     }
 
     public function obtenerPublicacionId(int $id): ?Publicacion{
@@ -128,39 +148,59 @@ class PublicacionRepositorio {
     }
 
     public function eliminarPublicacion(int $id): void {
-        $sql = "DELETE FROM PUBLICACION WHERE id_publicacion = ?";
+        $sql = "UPDATE PUBLICACION SET activo = false WHERE id_publicacion = ?";
         $consulta = $this->mysql->prepare($sql);
         $consulta->bind_param("i", $id);
         $consulta->execute();
     }
 
     public function listarPublicaciones(): array {
-        $sql = "SELECT * FROM PUBLICACION";
+        $sql = "SELECT p.*, c.id_campo, c.etiqueta, c.valor, c.tipo FROM PUBLICACION p LEFT JOIN CAMPO_EXTRA c ON p.id_publicacion = c.id_publicacion WHERE p.activo = true ORDER BY p.id_publicacion";
+
         $resultado = $this->mysql->query($sql);
 
         $publicaciones = [];
+
         foreach ($resultado as $fila) {
-            $publicaciones[] = new Publicacion(
-                $fila["id_publicacion"],
-                $fila["titulo"],
-                $fila["foto_url"],
-                $fila["nombre_cientifico"],
-                json_decode($fila["areas_habitat"], true),
-                $fila["dieta"],
-                $fila["horas_activas"],
-                EstadoPublicacion::from($fila["estado"]),
-                new DateTime($fila["fecha_creacion"]),
-                new DateTime($fila["fecha_modificacion"]),
-                $fila["id_autor"],
-                [],
-                $fila["id_seccion"]
-            );
+
+            $idPublicacion = $fila["id_publicacion"];
+
+            if (!isset($publicaciones[$idPublicacion])) {
+
+                $publicaciones[$idPublicacion] = new Publicacion(
+                    $fila["id_publicacion"],
+                    $fila["titulo"],
+                    $fila["foto_url"],
+                    $fila["nombre_cientifico"],
+                    json_decode($fila["areas_habitat"], true),
+                    $fila["dieta"],
+                    $fila["horas_activas"],
+                    EstadoPublicacion::from($fila["estado"]),
+                    new DateTime($fila["fecha_creacion"]),
+                    new DateTime($fila["fecha_modificacion"]),
+                    $fila["id_autor"],
+                    [],
+                    $fila["id_seccion"]
+                );
+            }
+
+            if ($fila["id_campo"] !== null) {
+
+                $publicaciones[$idPublicacion]->setCamposExtra([
+                    "id" => $fila["id_campo"],
+                    "etiqueta" => $fila["etiqueta"],
+                    "valor" => $fila["valor"],
+                    "tipo" => $fila["tipo"]
+                ]);
+            }
         }
-        return $publicaciones;
+
+        return array_values($publicaciones);
     }
 
     public function listarPublicacionesPropias(int $id): array {
-        $sql = "SELECT * FROM PUBLICACION WHERE id_autor = ?";
+        $sql = "SELECT p.*, c.id_campo, c.etiqueta, c.valor, c.tipo FROM PUBLICACION p LEFT JOIN CAMPO_EXTRA c ON p.id_publicacion = c.id_publicacion WHERE p.activo = true AND id_autor = ? ORDER BY p.id_publicacion";
+        //$sql = "SELECT * FROM PUBLICACION WHERE id_autor = ?";
         $consulta = $this->mysql->prepare($sql);
 
         $consulta->bind_param("i", $id);
@@ -169,24 +209,42 @@ class PublicacionRepositorio {
         $resultado = $consulta->get_result();
 
         $publicaciones = [];
+
         foreach ($resultado as $fila) {
-            $publicaciones[] = new Publicacion(
-                 $fila["id_publicacion"],
-                $fila["titulo"],
-                $fila["foto_url"],
-                $fila["nombre_cientifico"],
-                json_decode($fila["areas_habitat"], true),
-                $fila["dieta"],
-                $fila["horas_activas"],
-                EstadoPublicacion::from($fila["estado"]),
-                new DateTime($fila["fecha_creacion"]),
-                new DateTime($fila["fecha_modificacion"]),
-                $fila["id_autor"],
-                [],
-                $fila["id_seccion"]
-            );
+
+            $idPublicacion = $fila["id_publicacion"];
+
+            if (!isset($publicaciones[$idPublicacion])) {
+
+                $publicaciones[$idPublicacion] = new Publicacion(
+                    $fila["id_publicacion"],
+                    $fila["titulo"],
+                    $fila["foto_url"],
+                    $fila["nombre_cientifico"],
+                    json_decode($fila["areas_habitat"], true),
+                    $fila["dieta"],
+                    $fila["horas_activas"],
+                    EstadoPublicacion::from($fila["estado"]),
+                    new DateTime($fila["fecha_creacion"]),
+                    new DateTime($fila["fecha_modificacion"]),
+                    $fila["id_autor"],
+                    [],
+                    $fila["id_seccion"]
+                );
+            }
+
+            if ($fila["id_campo"] !== null) {
+
+                $publicaciones[$idPublicacion]->setCamposExtra([
+                    "id" => $fila["id_campo"],
+                    "etiqueta" => $fila["etiqueta"],
+                    "valor" => $fila["valor"],
+                    "tipo" => $fila["tipo"]
+                ]);
+            }
         }
-        return $publicaciones;
+
+        return array_values($publicaciones);
     }
 }
 ?>

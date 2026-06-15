@@ -13,20 +13,26 @@
     protected ?string $estado;
     protected ?string $fechaCreacion;
     protected ?string $fechaUltimaModificacion;
+    protected array $camposExtra;
+    protected array $moderaciones;
+    protected array $reportes;
 
-    public function __construct(int $id, string $titulo, string $foto, string $nombreCientifico, array $areasHabitat, string $dieta, string $horasActivas, ?string $estado, ?string $fechaCreacion, ?string $fechaUltimaModificacion, int $autor, array $camposExtra, int $seccion) {
+    public function __construct(int $id, string $titulo, string $foto, string $nombreCientifico, array $areasHabitat, string $dieta, string $horasActivas, ?string $estado, ?string $fechaCreacion, ?string $fechaUltimaModificacion, int $autor, array $camposExtra, int $seccion, array $moderaciones, array $reportes) {
         $this->id = $id;
         $this->seccion = $seccion;
         $this->autor = $autor;
         $this->titulo = $titulo;
         $this->nombreCientifico = $nombreCientifico;
         $this->foto = $foto;
-        $this->areasHabitat = $areasHabitat;
+        $this->areasHabitat = is_array($areasHabitat) ? $areasHabitat : [$areasHabitat];
         $this->dieta = $dieta;
         $this->horasActivas = $horasActivas;
         $this->estado = $estado;
         $this->fechaCreacion = $fechaCreacion;
         $this->fechaUltimaModificacion = $fechaUltimaModificacion;
+        $this->camposExtra = $camposExtra;
+        $this->moderaciones = $moderaciones;
+        $this->reportes = $reportes;
     }
 
     public function getId(): int {
@@ -109,8 +115,32 @@
     public function getFechaUltimaModificacion(): ?string {
         return $this->fechaUltimaModificacion;
     }
-    public function setFechaUltimaModificacion(?    string $fechaUltimaModificacion): void {
+    public function setFechaUltimaModificacion(?string $fechaUltimaModificacion): void {
         $this->fechaUltimaModificacion = $fechaUltimaModificacion;
+    }
+
+    public function getCamposExtra(): array{
+        return $this->camposExtra;
+    }
+
+    public function setCamposExtra(array $camposExtra): void {
+        $this->camposExtra[] = $camposExtra;
+    }
+
+    public function getModeraciones(): array{
+        return $this->moderaciones;
+    }
+
+    public function setModeraciones(array $moderaciones): void{
+        $this->moderaciones[] = $moderaciones;
+    }
+
+    public function getReportes(): array{
+        return $this->reportes;
+    }
+
+    public function setReportes(array $reportes): void{
+        $this->reportes[] = $reportes;
     }
     
  }

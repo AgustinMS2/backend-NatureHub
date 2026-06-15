@@ -7,6 +7,11 @@ CREATE TABLE SECCION (
     descripcion TEXT
 );
 
+INSERT INTO SECCION VALUES
+(1, 'Mamíferos', 'Vertebrados de sangre caliente con pelo o pelaje y lactancia de sus crías'),
+(2, 'Aves', 'Vertebrados con plumas, bípedos, generalmente alados y de sangre caliente'),
+(3, 'Reptiles', 'Vertebrados ectotérmicos con escamas o placas óseas en la piel');
+
 CREATE TABLE USUARIO (
     id_usuario INT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -16,6 +21,10 @@ CREATE TABLE USUARIO (
     activo BOOLEAN NOT NULL,
     fecha_registro TIMESTAMP NOT NULL
 );
+
+INSERT INTO USUARIO VALUES
+(1, 'Juan', 'Pérez', 'juan@example.com', 'password_hash', 1, NOW()),
+(2, 'María', 'García', 'maria@example.com', 'password_hash', 1, NOW());
 
 CREATE TABLE PERFIL (
     id_usuario INT PRIMARY KEY,
@@ -60,12 +69,13 @@ CREATE TABLE PUBLICACION (
     estado ENUM('BORRADOR', 'PENDIENTE_REVISION', 'APROBADA', 'RECHAZADA', 'PUBLICADA') NOT NULL,
     fecha_creacion TIMESTAMP NOT NULL,
     fecha_modificacion TIMESTAMP NOT NULL,
+    activo BOOLEAN NOT NULL,
     FOREIGN KEY (id_seccion) REFERENCES SECCION(id_seccion),
     FOREIGN KEY (id_autor) REFERENCES USUARIO(id_usuario)
 );
 
 CREATE TABLE CAMPO_EXTRA (
-    id_campo INT PRIMARY KEY,
+    id_campo INT AUTO_INCREMENT PRIMARY KEY,
     id_publicacion INT NOT NULL,
     etiqueta VARCHAR(100) NOT NULL,
     valor TEXT,
