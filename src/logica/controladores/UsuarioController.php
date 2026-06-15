@@ -92,30 +92,36 @@ class UsuarioController implements IUsuarioController {
     }
 
     public function listarUsuarios(): array {
-        $repositorio = UsuarioRepositorio::getInstance();
+    $repositorio = UsuarioRepositorio::getInstance();
+    $usuarios = $repositorio->listarUsuarios();
 
-        $usuarios = $repositorio->listarUsuarios();
+    $resultado = [];
+    foreach ($usuarios as $usuario) {
+        $args = [
+            $usuario->getId(),
+            $usuario->getNombre(),
+            $usuario->getApellido(),
+            $usuario->getEmail(),
+            null,
+            $usuario->getActivo(),
+            $usuario->getFechaRegistro() ? $usuario->getFechaRegistro()->format("Y-m-d H:i:s") : null,
+            $usuario->getSexo(),
+            $usuario->getFechaNacimiento() ? $usuario->getFechaNacimiento()->format("Y-m-d H:i:s") : null,
+            $usuario->getPais(),
+            $usuario->getBio(),
+            $usuario->getFotoUrl()
+        ];
 
-        $resultado = [];
-        foreach ($usuarios as $usuario) {
-            $dtu = new DTUsuario(
-                $usuario->getId(),
-                $usuario->getNombre(),
-                $usuario->getApellido(),
-                $usuario->getEmail(),
-                null,
-                $usuario->getActivo(),
-                $usuario->getFechaRegistro()->format("Y-m-d H:i:s"),
-                $usuario->getSexo(),
-                $usuario->getFechaNacimiento() ? $usuario->getFechaNacimiento()->format("Y-m-d H:i:s") : null,
-                $usuario->getPais(),
-                $usuario->getBio(),
-                $usuario->getFotoUrl()
-            );
-            $resultado[] = $dtu;
-        }
+        $dtu = match(true) {
+            $usuario instanceof Administrador => new DTAdministrador(...$args),
+            $usuario instanceof Moderador => new DTModerador(...$args),
+            default => new DTUsuario(...$args)
+        };
 
-        return $resultado;
+        $resultado[] = $dtu;
+    }
+
+    return $resultado;
 }
 
     public function moderarUsuario(): void{
@@ -203,39 +209,61 @@ class UsuarioController implements IUsuarioController {
         $repositorio->cerrarSesion($sesion);
     }
 
-    public function altaModerador(DTUsuario $dtu): void {
+    public function promoverUsuario(int $id): void {
         $repositorio = UsuarioRepositorio::getInstance();
 
-        $usuarioExistente = $repositorio->obtenerUsuarioPorEmail($dtu->getEmail());
-        if ($usuarioExistente != null) {
-            throw new Exception("Ya existe un usuario con ese email");
+        $usuario = $repositorio->obtenerUsuarioPorId($id);
+        if ($usuario === null) {
+            throw new Exception("No existe un usuario con ese id");
+        }
+        if (!($usuario instanceof Usuario)) {
+            throw new Exception("El usuario ya es moderador o administrador");
         }
 
-        $id = $repositorio->obtenerSiguienteId();
-        $passwordHash = password_hash($dtu->getPassword(), PASSWORD_DEFAULT);
-        $fechaRegistro = new DateTime();
-
-        $moderador = new Moderador(
-            $id,
-            $dtu->getNombre(),
-            $dtu->getApellido(),
-            $dtu->getEmail(),
-            $passwordHash,
-            true,
-            $fechaRegistro,
-            [],
-            [],
-            $dtu->getSexo(),
-            $dtu->getFechaNacimiento(),
-            $dtu->getPais(),
-            $dtu->getBio(),
-            $dtu->getFotoUrl()
-
-        );
-
-        $repositorio->agregarModerador($moderador);
+        $repositorio->promoverAUsuario($id);
     }
-    
+
+    public function degradarModerador(int $id): void {
+        $repositorio = UsuarioRepositorio::getInstance();
+
+        $usuario = $repositorio->obtenerUsuarioPorId($id);
+        if ($usuario === null) {
+            throw new Exception("No existe un usuario con ese id");
+        }
+        if (!($usuario instanceof Moderador)) {
+            throw new Exception("El usuario no es moderador");
+        }
+
+        $repositorio->degradarAModerador($id);
+    }
+
+    public function promoverModerador(int $id): void {
+        $repositorio = UsuarioRepositorio::getInstance();
+
+        $usuario = $repositorio->obtenerUsuarioPorId($id);
+        if ($usuario === null) {
+            throw new Exception("No existe un usuario con ese id");
+        }
+        if ($usuario instanceof Administrador) {
+            throw new Exception("El usuario ya es administrador");
+        }
+
+        $repositorio->promoverAModerador($id);
+    }
+
+    public function degradarAdministrador(int $id): void {
+        $repositorio = UsuarioRepositorio::getInstance();
+
+        $usuario = $repositorio->obtenerUsuarioPorId($id);
+        if ($usuario === null) {
+            throw new Exception("No existe un usuario con ese id");
+        }
+        if (!($usuario instanceof Administrador)) {
+            throw new Exception("El usuario no es administrador");
+        }
+
+        $repositorio->degradarAAdministrador($id);
+    }
 
 
 }

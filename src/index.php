@@ -9,13 +9,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Inicializar datos básicos
 include_once __DIR__ . "/inicializar.php";
 
-include __DIR__ . "/logica/endpoints/UsuarioEndpoint.php";
-include __DIR__ . "/logica/endpoints/PublicacionEndpoint.php";
-
 include __DIR__ . "/logica/modelos/Usuario.php";
+include __DIR__ . "/logica/modelos/Moderador.php";
+include __DIR__ . "/logica/modelos/Administrador.php";
 include __DIR__ . "/logica/modelos/Sesion.php";
 include __DIR__ . "/logica/modelos/Publicacion.php";
 include __DIR__ . "/logica/modelos/CampoExtra.php";
@@ -23,9 +21,14 @@ include __DIR__ . "/logica/modelos/TipoCampo.php";
 
 include __DIR__ . "/servicios/DTs/DTSesion.php";
 include __DIR__ . "/servicios/DTs/DTUsuario.php";
+include __DIR__ . "/servicios/DTs/DTModerador.php";
+include __DIR__ . "/servicios/DTs/DTAdministrador.php";
 include __DIR__ . "/servicios/DTs/DTPublicacion.php";
 include __DIR__ . "/servicios/DTs/DTCampoExtra.php";
 include __DIR__ . "/servicios/DTs/DTTipoCampo.php";
+
+include __DIR__ . "/logica/endpoints/UsuarioEndpoint.php";
+include __DIR__ . "/logica/endpoints/PublicacionEndpoint.php";
 
 $metodo = $_SERVER['REQUEST_METHOD'];
 $ruta = $_SERVER['PATH_INFO'] ?? '';
@@ -42,7 +45,11 @@ match([$metodo, $ruta]) {
     ['GET',  '/usuarios/listarUsuarios'] => $usuarioEndpoint->listarUsuarios(),
     ['POST', '/usuarios/iniciarSesion'] => $usuarioEndpoint->iniciarSesion(),
     ['POST', '/usuarios/cerrarSesion'] => $usuarioEndpoint->cerrarSesion(),
-    
+    ['POST', '/usuarios/promoverUsuario'] => $usuarioEndpoint->promoverUsuario(),
+    ['POST', '/usuarios/degradarModerador'] => $usuarioEndpoint->degradarModerador(),
+    ['POST', '/usuarios/promoverModerador'] => $usuarioEndpoint->promoverModerador(),
+    ['POST', '/usuarios/degradarAdministrador'] => $usuarioEndpoint->degradarAdministrador(),
+
     ['POST', '/publicaciones/altaPublicacion'] => $publicacionEndpoint->altaPublicacion(),
     ['DELETE', '/publicaciones/bajaPublicacion'] => $publicacionEndpoint->bajaPublicacion(),
     ['PUT', '/publicaciones/modificarPublicacion'] => $publicacionEndpoint->modificarPublicacion(),
@@ -59,7 +66,6 @@ match([$metodo, $ruta]) {
     };
 } catch (Exception $e) {
     http_response_code(500);
-    // Registrar el error en un archivo de log
     file_put_contents(__DIR__ . '/error.log', date('Y-m-d H:i:s') . ' - ' . $e->getMessage() . ' - ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL, FILE_APPEND);
     echo json_encode(['error' => $e->getMessage()]);
 }
