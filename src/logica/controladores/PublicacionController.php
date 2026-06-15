@@ -16,7 +16,6 @@ class PublicacionController implements IPublicacionController {
         }
 
         $id = $repositorio->obtenerSiguienteId();
-        var_dump($id);
         $fechaCreacion = new DateTime();
         $fechaUltimaModificacion = new DateTime();
         //$d = [$dtp->getAreasHabitat()];
