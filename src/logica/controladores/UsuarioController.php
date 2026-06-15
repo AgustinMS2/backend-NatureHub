@@ -107,7 +107,7 @@ class UsuarioController implements IUsuarioController {
                 $usuario->getActivo(),
                 $usuario->getFechaRegistro()->format("Y-m-d H:i:s"),
                 $usuario->getSexo(),
-                $usuario->getFechaNacimiento()->format("Y-m-d H:i:s"),
+                $usuario->getFechaNacimiento() ? $usuario->getFechaNacimiento()->format("Y-m-d H:i:s") : null,
                 $usuario->getPais(),
                 $usuario->getBio(),
                 $usuario->getFotoUrl()
@@ -167,7 +167,7 @@ class UsuarioController implements IUsuarioController {
             $usuario->getActivo(),
             $usuario->getFechaRegistro()->format("Y-m-d H:i:s"),
             $usuario->getSexo(),
-            $usuario->getFechaNacimiento()->format("Y-m-d H:i:s"),
+            $usuario->getFechaNacimiento() ? $usuario->getFechaNacimiento()->format("Y-m-d H:i:s") : null,
             $usuario->getPais(),
             $usuario->getBio(),
             $usuario->getFotoUrl()

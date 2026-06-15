@@ -40,7 +40,7 @@ class UsuarioRepositorio {
             $bio = $usuario->getBio();
             $fotoUrl = $usuario->getFotoUrl();
             $pais = $usuario->getPais();
-            $fechaNacimiento = $usuario->getFechaNacimiento()->format("Y-m-d H:i:s");
+            $fechaNacimiento = $usuario->getFechaNacimiento() ? $usuario->getFechaNacimiento()->format("Y-m-d H:i:s") : null;
             $sexo = $usuario->getSexo();
 
             $consultaPerfil->bind_param("isssss", $id, $bio, $fotoUrl, $pais, $fechaNacimiento, $sexo);
@@ -85,7 +85,7 @@ class UsuarioRepositorio {
             $bio = $usuario->getBio(); 
             $fotoUrl = $usuario->getFotoUrl();
             $sexo = $usuario->getSexo();
-            $fechaNacimiento = $usuario->getFechaNacimiento()->format("Y-m-d H:i:s");
+            $fechaNacimiento = $usuario->getFechaNacimiento() ? $usuario->getFechaNacimiento()->format("Y-m-d H:i:s") : null;
             $pais = $usuario->getPais();
 
             $consultaPerfil->bind_param("sssssi", $bio, $fotoUrl, $sexo, $fechaNacimiento, $pais, $id);
