@@ -16,12 +16,16 @@ include __DIR__ . "/logica/modelos/Moderador.php";
 include __DIR__ . "/logica/modelos/Administrador.php";
 include __DIR__ . "/logica/modelos/Sesion.php";
 include __DIR__ . "/logica/modelos/Publicacion.php";
+include __DIR__ . "/logica/modelos/CampoExtra.php";
+include __DIR__ . "/logica/modelos/TipoCampo.php";
 
 include __DIR__ . "/servicios/DTs/DTSesion.php";
 include __DIR__ . "/servicios/DTs/DTUsuario.php";
 include __DIR__ . "/servicios/DTs/DTModerador.php";
 include __DIR__ . "/servicios/DTs/DTAdministrador.php";
 include __DIR__ . "/servicios/DTs/DTPublicacion.php";
+include __DIR__ . "/servicios/DTs/DTCampoExtra.php";
+include __DIR__ . "/servicios/DTs/DTTipoCampo.php";
 
 include __DIR__ . "/logica/endpoints/UsuarioEndpoint.php";
 include __DIR__ . "/logica/endpoints/PublicacionEndpoint.php";
@@ -52,7 +56,8 @@ match([$metodo, $ruta]) {
     ['GET', '/publicaciones/listarPublicaciones'] => $publicacionEndpoint->listarPublicaciones(),
     ['GET', '/publicaciones/listarPublicacionesPropias'] => $publicacionEndpoint->listarPublicacionesPropias(),
     ['POST', '/publicaciones/agregarCampoExtra'] => $publicacionEndpoint->agregarCampoExtra(),
-    ['DELETE', '/publicaciones/eliminarCampoExtra'] => $publicacionEndpoint->eliminarCampoExtra((int)$_GET['id']),
+    ['DELETE', '/publicaciones/eliminarCampoExtra'] => $publicacionEndpoint->eliminarCampoExtra(),
+    ['PUT', '/publicaciones/modificarCampoExtra'] => $publicacionEndpoint->modificarCampoExtra(),
     ['GET', '/publicaciones/listarPublicacionFiltro'] => $publicacionEndpoint->listarPublicacionFiltro((string)$_GET['filtro']),
 
         default => http_response_code(404)

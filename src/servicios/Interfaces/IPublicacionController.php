@@ -3,8 +3,14 @@ interface IPublicacionController {
     public function altaPublicacion(DTPublicacion $dtp): void;
     public function bajaPublicacion(int $id): void;
     public function modificarPublicacion(DTPublicacion $dtp): void;
-    public function listarPublicaciones(): array;
     public function moderarPublicacion(): void;
+    public function listarPublicaciones(): array;
+    public function listarPublicacionesPropias(int $id): array;
+    public function agregarCampoExtra(DTCampoExtra $dtc): void;
+    public function eliminarCampoExtra(int $id): void;
+    public function modificarCampoExtra(DTCampoExtra $dtc): void;
+    public function listarPublicacionFiltro(string $filtro): void;
     public function reportarPublicacion(DTReporte $dtr): void;
+    
 }
 ?>

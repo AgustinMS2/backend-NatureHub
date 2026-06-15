@@ -246,5 +246,90 @@ class PublicacionRepositorio {
 
         return array_values($publicaciones);
     }
+
+    public function verificarExistenciaCampoExtra(int $idPublicacion, string $etiqueta): ?CampoExtra{
+        $sql = "SELECT * FROM CAMPO_EXTRA WHERE id_publicacion = ? AND etiqueta = ?";
+
+        $consulta = $this->mysql->prepare($sql);
+
+        $consulta->bind_param("is", $idPublicacion, $etiqueta);
+        $consulta->execute();
+
+        $resultado = $consulta->get_result();
+        $fila = $resultado->fetch_assoc();
+
+        if($fila){
+            return new CampoExtra(
+                $fila["id_campo"],
+                $fila["id_publicacion"],
+                $fila["etiqueta"],
+                $fila["valor"],
+                TipoCampo::from($fila["tipo"])
+            );
+        }
+
+        return null;
+    }
+
+    public function verificarExistenciaCampoExtraId(int $idCampo): ?CampoExtra{
+        $sql = "SELECT * FROM CAMPO_EXTRA WHERE id_campo = ?";
+
+        $consulta = $this->mysql->prepare($sql);
+
+        $consulta->bind_param("i", $idCampo);
+        $consulta->execute();
+
+        $resultado = $consulta->get_result();
+        $fila = $resultado->fetch_assoc();
+
+        if($fila){
+            return new CampoExtra(
+                $fila["id_campo"],
+                $fila["id_publicacion"],
+                $fila["etiqueta"],
+                $fila["valor"],
+                TipoCampo::from($fila["tipo"])
+            );
+        }
+
+        return null;
+    }
+
+    public function agregarCampoExtra(CampoExtra $campoExtra): void{
+        $sql = "INSERT INTO CAMPO_EXTRA (id_publicacion, etiqueta, valor, tipo) VALUES (?, ?, ?, ?)";
+
+        $consulta = $this->mysql->prepare($sql);
+
+        $idPublicacion = $campoExtra->getIdPublicacion();
+        $etiqueta = $campoExtra->getEtiqueta();
+        $valor = $campoExtra->getValor();
+        $tipo = $campoExtra->getTipo()->value;
+
+        $consulta->bind_param("isss", $idPublicacion, $etiqueta, $valor, $tipo);
+        $consulta->execute();
+    }
+
+    public function eliminarCampoExtra(int $idCampo): void{
+        $sql = "DELETE FROM CAMPO_EXTRA WHERE id_campo = ?";
+        $consulta = $this->mysql->prepare($sql);
+        $consulta->bind_param("i", $idCampo);
+        $consulta->execute();
+    }
+
+    public function modificarCampoExtra(CampoExtra $campoExtra): void{
+        $sql = "UPDATE CAMPO_EXTRA SET etiqueta = ?, valor = ?, tipo = ? WHERE id_campo = ?";
+
+        $consulta = $this->mysql->prepare($sql);
+
+        $etiqueta = $campoExtra->getEtiqueta();
+        $valor = $campoExtra->getValor();
+        $tipo = $campoExtra->getTipo()->value;
+        $idCampo = $campoExtra->getId();
+
+        $consulta->bind_param("sssi", $etiqueta, $valor, $tipo, $idCampo);
+        $consulta->execute();
+
+    }
+
 }
 ?>
