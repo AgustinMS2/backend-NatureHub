@@ -133,6 +133,9 @@ class UsuarioController implements IUsuarioController {
         if (!password_verify($dtu->getPassword(), $usuario->getPasswordHash())) {
             throw new Exception("Contraseña incorrecta");
         }
+        if(!$usuario->getActivo()) {
+            throw new Exception("El usuario se encuentra dado de baja");
+        }
 
         $idSesion = $repositorio->obtenerSiguienteIdSesion();
         $token = bin2hex(random_bytes(32));
