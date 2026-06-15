@@ -95,7 +95,7 @@ CREATE TABLE MODERA (
 );
 
 CREATE TABLE REPORTE (
-    id_reporte INT PRIMARY KEY,
+    id_reporte INT AUTO_INCREMENT PRIMARY KEY,
     id_publicacion INT NOT NULL,
     id_usuario INT NOT NULL,
     motivo TEXT NOT NULL,

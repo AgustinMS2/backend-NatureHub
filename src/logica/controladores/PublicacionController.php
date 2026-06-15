@@ -255,6 +255,22 @@ class PublicacionController implements IPublicacionController {
         return $resultado;
     }
 
+    public function reportePublicacion(DTReporte $dtr): void{
+        $repositorio = PublicacionRepositorio::getInstance();
+
+        $reporte = new Reporte(
+            0,
+            $dtr->getIdPublicacion(),
+            $dtr->getIdUsuario(),
+            $dtr->getMotivo(),
+            $dtr->getFecha(),
+            $dtr->getResuelto()
+        );
+
+        $repositorio->reportePublicacion($reporte);
+
+    }
+
     public function listarPublicacionFiltro(string $filtro): void{
         $repositorio = PublicacionRepositorio::getInstance();
     }
@@ -264,10 +280,7 @@ class PublicacionController implements IPublicacionController {
 
     }
 
-    public function reportarPublicacion(DTReporte $dtr): void{
-        $repositorio = PublicacionRepositorio::getInstance();
-
-    }
+    
 
 
 }

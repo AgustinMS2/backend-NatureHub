@@ -249,6 +249,33 @@ class PublicacionEndpoint {
         echo json_encode($resultado);
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/reportePublicacion
+    public function reportePublicacion(): void{
+
+        $datos = json_decode(file_get_contents("php://input"));
+
+        $idPublicacion = $datos->idPublicacion;
+        $idUsuario = $datos->idUsuario;
+        $motivo = $datos->motivo;
+        $fecha = new DateTime();
+        $resuelto = false;
+
+        $dtr = new DTReporte(
+            0,
+            $idPublicacion,
+            $idUsuario,
+            $motivo,
+            $fecha,
+            $resuelto
+        );
+
+        $this->controlador->reportePublicacion($dtr);
+
+        http_response_code(201);
+        echo json_encode(["mensaje" => "Reporte creado correctamente"]);
+
+    }
+
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionFiltro
     public function listarPublicacionFiltro(string $filtro): void{
         

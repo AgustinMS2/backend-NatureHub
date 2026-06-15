@@ -18,6 +18,7 @@ include __DIR__ . "/logica/modelos/Sesion.php";
 include __DIR__ . "/logica/modelos/Publicacion.php";
 include __DIR__ . "/logica/modelos/CampoExtra.php";
 include __DIR__ . "/logica/modelos/TipoCampo.php";
+include __DIR__ . "/logica/modelos/Reporte.php";
 
 include __DIR__ . "/servicios/DTs/DTSesion.php";
 include __DIR__ . "/servicios/DTs/DTUsuario.php";
@@ -26,6 +27,7 @@ include __DIR__ . "/servicios/DTs/DTAdministrador.php";
 include __DIR__ . "/servicios/DTs/DTPublicacion.php";
 include __DIR__ . "/servicios/DTs/DTCampoExtra.php";
 include __DIR__ . "/servicios/DTs/DTTipoCampo.php";
+include __DIR__ . "/servicios/DTs/DTReporte.php";
 
 include __DIR__ . "/logica/endpoints/UsuarioEndpoint.php";
 include __DIR__ . "/logica/endpoints/PublicacionEndpoint.php";
@@ -60,7 +62,8 @@ match([$metodo, $ruta]) {
     ['PUT', '/publicaciones/modificarCampoExtra'] => $publicacionEndpoint->modificarCampoExtra(),
     ['GET', '/publicaciones/listarPublicacionesPendientes'] => $publicacionEndpoint->listarPublicacionesPendientes(),
     ['GET', '/publicaciones/listarPublicacionesPorSeccion'] => $publicacionEndpoint->listarPublicacionesPorSeccion(),
-    ['GET', '/publicaciones/listarPublicacionFiltro'] => $publicacionEndpoint->listarPublicacionFiltro((string)$_GET['filtro']),
+    ['POST', '/publicaciones/reportePublicacion'] => $publicacionEndpoint->reportePublicacion(),
+    ['GET', '/publicaciones/listarPublicacionFiltro'] => $publicacionEndpoint->listarPublicacionFiltro(),
 
         default => http_response_code(404)
     };

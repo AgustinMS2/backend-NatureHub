@@ -11,8 +11,8 @@ interface IPublicacionController {
     public function modificarCampoExtra(DTCampoExtra $dtc): void;
     public function listarPublicacionesPendientes(): array;
     public function listarPublicacionesPorSeccion(string $seccion): array;
+    public function reportePublicacion(DTReporte $dtr): void;
     public function listarPublicacionFiltro(string $filtro): void;
-    public function reportarPublicacion(DTReporte $dtr): void;
     
 }
 ?>

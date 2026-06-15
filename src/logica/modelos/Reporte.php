@@ -2,16 +2,16 @@
 
 class Reporte {
     private int $id;
+    private int $idPublicacion;
+    private int $idUsuario;
     private string $motivo;
     private DateTime $fecha;
     private bool $resuelto;
-    private Publicacion $publicacion;
-    private Usuario $reportador;
 
-    public function __construct(int $id, Publicacion $publicacion, Usuario $reportador, string $motivo, DateTime $fecha, bool $resuelto) {
+    public function __construct(int $id, int $idPublicacion, int $idUsuario, string $motivo, DateTime $fecha, bool $resuelto) {
         $this->id = $id;
-        $this->publicacion = $publicacion;
-        $this->reportador = $reportador;
+        $this->idPublicacion = $idPublicacion;
+        $this->idUsuario = $idUsuario;
         $this->motivo = $motivo;
         $this->fecha = $fecha;
         $this->resuelto = $resuelto;
@@ -24,18 +24,18 @@ class Reporte {
         $this->id = $id;
     }
 
-    public function getPublicacion(): Publicacion {
-        return $this->publicacion;
+    public function getIdPublicacion(): int {
+        return $this->idPublicacion;
     }
-    public function setPublicacion(Publicacion $publicacion): void {
-        $this->publicacion = $publicacion;
+    public function setIdPublicacion(int $idPublicacion): void {
+        $this->idPublicacion = $idPublicacion;
     }
 
-    public function getReportador(): Usuario {
-        return $this->reportador;
+    public function getIdUsuario(): int {
+        return $this->idUsuario;
     }
-    public function setReportador(Usuario $reportador): void {
-        $this->reportador = $reportador;
+    public function setIdUsuario(int $idUsuario): void {
+        $this->idUsuario = $idUsuario;
     }
 
     public function getMotivo(): string {

@@ -424,5 +424,27 @@ class PublicacionRepositorio {
         return array_values($publicaciones);
     }
 
+    public function reportePublicacion(Reporte $reporte){
+        $sql = "INSERT INTO REPORTE (id_publicacion, id_usuario, motivo, fecha, resuelto) VALUES (?, ?, ?, ?, ?)";
+
+        $consulta = $this->mysql->prepare($sql);
+
+        //var_dump($reporte->getIdPublicacion());
+        //var_dump($reporte->getIdUsuario());
+        //var_dump($reporte->getMotivo());
+        //var_dump($reporte->getFecha());
+        //var_dump($reporte->getResuelto());
+        
+        $idPublicacion = $reporte->getIdPublicacion();
+        $idUsuario = $reporte->getIdUsuario();
+        $motivo = $reporte->getMotivo();
+        $fecha = $reporte->getFecha()->format("Y-m-d H:i:s");
+        $resuelto = $reporte->getResuelto();
+
+        $consulta->bind_param("iisss", $idPublicacion, $idUsuario, $motivo, $fecha, $resuelto);
+        $consulta->execute();
+
+    }
+
 }
 ?>
