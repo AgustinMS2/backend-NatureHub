@@ -121,9 +121,10 @@ class UsuarioRepositorio {
                     [],
                     [],
                     $fila["sexo"],
-                    $fila["fecha_nacimiento"],
+                    new DateTime($fila["fecha_nacimiento"]),
                     $fila["pais"],
-                    $fila["bio"]
+                    $fila["bio"],
+                    $fila["foto_url"]
                 ];
 
                 $usuarios[] = match(true) {
@@ -289,7 +290,7 @@ class UsuarioRepositorio {
         }
     }
 
-    public function promoverAModerador(int $idUsuario): void {
+    public function promoverAUsuario(int $idUsuario): void {
         try{
             $sql = "INSERT INTO MODERADOR (id_usuario) VALUES (?)";
             $consulta = $this->mysql->prepare($sql);
@@ -300,7 +301,7 @@ class UsuarioRepositorio {
         }
     }
  
-    public function degradarAUsuario(int $idUsuario): void {
+    public function degradarAModerador(int $idUsuario): void {
         try{
             $sql = "DELETE FROM MODERADOR WHERE id_usuario = ?";
             $consulta = $this->mysql->prepare($sql);
@@ -311,54 +312,27 @@ class UsuarioRepositorio {
         }
     }
 
-    
-    public function agregarModerador(Moderador $moderador): void {
-        $sql = "INSERT INTO USUARIO (id_usuario, nombre, apellido, email, password_hash, activo, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $consulta = $this->mysql->prepare($sql);
- 
-        $id = $moderador->getId();
-        $nombre = $moderador->getNombre();
-        $apellido = $moderador->getApellido();
-        $email = $moderador->getEmail();
-        $passwordHash = $moderador->getPasswordHash();
-        $activo = $moderador->getActivo();
-        $fechaRegistro = $moderador->getFechaRegistro()->format("Y-m-d H:i:s");
- 
-        $consulta->bind_param("issssss", $id, $nombre, $apellido, $email, $passwordHash, $activo, $fechaRegistro);
-        $consulta->execute();
- 
-        $sql2 = "INSERT INTO MODERADOR (id_usuario) VALUES (?)";
-        $consulta2 = $this->mysql->prepare($sql2);
-        $consulta2->bind_param("i", $id);
-        $consulta2->execute();
- 
-        $this->agregarPerfil($id);
+    public function promoverAModerador(int $idUsuario): void {
+        try{
+            $sql = "INSERT INTO ADMINISTRADOR (id_usuario) VALUES (?)";
+            $consulta = $this->mysql->prepare($sql);
+            $consulta->bind_param("i", $idUsuario);
+            $consulta->execute();
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
-
-    /*
-    public function agregarAdministrador(Administrador $administrador): void {
-        $sql = "INSERT INTO USUARIO (id_usuario, nombre, apellido, email, password_hash, activo, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $consulta = $this->mysql->prepare($sql);
  
-        $id = $administrador->getId();
-        $nombre = $administrador->getNombre();
-        $apellido = $administrador->getApellido();
-        $email = $administrador->getEmail();
-        $passwordHash = $administrador->getPasswordHash();
-        $activo = $administrador->getActivo();
-        $fechaRegistro = $administrador->getFechaRegistro()->format("Y-m-d H:i:s");
- 
-        $consulta->bind_param("issssss", $id, $nombre, $apellido, $email, $passwordHash, $activo, $fechaRegistro);
-        $consulta->execute();
-
-        $sql2 = "INSERT INTO ADMINISTRADOR (id_usuario) VALUES (?)";
-        $consulta2 = $this->mysql->prepare($sql2);
-        $consulta2->bind_param("i", $id);
-        $consulta2->execute();
- 
-        $this->agregarPerfil($id);
+    public function degradarAAdministrador(int $idUsuario): void {
+        try{
+            $sql = "DELETE FROM ADMINISTRADOR WHERE id_usuario = ?";
+            $consulta = $this->mysql->prepare($sql);
+            $consulta->bind_param("i", $idUsuario);
+            $consulta->execute();
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
-    */
 
 }
 ?>

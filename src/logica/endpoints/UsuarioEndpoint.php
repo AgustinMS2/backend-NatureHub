@@ -132,6 +132,12 @@ class UsuarioEndpoint {
         
         $resultado = [];
         foreach ($usuarios as $dtu) {
+            $rol = match(true) {
+                $dtu instanceof DTAdministrador => "ADMINISTRADOR",
+                $dtu instanceof DTModerador => "MODERADOR",
+                default => "USUARIO"
+            };
+
             $resultado[] = [
                 "id" => $dtu->getId(),
                 "nombre" => $dtu->getNombre(),
@@ -143,7 +149,8 @@ class UsuarioEndpoint {
                 "fechaNacimiento" => $dtu->getFechaNacimiento(),
                 "pais" => $dtu->getPais(),
                 "bio" => $dtu->getBio(),
-                "fotoUrl" => $dtu->getFotoUrl()
+                "fotoUrl" => $dtu->getFotoUrl(),
+                "rol" => $rol
             ];
         }
         
@@ -251,5 +258,62 @@ class UsuarioEndpoint {
             echo json_encode(["error" => $e->getMessage()]);
         }
     }
+
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/promoverUsuario
+    public function promoverUsuario(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try {
+            $this->controlador->promoverUsuario($dato->id);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Usuario ascendido a moderador correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/degradarModerador
+    public function degradarModerador(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try {
+            $this->controlador->degradarModerador($dato->id);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Moderador degradado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/promoverModerador
+    public function promoverModerador(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try {
+            $this->controlador->promoverModerador($dato->id);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Moderador ascendido a administrador correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/degradarAdministrador
+    public function degradarAdministrador(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try {
+            $this->controlador->degradarAdministrador($dato->id);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Administrador degradado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
 }
+
 ?>
