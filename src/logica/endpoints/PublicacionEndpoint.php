@@ -82,29 +82,29 @@ class PublicacionEndpoint {
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicaciones
     public function listarPublicaciones(): void{
-    $publicaciones = $this->controlador->listarPublicaciones();
+        $publicaciones = $this->controlador->listarPublicaciones();
 
-    $resultado = [];
-    foreach ($publicaciones as $dpu) {
-        $resultado[] = [
-            "id" => $dpu->getId(),
-            "titulo" => $dpu->getTitulo(),
-            "foto" => $dpu->getFoto(),
-            "nombreCientifico" => $dpu->getNombreCientifico(),
-            "areasHabitat" => $dpu->getAreasHabitat(),
-            "dieta" => $dpu->getDieta(),
-            "horasActivas" => $dpu->getHorasActivas(),
-            "estado" => $dpu->getEstado(),
-            "fechaCreacion" => $dpu->getFechaCreacion(),
-            "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
-            "autor" => $dpu->getAutor(),
-            "camposExtra" => $dpu->getCamposExtra(),
-            "seccion" => $dpu->getSeccion()
-        ];
-    }
-    
-    http_response_code(200);
-    echo json_encode($resultado);
+        $resultado = [];
+        foreach ($publicaciones as $dpu) {
+            $resultado[] = [
+                "id" => $dpu->getId(),
+                "titulo" => $dpu->getTitulo(),
+                "foto" => $dpu->getFoto(),
+                "nombreCientifico" => $dpu->getNombreCientifico(),
+                "areasHabitat" => $dpu->getAreasHabitat(),
+                "dieta" => $dpu->getDieta(),
+                "horasActivas" => $dpu->getHorasActivas(),
+                "estado" => $dpu->getEstado(),
+                "fechaCreacion" => $dpu->getFechaCreacion(),
+                "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
+                "autor" => $dpu->getAutor(),
+                "camposExtra" => $dpu->getCamposExtra(),
+                "seccion" => $dpu->getSeccion()
+            ];
+        }
+        
+        http_response_code(200);
+        echo json_encode($resultado);
 
     }
 
@@ -188,6 +188,65 @@ class PublicacionEndpoint {
 
          http_response_code(201);
         echo json_encode(["mensaje" => "Campo Extra modificado correctamente"]);
+    }
+
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionesPendientes
+    public function listarPublicacionesPendientes(): void{
+        $publicaciones = $this->controlador->listarPublicacionesPendientes();
+
+        $resultado = [];
+        foreach ($publicaciones as $dpu) {
+            $resultado[] = [
+                "id" => $dpu->getId(),
+                "titulo" => $dpu->getTitulo(),
+                "foto" => $dpu->getFoto(),
+                "nombreCientifico" => $dpu->getNombreCientifico(),
+                "areasHabitat" => $dpu->getAreasHabitat(),
+                "dieta" => $dpu->getDieta(),
+                "horasActivas" => $dpu->getHorasActivas(),
+                "estado" => $dpu->getEstado(),
+                "fechaCreacion" => $dpu->getFechaCreacion(),
+                "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
+                "autor" => $dpu->getAutor(),
+                "camposExtra" => $dpu->getCamposExtra(),
+                "seccion" => $dpu->getSeccion()
+            ];
+        }
+        
+        http_response_code(200);
+        echo json_encode($resultado);
+    }
+
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionesPorSeccion
+    public function listarPublicacionesPorSeccion(): void{
+
+        $dato = json_decode(file_get_contents("php://input"));
+
+        $seccion = $dato->seccion;
+
+        $publicaciones = $this->controlador->listarPublicacionesPorSeccion($seccion);
+
+        $resultado = [];
+        foreach ($publicaciones as $dpu) {
+            $resultado[] = [
+                "id" => $dpu->getId(),
+                "titulo" => $dpu->getTitulo(),
+                "foto" => $dpu->getFoto(),
+                "nombreCientifico" => $dpu->getNombreCientifico(),
+                "areasHabitat" => $dpu->getAreasHabitat(),
+                "dieta" => $dpu->getDieta(),
+                "horasActivas" => $dpu->getHorasActivas(),
+                "estado" => $dpu->getEstado(),
+                "fechaCreacion" => $dpu->getFechaCreacion(),
+                "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
+                "autor" => $dpu->getAutor(),
+                "camposExtra" => $dpu->getCamposExtra(),
+                "seccion" => $dpu->getSeccion()
+            ];
+        }
+        
+        http_response_code(200);
+        echo json_encode($resultado);
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionFiltro
