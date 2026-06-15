@@ -16,6 +16,7 @@ class PublicacionController implements IPublicacionController {
         }
 
         $id = $repositorio->obtenerSiguienteId();
+        var_dump($id);
         $fechaCreacion = new DateTime();
         $fechaUltimaModificacion = new DateTime();
         //$d = [$dtp->getAreasHabitat()];
@@ -32,8 +33,10 @@ class PublicacionController implements IPublicacionController {
             $fechaCreacion,
             $fechaUltimaModificacion,
             $dtp->getAutor(),
+            $dtp->getCamposExtra(),
+            $dtp->getSeccion(),
             [],
-            $dtp->getSeccion()
+            []
         );
 
         $repositorio->agregarPublicacion($publicacion);
@@ -101,8 +104,10 @@ class PublicacionController implements IPublicacionController {
                 $publicacion->getFechaCreacion()->format("Y-m-d H-i-s"),
                 $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
                 $publicacion->getAutor(),
+                $publicacion->getCamposExtra(),
+                $publicacion->getSeccion(),
                 [],
-                $publicacion->getSeccion()
+                []
             );
             $resultado[] = $dtp;
         }
@@ -130,8 +135,10 @@ class PublicacionController implements IPublicacionController {
                 $publicacion->getFechaCreacion()->format("Y-m-d H-i-s"),
                 $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
                 $publicacion->getAutor(),
+                $publicacion->getCamposExtra(),
+                $publicacion->getSeccion(),
                 [],
-                $publicacion->getSeccion()
+                []
             );
             $resultado[] = $dtp;
         }

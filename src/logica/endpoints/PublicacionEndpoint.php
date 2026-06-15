@@ -26,8 +26,10 @@ class PublicacionEndpoint {
             null,
             null,
             $datos->autor,
-            [],
-            $datos->seccion
+            $datos->camposExtra, //CamposExtra
+            $datos->seccion,
+            [], //Moderaciones
+            [] //Reportes
         );
 
         $this->controlador->altaPublicacion($dtp);
@@ -93,7 +95,7 @@ class PublicacionEndpoint {
             "fechaCreacion" => $dpu->getFechaCreacion(),
             "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
             "autor" => $dpu->getAutor(),
-            [],
+            "camposExtra" => $dpu->getCamposExtra(),
             "seccion" => $dpu->getSeccion()
         ];
     }
@@ -115,18 +117,18 @@ class PublicacionEndpoint {
         foreach ($publicaciones as $dpu) {
             $resultado[] = [
                 "id" => $dpu->getId(),
-            "titulo" => $dpu->getTitulo(),
-            "foto" => $dpu->getFoto(),
-            "nombreCientifico" => $dpu->getNombreCientifico(),
-            "areasHabitat" => $dpu->getAreasHabitat(),
-            "dieta" => $dpu->getDieta(),
-            "horasActivas" => $dpu->getHorasActivas(),
-            "estado" => $dpu->getEstado(),
-            "fechaCreacion" => $dpu->getFechaCreacion(),
-            "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
-            "autor" => $dpu->getAutor(),
-            [],
-            "seccion" => $dpu->getSeccion()
+                "titulo" => $dpu->getTitulo(),
+                "foto" => $dpu->getFoto(),
+                "nombreCientifico" => $dpu->getNombreCientifico(),
+                "areasHabitat" => $dpu->getAreasHabitat(),
+                "dieta" => $dpu->getDieta(),
+                "horasActivas" => $dpu->getHorasActivas(),
+                "estado" => $dpu->getEstado(),
+                "fechaCreacion" => $dpu->getFechaCreacion(),
+                "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
+                "autor" => $dpu->getAutor(),
+                "camposExtra" => $dpu->getCamposExtra(),
+                "seccion" => $dpu->getSeccion()
             ];
         }
         

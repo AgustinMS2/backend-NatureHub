@@ -60,12 +60,13 @@ CREATE TABLE PUBLICACION (
     estado ENUM('BORRADOR', 'PENDIENTE_REVISION', 'APROBADA', 'RECHAZADA', 'PUBLICADA') NOT NULL,
     fecha_creacion TIMESTAMP NOT NULL,
     fecha_modificacion TIMESTAMP NOT NULL,
+    activo BOOLEAN NOT NULL,
     FOREIGN KEY (id_seccion) REFERENCES SECCION(id_seccion),
     FOREIGN KEY (id_autor) REFERENCES USUARIO(id_usuario)
 );
 
 CREATE TABLE CAMPO_EXTRA (
-    id_campo INT PRIMARY KEY,
+    id_campo INT AUTO_INCREMENT PRIMARY KEY,
     id_publicacion INT NOT NULL,
     etiqueta VARCHAR(100) NOT NULL,
     valor TEXT,

@@ -1,8 +1,8 @@
 <?php
-enum TipoCampo {
-    case TEXTO;
-    case BOOLEANO;
-    case NUMERICO;
-    case FECHA;
+enum TipoCampo: string {
+    case TEXTO = 'TEXTO';
+    case BOOLEANO = 'BOOLEANO';
+    case NUMERICO = 'NUMERICO';
+    case FECHA = 'FECHA';
 }   
 ?>
