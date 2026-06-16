@@ -1,21 +1,21 @@
 <?php
 
  class DTPublicacion{
-    protected int $id;
-    protected int $seccion;
-    protected int $autor;
-    protected string $titulo;
-    protected string $nombreCientifico;
-    protected string $foto;
-    protected array $areasHabitat;
-    protected string $dieta;
-    protected string $horasActivas;
+    protected ?int $id;
+    protected ?int $seccion;
+    protected ?int $autor;
+    protected ?string $titulo;
+    protected ?string $nombreCientifico;
+    protected ?string $foto;
+    protected ?array $areasHabitat;
+    protected ?string $dieta;
+    protected ?string $horasActivas;
     protected ?string $estado;
     protected ?string $fechaCreacion;
     protected ?string $fechaUltimaModificacion;
-    protected array $camposExtra;
-    protected array $moderaciones;
-    protected array $reportes;
+    protected ?array $camposExtra;
+    protected ?array $moderaciones;
+    protected ?array $reportes;
 
     public function __construct(int $id, string $titulo, string $foto, string $nombreCientifico, array $areasHabitat, string $dieta, string $horasActivas, ?string $estado, ?string $fechaCreacion, ?string $fechaUltimaModificacion, int $autor, array $camposExtra, int $seccion, array $moderaciones, array $reportes) {
         $this->id = $id;

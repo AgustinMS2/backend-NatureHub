@@ -15,7 +15,7 @@ class UsuarioEndpoint {
 
         try{
             if (!empty($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-                $uploadDir = __DIR__ . '/../../uploads/';
+                $uploadDir = __DIR__ . '/../../uploads/usuarios/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
@@ -32,7 +32,7 @@ class UsuarioEndpoint {
                 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
                 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
                 $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-                $fotoUrl = sprintf('%s://%s%s/uploads/%s', $scheme, $host, $path, $filename);
+                $fotoUrl = sprintf('%s://%s%s/uploads/usuarios/%s', $scheme, $host, $path, $filename);
             }
             
             $dtu = new DTUsuario(
