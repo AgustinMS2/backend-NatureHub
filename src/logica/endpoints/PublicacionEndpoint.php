@@ -13,67 +13,72 @@ class PublicacionEndpoint {
         $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
         $isFormData = strpos($contentType, 'multipart/form-data') !== false;
 
-        if ($isFormData) {
-            $datos = (object) $_POST;
-            $fotoUrl = $datos->fotoUrl ?? null;
+        try{
+            if ($isFormData) {
+                $datos = (object) $_POST;
+                $fotoUrl = $datos->fotoUrl ?? null;
 
-            if (!empty($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-                $uploadDir = __DIR__ . '/../../uploads/';
-                if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0777, true);
+                if (!empty($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                    $uploadDir = __DIR__ . '/../../uploads/';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0777, true);
+                    }
+                    $file = $_FILES['foto'];
+                    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                    $filename = uniqid('article_', true) . ($extension ? ".{$extension}" : '');
+                    $destination = $uploadDir . $filename;
+                    if (!move_uploaded_file($file['tmp_name'], $destination)) {
+                        throw new Exception("No se pudo guardar la imagen.");
+                    }
+                    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                    $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+                    $fotoUrl = sprintf('%s://%s%s/uploads/%s', $scheme, $host, $path, $filename);
                 }
-                $file = $_FILES['foto'];
-                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-                $filename = uniqid('article_', true) . ($extension ? ".{$extension}" : '');
-                $destination = $uploadDir . $filename;
-                if (!move_uploaded_file($file['tmp_name'], $destination)) {
-                    throw new Exception("No se pudo guardar la imagen.");
-                }
-                $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-                $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-                $fotoUrl = sprintf('%s://%s%s/uploads/%s', $scheme, $host, $path, $filename);
+
+                $camposExtra = json_decode($datos->camposExtra ?? '[]');
+                $areasHabitat = json_decode($datos->areasHabitat ?? '[]');
+
+                $dtp = new DTPublicacion(
+                    0,
+                    $datos->titulo,
+                    $fotoUrl,
+                    $datos->nombreCientifico,
+                    $areasHabitat,
+                    $datos->dieta,
+                    $datos->horasActivas,
+                    null, null, null,
+                    (int)$datos->autor,
+                    $camposExtra,
+                    (int)$datos->seccion,
+                    [], []
+                );
+            } else {
+                $datos = json_decode(file_get_contents("php://input"));
+                $dtp = new DTPublicacion(
+                    0,
+                    $datos->titulo,
+                    $datos->foto,
+                    $datos->nombreCientifico,
+                    $datos->areasHabitat,
+                    $datos->dieta,
+                    $datos->horasActivas,
+                    null, null, null,
+                    $datos->autor,
+                    $datos->camposExtra,
+                    $datos->seccion,
+                    [], []
+                );
             }
 
-            $camposExtra = json_decode($datos->camposExtra ?? '[]');
-            $areasHabitat = json_decode($datos->areasHabitat ?? '[]');
-
-            $dtp = new DTPublicacion(
-                0,
-                $datos->titulo,
-                $fotoUrl,
-                $datos->nombreCientifico,
-                $areasHabitat,
-                $datos->dieta,
-                $datos->horasActivas,
-                null, null, null,
-                (int)$datos->autor,
-                $camposExtra,
-                (int)$datos->seccion,
-                [], []
-            );
-        } else {
-            $datos = json_decode(file_get_contents("php://input"));
-            $dtp = new DTPublicacion(
-                0,
-                $datos->titulo,
-                $datos->foto,
-                $datos->nombreCientifico,
-                $datos->areasHabitat,
-                $datos->dieta,
-                $datos->horasActivas,
-                null, null, null,
-                $datos->autor,
-                $datos->camposExtra,
-                $datos->seccion,
-                [], []
-            );
+            $this->controlador->altaPublicacion($dtp);
+            http_response_code(201);
+            echo json_encode(["mensaje" => "Publicacion creada correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
         }
 
-        $this->controlador->altaPublicacion($dtp);
-
-        http_response_code(201);
-        echo json_encode(["mensaje" => "Publicacion creada correctamente"]);
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/bajaPublicacion
@@ -82,10 +87,14 @@ class PublicacionEndpoint {
 
         $id = $dato->id;
 
-        $this->controlador->bajaPublicacion($id);
-
-        http_response_code(201);
-        echo json_encode(["mensaje" => "Publicacion eliminada correctamente"]);
+        try {
+            $this->controlador->bajaPublicacion($id);
+            http_response_code(201);
+            echo json_encode(["mensaje" => "Publicacion eliminada correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/modificarPublicacion
@@ -108,38 +117,48 @@ class PublicacionEndpoint {
             $datos->seccion
         );
 
-        $this->controlador->modificarPublicacion($dtp);
-
-        http_response_code(201);
-        echo json_encode(["mensaje" => "Publicacion modificada correctamente"]);
+        try {
+            $this->controlador->modificarPublicacion($dtp);
+            http_response_code(201);
+            echo json_encode(["mensaje" => "Publicacion modificada correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
 
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicaciones
     public function listarPublicaciones(): void{
-        $publicaciones = $this->controlador->listarPublicaciones();
+        try{
+            $publicaciones = $this->controlador->listarPublicaciones();
 
-        $resultado = [];
-        foreach ($publicaciones as $dpu) {
-            $resultado[] = [
-                "id" => $dpu->getId(),
-                "titulo" => $dpu->getTitulo(),
-                "foto" => $dpu->getFoto(),
-                "nombreCientifico" => $dpu->getNombreCientifico(),
-                "areasHabitat" => $dpu->getAreasHabitat(),
-                "dieta" => $dpu->getDieta(),
-                "horasActivas" => $dpu->getHorasActivas(),
-                "estado" => $dpu->getEstado(),
-                "fechaCreacion" => $dpu->getFechaCreacion(),
-                "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
-                "autor" => $dpu->getAutor(),
-                "camposExtra" => $dpu->getCamposExtra(),
-                "seccion" => $dpu->getSeccion()
-            ];
+            $resultado = [];
+            foreach ($publicaciones as $dpu) {
+                $resultado[] = [
+                    "id" => $dpu->getId(),
+                    "titulo" => $dpu->getTitulo(),
+                    "foto" => $dpu->getFoto(),
+                    "nombreCientifico" => $dpu->getNombreCientifico(),
+                    "areasHabitat" => $dpu->getAreasHabitat(),
+                    "dieta" => $dpu->getDieta(),
+                    "horasActivas" => $dpu->getHorasActivas(),
+                    "estado" => $dpu->getEstado(),
+                    "fechaCreacion" => $dpu->getFechaCreacion(),
+                    "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
+                    "autor" => $dpu->getAutor(),
+                    "camposExtra" => $dpu->getCamposExtra(),
+                    "seccion" => $dpu->getSeccion()
+                ];
+            }
+            
+            
+            http_response_code(200);
+            echo json_encode($resultado);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
         }
-        
-        http_response_code(200);
-        echo json_encode($resultado);
 
     }
 
@@ -149,29 +168,34 @@ class PublicacionEndpoint {
 
         $id = $dato->id;
 
-        $publicaciones = $this->controlador->listarPublicacionesPropias($id);
+        try{
+            $publicaciones = $this->controlador->listarPublicacionesPropias($id);
 
-        $resultado = [];
-        foreach ($publicaciones as $dpu) {
-            $resultado[] = [
-                "id" => $dpu->getId(),
-                "titulo" => $dpu->getTitulo(),
-                "foto" => $dpu->getFoto(),
-                "nombreCientifico" => $dpu->getNombreCientifico(),
-                "areasHabitat" => $dpu->getAreasHabitat(),
-                "dieta" => $dpu->getDieta(),
-                "horasActivas" => $dpu->getHorasActivas(),
-                "estado" => $dpu->getEstado(),
-                "fechaCreacion" => $dpu->getFechaCreacion(),
-                "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
-                "autor" => $dpu->getAutor(),
-                "camposExtra" => $dpu->getCamposExtra(),
-                "seccion" => $dpu->getSeccion()
-            ];
+            $resultado = [];
+            foreach ($publicaciones as $dpu) {
+                $resultado[] = [
+                    "id" => $dpu->getId(),
+                    "titulo" => $dpu->getTitulo(),
+                    "foto" => $dpu->getFoto(),
+                    "nombreCientifico" => $dpu->getNombreCientifico(),
+                    "areasHabitat" => $dpu->getAreasHabitat(),
+                    "dieta" => $dpu->getDieta(),
+                    "horasActivas" => $dpu->getHorasActivas(),
+                    "estado" => $dpu->getEstado(),
+                    "fechaCreacion" => $dpu->getFechaCreacion(),
+                    "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
+                    "autor" => $dpu->getAutor(),
+                    "camposExtra" => $dpu->getCamposExtra(),
+                    "seccion" => $dpu->getSeccion()
+                ];
+            }
+            
+            http_response_code(200);
+            echo json_encode($resultado);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
         }
-        
-        http_response_code(200);
-        echo json_encode($resultado);
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/agregarCampoExtra
@@ -186,10 +210,14 @@ class PublicacionEndpoint {
             DTTipoCampo::from($datos->tipo)
         );
 
-        $this->controlador->agregarCampoExtra($dtc);
-
-         http_response_code(201);
-        echo json_encode(["mensaje" => "Campo Extra agregado correctamente"]);
+        try {
+            $this->controlador->agregarCampoExtra($dtc);
+            http_response_code(201);
+            echo json_encode(["mensaje" => "Campo Extra agregado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/eliminarCampoExtra
@@ -199,18 +227,20 @@ class PublicacionEndpoint {
 
         $idCampo = $dato->idCampo;
 
-        $this->controlador->eliminarCampoExtra($idCampo);
-        
-        http_response_code(201);
-        echo json_encode(["mensaje" => "Campo Extra eliminado correctamente"]);
-        
+        try {
+            $this->controlador->eliminarCampoExtra($idCampo);
+            http_response_code(201);
+            echo json_encode(["mensaje" => "Campo Extra eliminado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/modificarCampoExtra
     public function modificarCampoExtra(): void{
         $datos = json_decode(file_get_contents("php://input"));
-
-        var_dump($datos->id);
+;
         $dtc = new DTCampoExtra(
             $datos->id,
             $datos->idPublicacion,
@@ -219,37 +249,46 @@ class PublicacionEndpoint {
             DTTipoCampo::from($datos->tipo)
         );
 
-        $this->controlador->modificarCampoExtra($dtc);
-
-         http_response_code(201);
-        echo json_encode(["mensaje" => "Campo Extra modificado correctamente"]);
+        try {
+            $this->controlador->modificarCampoExtra($dtc);
+            http_response_code(201);
+            echo json_encode(["mensaje" => "Campo Extra modificado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionesPendientes
     public function listarPublicacionesPendientes(): void{
-        $publicaciones = $this->controlador->listarPublicacionesPendientes();
+        try{
+            $publicaciones = $this->controlador->listarPublicacionesPendientes();
 
-        $resultado = [];
-        foreach ($publicaciones as $dpu) {
-            $resultado[] = [
-                "id" => $dpu->getId(),
-                "titulo" => $dpu->getTitulo(),
-                "foto" => $dpu->getFoto(),
-                "nombreCientifico" => $dpu->getNombreCientifico(),
-                "areasHabitat" => $dpu->getAreasHabitat(),
-                "dieta" => $dpu->getDieta(),
-                "horasActivas" => $dpu->getHorasActivas(),
-                "estado" => $dpu->getEstado(),
-                "fechaCreacion" => $dpu->getFechaCreacion(),
-                "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
-                "autor" => $dpu->getAutor(),
-                "camposExtra" => $dpu->getCamposExtra(),
-                "seccion" => $dpu->getSeccion()
-            ];
+            $resultado = [];
+            foreach ($publicaciones as $dpu) {
+                $resultado[] = [
+                    "id" => $dpu->getId(),
+                    "titulo" => $dpu->getTitulo(),
+                    "foto" => $dpu->getFoto(),
+                    "nombreCientifico" => $dpu->getNombreCientifico(),
+                    "areasHabitat" => $dpu->getAreasHabitat(),
+                    "dieta" => $dpu->getDieta(),
+                    "horasActivas" => $dpu->getHorasActivas(),
+                    "estado" => $dpu->getEstado(),
+                    "fechaCreacion" => $dpu->getFechaCreacion(),
+                    "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
+                    "autor" => $dpu->getAutor(),
+                    "camposExtra" => $dpu->getCamposExtra(),
+                    "seccion" => $dpu->getSeccion()
+                ];
+            }
+            
+            http_response_code(200);
+            echo json_encode($resultado);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
         }
-        
-        http_response_code(200);
-        echo json_encode($resultado);
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionesPorSeccion
@@ -259,29 +298,34 @@ class PublicacionEndpoint {
 
         $seccion = $dato->seccion;
 
-        $publicaciones = $this->controlador->listarPublicacionesPorSeccion($seccion);
+        try{
+            $publicaciones = $this->controlador->listarPublicacionesPorSeccion($seccion);
 
-        $resultado = [];
-        foreach ($publicaciones as $dpu) {
-            $resultado[] = [
-                "id" => $dpu->getId(),
-                "titulo" => $dpu->getTitulo(),
-                "foto" => $dpu->getFoto(),
-                "nombreCientifico" => $dpu->getNombreCientifico(),
-                "areasHabitat" => $dpu->getAreasHabitat(),
-                "dieta" => $dpu->getDieta(),
-                "horasActivas" => $dpu->getHorasActivas(),
-                "estado" => $dpu->getEstado(),
-                "fechaCreacion" => $dpu->getFechaCreacion(),
-                "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
-                "autor" => $dpu->getAutor(),
-                "camposExtra" => $dpu->getCamposExtra(),
-                "seccion" => $dpu->getSeccion()
-            ];
+            $resultado = [];
+            foreach ($publicaciones as $dpu) {
+                $resultado[] = [
+                    "id" => $dpu->getId(),
+                    "titulo" => $dpu->getTitulo(),
+                    "foto" => $dpu->getFoto(),
+                    "nombreCientifico" => $dpu->getNombreCientifico(),
+                    "areasHabitat" => $dpu->getAreasHabitat(),
+                    "dieta" => $dpu->getDieta(),
+                    "horasActivas" => $dpu->getHorasActivas(),
+                    "estado" => $dpu->getEstado(),
+                    "fechaCreacion" => $dpu->getFechaCreacion(),
+                    "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
+                    "autor" => $dpu->getAutor(),
+                    "camposExtra" => $dpu->getCamposExtra(),
+                    "seccion" => $dpu->getSeccion()
+                ];
+            }
+            
+            http_response_code(200);
+            echo json_encode($resultado);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
         }
-        
-        http_response_code(200);
-        echo json_encode($resultado);
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/reportePublicacion
@@ -304,11 +348,14 @@ class PublicacionEndpoint {
             $resuelto
         );
 
-        $this->controlador->reportePublicacion($dtr);
-
-        http_response_code(201);
-        echo json_encode(["mensaje" => "Reporte creado correctamente"]);
-
+        try {
+            $this->controlador->reportePublicacion($dtr);
+            http_response_code(201);
+            echo json_encode(["mensaje" => "Reporte creado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionFiltro

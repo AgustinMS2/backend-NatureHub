@@ -11,46 +11,45 @@ class UsuarioEndpoint {
     // http://localhost/backend-NatureHub/src/index.php/usuarios/altaUsuario
     public function altaUsuario(): void {
         $datos = (object) $_POST;
-
         $fotoUrl = $datos->fotoUrl ?? null;
-        if (!empty($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../../uploads/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
+
+        try{
+            if (!empty($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../../uploads/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+
+                $file = $_FILES['foto'];
+                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $filename = uniqid('profile_', true) . ($extension ? ".{$extension}" : '');
+                $destination = $uploadDir . $filename;
+
+                if (!move_uploaded_file($file['tmp_name'], $destination)) {
+                    throw new Exception("No se pudo guardar la imagen de perfil.");
+                }
+
+                $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+                $fotoUrl = sprintf('%s://%s%s/uploads/%s', $scheme, $host, $path, $filename);
             }
+            
+            $dtu = new DTUsuario(
+                null,
+                $datos->nombre,
+                $datos->apellido,
+                $datos->email,
+                $datos->password,
+                null,
+                null,
+                $datos->sexo ?? null,
+                $datos->fechaNacimiento ?? null,
+                $datos->pais ?? null,
+                $datos->bio ?? null,
+                $fotoUrl
+            );
 
-            $file = $_FILES['foto'];
-            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $filename = uniqid('profile_', true) . ($extension ? ".{$extension}" : '');
-            $destination = $uploadDir . $filename;
-
-            if (!move_uploaded_file($file['tmp_name'], $destination)) {
-                throw new Exception("No se pudo guardar la imagen de perfil.");
-            }
-
-            $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-            $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-            $fotoUrl = sprintf('%s://%s%s/uploads/%s', $scheme, $host, $path, $filename);
-        }
-        
-        $dtu = new DTUsuario(
-            null,
-            $datos->nombre,
-            $datos->apellido,
-            $datos->email,
-            $datos->password,
-            null,
-            null,
-            $datos->sexo ?? null,
-            $datos->fechaNacimiento ?? null,
-            $datos->pais ?? null,
-            $datos->bio ?? null,
-            $fotoUrl
-        );
-
-
-        try {
             $this->controlador->altaUsuario($dtu);
             http_response_code(201);
             echo json_encode(["mensaje" => "Usuario creado correctamente"]);
@@ -128,34 +127,39 @@ class UsuarioEndpoint {
 
     // http://localhost/backend-NatureHub/src/index.php/usuarios/listarUsuarios
     public function listarUsuarios(): void {
-        $usuarios = $this->controlador->listarUsuarios();
-        
-        $resultado = [];
-        foreach ($usuarios as $dtu) {
-            $rol = match(true) {
-                $dtu instanceof DTAdministrador => "ADMINISTRADOR",
-                $dtu instanceof DTModerador => "MODERADOR",
-                default => "USUARIO"
-            };
+        try{
+            $usuarios = $this->controlador->listarUsuarios();
+            
+            $resultado = [];
+            foreach ($usuarios as $dtu) {
+                $rol = match(true) {
+                    $dtu instanceof DTAdministrador => "ADMINISTRADOR",
+                    $dtu instanceof DTModerador => "MODERADOR",
+                    default => "USUARIO"
+                };
 
-            $resultado[] = [
-                "id" => $dtu->getId(),
-                "nombre" => $dtu->getNombre(),
-                "apellido" => $dtu->getApellido(),
-                "email" => $dtu->getEmail(),
-                "activo" => $dtu->getActivo(),
-                "fechaRegistro" => $dtu->getFechaRegistro(),
-                "sexo" => $dtu->getSexo(),
-                "fechaNacimiento" => $dtu->getFechaNacimiento(),
-                "pais" => $dtu->getPais(),
-                "bio" => $dtu->getBio(),
-                "fotoUrl" => $dtu->getFotoUrl(),
-                "rol" => $rol
-            ];
+                $resultado[] = [
+                    "id" => $dtu->getId(),
+                    "nombre" => $dtu->getNombre(),
+                    "apellido" => $dtu->getApellido(),
+                    "email" => $dtu->getEmail(),
+                    "activo" => $dtu->getActivo(),
+                    "fechaRegistro" => $dtu->getFechaRegistro(),
+                    "sexo" => $dtu->getSexo(),
+                    "fechaNacimiento" => $dtu->getFechaNacimiento(),
+                    "pais" => $dtu->getPais(),
+                    "bio" => $dtu->getBio(),
+                    "fotoUrl" => $dtu->getFotoUrl(),
+                    "rol" => $rol
+                ];
+            }
+            
+            http_response_code(200);
+            echo json_encode($resultado);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
         }
-        
-        http_response_code(200);
-        echo json_encode($resultado);
     }
 
     // http://localhost/backend-NatureHub/src/index.php/usuarios/moderarUsuario
