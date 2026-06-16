@@ -2,13 +2,13 @@
 
 class Modera {
     private int $id;
-    private string $motivoRechazo;
+    private ?string $motivoRechazo;
     private ResultadoRevision $resultado;
     private DateTime $fechaRevision;
-    private Moderador $moderador;
-    private Publicacion $publicacion;
+    private int $moderador;
+    private int $publicacion;
 
-    public function __construct(int $id, string $motivoRechazo, ResultadoRevision $resultado, Moderador $moderador, Publicacion $publicacion, DateTime $fechaRevision) {
+    public function __construct(int $id, ?string $motivoRechazo, ResultadoRevision $resultado, int $moderador, int $publicacion, DateTime $fechaRevision) {
         $this->id = $id;
         $this->motivoRechazo = $motivoRechazo;
         $this->resultado = $resultado;
@@ -24,24 +24,24 @@ class Modera {
         $this->id = $id;
     }
 
-    public function getMotivoRechazo(): string {
+    public function getMotivoRechazo(): ?string {
         return $this->motivoRechazo;
     }
-    public function setMotivoRechazo(string $motivoRechazo): void {
+    public function setMotivoRechazo(?string $motivoRechazo): void {
         $this->motivoRechazo = $motivoRechazo;
     }
 
-    public function getPublicacion(): Publicacion {
+    public function getPublicacion(): int {
         return $this->publicacion;
     }
-    public function setPublicacion(Publicacion $publicacion): void {
+    public function setPublicacion(int $publicacion): void {
         $this->publicacion = $publicacion;
     }
 
-    public function getModerador(): Moderador {
+    public function getModerador(): int {
         return $this->moderador;
     }
-    public function setModerador(Moderador $moderador): void {
+    public function setModerador(int $moderador): void {
         $this->moderador = $moderador;
     }
 

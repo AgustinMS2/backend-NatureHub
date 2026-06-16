@@ -446,5 +446,41 @@ class PublicacionRepositorio {
 
     }
 
+    public function moderarPublicacion(Modera $moderacion): void {
+        try {
+            $this->mysql->begin_transaction();
+
+            $sqlModera = "INSERT INTO MODERA (id_modera, id_publicacion, id_moderador, resultado, motivo_rechazo, fecha_revision) VALUES (?, ?, ?, ?, ?, ?)";
+            $consultaModera = $this->mysql->prepare($sqlModera);
+
+            $idModera = $moderacion->getId();
+            $idPublicacion = $moderacion->getPublicacion();
+            $idModerador = $moderacion->getModerador();
+            $resultadoEnum = $moderacion->getResultado()->value;
+            $fechaRevision = $moderacion->getFechaRevision()->format("Y-m-d H:i:s");;
+            $motivoRechazo = $moderacion->getMotivoRechazo();
+
+            $consultaModera->bind_param("iiisss", $idModera, $idPublicacion, $idModerador, $resultadoEnum, $motivoRechazo, $fechaRevision);
+            $consultaModera->execute();
+ 
+            $sqlUpdate = "UPDATE PUBLICACION SET estado = ?, fecha_modificacion = ? WHERE id_publicacion = ?";
+            $consultaUpdate = $this->mysql->prepare($sqlUpdate);
+            $consultaUpdate->bind_param("ssi", $resultadoEnum, $fechaRevision, $idPublicacion);
+            $consultaUpdate->execute();
+ 
+            $this->mysql->commit();
+        } catch (Exception $e) {
+            $this->mysql->rollback();
+            throw $e;
+        }
+    }
+ 
+    public function obtenerSiguienteIdModera(): int {
+        $sql = "SELECT COALESCE(MAX(id_modera), 0) + 1 AS proximo_id FROM MODERA";
+        $resultado = $this->mysql->query($sql);
+        $fila = $resultado->fetch_assoc();
+        return $fila["proximo_id"];
+    }
+
 }
 ?>

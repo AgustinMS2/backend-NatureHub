@@ -281,6 +281,29 @@ class PublicacionEndpoint {
         
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/moderarPublicacion
+    public function moderarPublicacion(): void{
+        $datos = json_decode(file_get_contents("php://input"));
+ 
+        $dtm = new DTModera(
+            null,
+            $datos->motivoRechazo ?? null,
+            $datos->resultado,
+            $datos->idModerador,
+            $datos->idPublicacion,
+            null
+        );
+
+        try {
+            $this->controlador->moderarPublicacion($dtm);
+            http_response_code(201);
+            echo json_encode(["mensaje" => "Publicación moderada correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
 }
 
 ?>

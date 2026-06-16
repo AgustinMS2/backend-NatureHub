@@ -274,11 +274,45 @@ class PublicacionController implements IPublicacionController {
     public function listarPublicacionFiltro(string $filtro): void{
         $repositorio = PublicacionRepositorio::getInstance();
     }
-
-    public function moderarPublicacion(): void{
+    
+   public function moderarPublicacion(DTModera $dtm): void {
         $repositorio = PublicacionRepositorio::getInstance();
+        $repositorioUsuario = UsuarioRepositorio::getInstance();
+ 
+        $publicacion = $repositorio->obtenerPublicacionId($dtm->getPublicacion());
+        if ($publicacion === null) {
+            throw new Exception("No existe una publicación con ese id");
+        }
 
+        $moderador = $repositorioUsuario->obtenerUsuarioPorId($dtm->getModerador());
+        if ($moderador === null || !($moderador instanceof Moderador)) {
+            throw new Exception("No existe un moderador o administrador con ese id");
+        }
+        
+        $resultadoEnum = ResultadoRevision::tryFrom($dtm->getResultado());
+        if ($resultadoEnum === null) {
+            throw new Exception("El resultado debe ser APROBADA o RECHAZADA");
+        }
+
+        if ($dtm->getResultado() !== 'APROBADA' && $dtm->getResultado() !== 'RECHAZADA') {
+            throw new Exception("El resultado debe ser APROBADA o RECHAZADA");
+        }
+
+        $id = $repositorio->obtenerSiguienteIdModera();
+        $fecha = new DateTime();
+
+        $moderacion= new Modera(
+            $id,
+            $dtm->getMotivoRechazo(),
+            $resultadoEnum,
+            $dtm->getModerador(),
+            $dtm->getPublicacion(),
+            $fecha
+        );
+ 
+        $repositorio->moderarPublicacion($moderacion);
     }
+
 
     
 
