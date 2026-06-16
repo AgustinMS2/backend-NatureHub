@@ -331,5 +331,120 @@ class PublicacionRepositorio {
 
     }
 
+    public function listarPublicacionesPendientes(): array {
+        $sql = "SELECT p.*, c.id_campo, c.etiqueta, c.valor, c.tipo FROM PUBLICACION p LEFT JOIN CAMPO_EXTRA c ON p.id_publicacion = c.id_publicacion WHERE p.activo = true AND estado = 'PENDIENTE_REVISION' ORDER BY p.id_publicacion";
+
+        $resultado = $this->mysql->query($sql);
+
+        $publicaciones = [];
+
+        foreach ($resultado as $fila) {
+
+            $idPublicacion = $fila["id_publicacion"];
+
+            if (!isset($publicaciones[$idPublicacion])) {
+
+                $publicaciones[$idPublicacion] = new Publicacion(
+                    $fila["id_publicacion"],
+                    $fila["titulo"],
+                    $fila["foto_url"],
+                    $fila["nombre_cientifico"],
+                    json_decode($fila["areas_habitat"], true),
+                    $fila["dieta"],
+                    $fila["horas_activas"],
+                    EstadoPublicacion::from($fila["estado"]),
+                    new DateTime($fila["fecha_creacion"]),
+                    new DateTime($fila["fecha_modificacion"]),
+                    $fila["id_autor"],
+                    [],
+                    $fila["id_seccion"]
+                );
+            }
+
+            if ($fila["id_campo"] !== null) {
+
+                $publicaciones[$idPublicacion]->setCamposExtra([
+                    "id" => $fila["id_campo"],
+                    "etiqueta" => $fila["etiqueta"],
+                    "valor" => $fila["valor"],
+                    "tipo" => $fila["tipo"]
+                ]);
+            }
+        }
+
+        return array_values($publicaciones);
+    }
+
+    public function listarPublicacionesPorSeccion(string $seccion): array {
+        $sql = "SELECT p.*, c.id_campo, c.etiqueta, c.valor, c.tipo FROM PUBLICACION p LEFT JOIN CAMPO_EXTRA c ON p.id_publicacion = c.id_publicacion LEFT JOIN SECCION s ON p.id_seccion = s.id_seccion WHERE p.activo = true AND s.nombre = ? ORDER BY p.id_publicacion";
+
+        $consulta = $this->mysql->prepare($sql);
+
+        $consulta->bind_param("s", $seccion);
+        $consulta->execute();
+
+        $resultado = $consulta->get_result();
+
+        $publicaciones = [];
+
+        foreach ($resultado as $fila) {
+
+            $idPublicacion = $fila["id_publicacion"];
+
+            if (!isset($publicaciones[$idPublicacion])) {
+
+                $publicaciones[$idPublicacion] = new Publicacion(
+                    $fila["id_publicacion"],
+                    $fila["titulo"],
+                    $fila["foto_url"],
+                    $fila["nombre_cientifico"],
+                    json_decode($fila["areas_habitat"], true),
+                    $fila["dieta"],
+                    $fila["horas_activas"],
+                    EstadoPublicacion::from($fila["estado"]),
+                    new DateTime($fila["fecha_creacion"]),
+                    new DateTime($fila["fecha_modificacion"]),
+                    $fila["id_autor"],
+                    [],
+                    $fila["id_seccion"]
+                );
+            }
+
+            if ($fila["id_campo"] !== null) {
+
+                $publicaciones[$idPublicacion]->setCamposExtra([
+                    "id" => $fila["id_campo"],
+                    "etiqueta" => $fila["etiqueta"],
+                    "valor" => $fila["valor"],
+                    "tipo" => $fila["tipo"]
+                ]);
+            }
+        }
+
+        return array_values($publicaciones);
+    }
+
+    public function reportePublicacion(Reporte $reporte){
+        $sql = "INSERT INTO REPORTE (id_publicacion, id_usuario, motivo, fecha, resuelto) VALUES (?, ?, ?, ?, ?)";
+
+        $consulta = $this->mysql->prepare($sql);
+
+        //var_dump($reporte->getIdPublicacion());
+        //var_dump($reporte->getIdUsuario());
+        //var_dump($reporte->getMotivo());
+        //var_dump($reporte->getFecha());
+        //var_dump($reporte->getResuelto());
+        
+        $idPublicacion = $reporte->getIdPublicacion();
+        $idUsuario = $reporte->getIdUsuario();
+        $motivo = $reporte->getMotivo();
+        $fecha = $reporte->getFecha()->format("Y-m-d H:i:s");
+        $resuelto = $reporte->getResuelto();
+
+        $consulta->bind_param("iisss", $idPublicacion, $idUsuario, $motivo, $fecha, $resuelto);
+        $consulta->execute();
+
+    }
+
 }
 ?>

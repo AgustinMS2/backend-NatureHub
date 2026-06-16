@@ -195,6 +195,82 @@ class PublicacionController implements IPublicacionController {
         $repositorio->modificarCampoExtra($campoExtra);
     }
 
+    public function listarPublicacionesPendientes(): array{
+        $repositorio = PublicacionRepositorio::getInstance();
+
+        $publicaciones = $repositorio->listarPublicacionesPendientes();
+
+        $resultado = [];
+        foreach ($publicaciones as $publicacion) {
+            $dtp = new DTPublicacion(
+                $publicacion->getId(),
+                $publicacion->getTitulo(),
+                $publicacion->getFoto(),
+                $publicacion->getNombreCientifico(),
+                $publicacion->getAreasHabitat(),
+                $publicacion->getDieta(),
+                $publicacion->getHorasActivas(),
+                $publicacion->getEstado()->value,
+                $publicacion->getFechaCreacion()->format("Y-m-d H-i-s"),
+                $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
+                $publicacion->getAutor(),
+                $publicacion->getCamposExtra(),
+                $publicacion->getSeccion(),
+                [],
+                []
+            );
+            $resultado[] = $dtp;
+        }
+
+        return $resultado;
+    }
+
+    public function listarPublicacionesPorSeccion(string $seccion): array{
+        $repositorio = PublicacionRepositorio::getInstance();
+
+        $publicaciones = $repositorio->listarPublicacionesPorSeccion($seccion);
+
+        $resultado = [];
+        foreach ($publicaciones as $publicacion) {
+            $dtp = new DTPublicacion(
+                $publicacion->getId(),
+                $publicacion->getTitulo(),
+                $publicacion->getFoto(),
+                $publicacion->getNombreCientifico(),
+                $publicacion->getAreasHabitat(),
+                $publicacion->getDieta(),
+                $publicacion->getHorasActivas(),
+                $publicacion->getEstado()->value,
+                $publicacion->getFechaCreacion()->format("Y-m-d H-i-s"),
+                $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
+                $publicacion->getAutor(),
+                $publicacion->getCamposExtra(),
+                $publicacion->getSeccion(),
+                [],
+                []
+            );
+            $resultado[] = $dtp;
+        }
+
+        return $resultado;
+    }
+
+    public function reportePublicacion(DTReporte $dtr): void{
+        $repositorio = PublicacionRepositorio::getInstance();
+
+        $reporte = new Reporte(
+            0,
+            $dtr->getIdPublicacion(),
+            $dtr->getIdUsuario(),
+            $dtr->getMotivo(),
+            $dtr->getFecha(),
+            $dtr->getResuelto()
+        );
+
+        $repositorio->reportePublicacion($reporte);
+
+    }
+
     public function listarPublicacionFiltro(string $filtro): void{
         $repositorio = PublicacionRepositorio::getInstance();
     }
@@ -204,10 +280,7 @@ class PublicacionController implements IPublicacionController {
 
     }
 
-    public function reportarPublicacion(DTReporte $dtr): void{
-        $repositorio = PublicacionRepositorio::getInstance();
-
-    }
+    
 
 
 }

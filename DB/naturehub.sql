@@ -66,7 +66,7 @@ CREATE TABLE PUBLICACION (
     areas_habitat TEXT,
     dieta VARCHAR(200),
     horas_activas VARCHAR(100),
-    estado ENUM('BORRADOR', 'PENDIENTE_REVISION', 'APROBADA', 'RECHAZADA', 'PUBLICADA') NOT NULL,
+    estado ENUM('BORRADOR', 'PENDIENTE_REVISION', 'APROBADA', 'RECHAZADA') NOT NULL,
     fecha_creacion TIMESTAMP NOT NULL,
     fecha_modificacion TIMESTAMP NOT NULL,
     activo BOOLEAN NOT NULL,
@@ -95,7 +95,7 @@ CREATE TABLE MODERA (
 );
 
 CREATE TABLE REPORTE (
-    id_reporte INT PRIMARY KEY,
+    id_reporte INT AUTO_INCREMENT PRIMARY KEY,
     id_publicacion INT NOT NULL,
     id_usuario INT NOT NULL,
     motivo TEXT NOT NULL,
