@@ -1,6 +1,6 @@
 <?php
-enum ResultadoRevision {
-    case APROBADA;
-    case RECHAZADA;
+enum ResultadoRevision: string {
+    case APROBADA = 'APROBADA';
+    case RECHAZADA = 'RECHAZADA';
 }
 ?>

@@ -19,6 +19,8 @@ include __DIR__ . "/logica/modelos/Publicacion.php";
 include __DIR__ . "/logica/modelos/CampoExtra.php";
 include __DIR__ . "/logica/modelos/TipoCampo.php";
 include __DIR__ . "/logica/modelos/Reporte.php";
+include __DIR__ . "/logica/modelos/Modera.php";
+include __DIR__ . "/logica/modelos/ResultadoRevision.php";
 
 include __DIR__ . "/servicios/DTs/DTSesion.php";
 include __DIR__ . "/servicios/DTs/DTUsuario.php";
@@ -28,6 +30,7 @@ include __DIR__ . "/servicios/DTs/DTPublicacion.php";
 include __DIR__ . "/servicios/DTs/DTCampoExtra.php";
 include __DIR__ . "/servicios/DTs/DTTipoCampo.php";
 include __DIR__ . "/servicios/DTs/DTReporte.php";
+include __DIR__ . "/servicios/DTs/DTModera.php";
 
 include __DIR__ . "/logica/endpoints/UsuarioEndpoint.php";
 include __DIR__ . "/logica/endpoints/PublicacionEndpoint.php";
@@ -64,6 +67,7 @@ match([$metodo, $ruta]) {
     ['GET', '/publicaciones/listarPublicacionesPorSeccion'] => $publicacionEndpoint->listarPublicacionesPorSeccion(),
     ['POST', '/publicaciones/reportePublicacion'] => $publicacionEndpoint->reportePublicacion(),
     ['GET', '/publicaciones/listarPublicacionFiltro'] => $publicacionEndpoint->listarPublicacionFiltro(),
+    ['POST', '/publicaciones/moderarPublicacion'] => $publicacionEndpoint->moderarPublicacion(),
 
         default => http_response_code(404)
     };
