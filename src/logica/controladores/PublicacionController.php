@@ -294,10 +294,6 @@ class PublicacionController implements IPublicacionController {
             throw new Exception("El resultado debe ser APROBADA o RECHAZADA");
         }
 
-        if ($dtm->getResultado() !== 'APROBADA' && $dtm->getResultado() !== 'RECHAZADA') {
-            throw new Exception("El resultado debe ser APROBADA o RECHAZADA");
-        }
-
         $id = $repositorio->obtenerSiguienteIdModera();
         $fecha = new DateTime();
 
