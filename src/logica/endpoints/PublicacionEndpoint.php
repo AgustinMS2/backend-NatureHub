@@ -85,28 +85,58 @@ class PublicacionEndpoint {
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/modificarPublicacion
     public function modificarPublicacion(): void{
-        $datos = json_decode(file_get_contents("php://input"));
-
-        $dtp = new DTPublicacion(
-            0,
-            $datos->titulo,
-            $datos->foto,
-            $datos->nombreCientifico,
-            $datos->areasHabitat,
-            $datos->dieta,
-            $datos->horasActivas,
-            null,
-            null,
-            null,
-            $datos->autor,
-            [],
-            $datos->seccion
-        );
+        $datos = (object) $_POST;
+        $fotoUrl = $datos->foto ?? $datos->fotoUrl ?? null;
 
         try {
-            $this->controlador->modificarPublicacion($dtp);
-            http_response_code(201);
-            echo json_encode(["mensaje" => "Publicacion modificada correctamente"]);
+            if (!empty($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../../uploads/publicaciones/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+
+                $file = $_FILES['foto'];
+                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $filename = uniqid('profile_', true) . ($extension ? ".{$extension}" : '');
+                $destination = $uploadDir . $filename;
+
+                if (!move_uploaded_file($file['tmp_name'], $destination)) {
+                    throw new Exception("No se pudo guardar la imagen.");
+                }
+
+                $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+                $fotoUrl = sprintf('%s://%s%s/uploads/publicaciones/%s', $scheme, $host, $path, $filename);
+            }
+
+            $camposExtra = json_decode($datos->camposExtra ?? '[]');
+            $areasHabitat = json_decode($datos->areasHabitat ?? '[]');
+
+            $dtp = new DTPublicacion(
+                (int) $datos->id,
+                $datos->titulo,
+                $fotoUrl,
+                $datos->nombreCientifico,
+                $areasHabitat,
+                $datos->dieta,
+                $datos->horasActivas,
+                null,
+                null,
+                null,
+                (int) $datos->autor,
+                $camposExtra,
+                (int) $datos->seccion,
+                [],
+                []
+            );
+
+            $resultado = $this->controlador->modificarPublicacion($dtp);
+            http_response_code(200);
+            echo json_encode([
+                "mensaje" => "Publicacion modificada correctamente",
+                "estado" => $resultado["estado"]
+            ]);
         } catch (Exception $e) {
             http_response_code(400);
             echo json_encode(["error" => $e->getMessage()]);

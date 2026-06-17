@@ -2,7 +2,7 @@
 interface IPublicacionController {
     public function altaPublicacion(DTPublicacion $dtp): void;
     public function bajaPublicacion(int $id): void;
-    public function modificarPublicacion(DTPublicacion $dtp): void;
+    public function modificarPublicacion(DTPublicacion $dtp): array;
     public function moderarPublicacion(DTModera $dtm): void;
     public function listarPublicaciones(): array;
     public function listarPublicacionesPropias(int $id): array;

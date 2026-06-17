@@ -68,15 +68,16 @@ class UsuarioRepositorio {
         try {
             $this->mysql->begin_transaction();
 
-            $sql = "UPDATE USUARIO SET nombre = ?, apellido = ?, email = ? WHERE id_usuario = ?";
+            $sql = "UPDATE USUARIO SET nombre = ?, apellido = ?, email = ?, password_hash = ? WHERE id_usuario = ?";
             $consulta = $this->mysql->prepare($sql);
     
             $nombre = $usuario->getNombre();
             $apellido = $usuario->getApellido();
             $email = $usuario->getEmail();
             $id = $usuario->getId();
+            $passwordHash = $usuario->getPasswordHash();
     
-            $consulta->bind_param("sssi", $nombre, $apellido, $email, $id);
+            $consulta->bind_param("ssssi", $nombre, $apellido, $email, $passwordHash, $id);
             $consulta->execute();
 
             $sqlPerfil = "UPDATE PERFIL SET bio = ?, foto_url = ?, sexo = ?, fecha_nacimiento = ?, pais = ? WHERE id_usuario = ?";

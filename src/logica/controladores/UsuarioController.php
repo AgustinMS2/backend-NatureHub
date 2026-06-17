@@ -53,7 +53,7 @@ class UsuarioController implements IUsuarioController {
         $repositorio->bajaUsuario($id);
     }
 
-    public function modificarUsuario(DTUsuario $dtu): void{
+    public function modificarUsuario(DTUsuario $dtu, ?string $nuevaPassword): void{
         $repositorio = UsuarioRepositorio::getInstance();
 
         $usuario = $repositorio->obtenerUsuarioPorId($dtu->getId());
@@ -63,10 +63,19 @@ class UsuarioController implements IUsuarioController {
         if (!$usuario->getActivo()) {
             throw new Exception("El usuario se encuentra dado de baja");
         }
+        if (!password_verify($dtu->getPassword(), $usuario->getPasswordHash())) {
+            throw new Exception("La contraseña actual introducida es incorrecta.");
+        }
 
         $usuarioConEmail = $repositorio->obtenerUsuarioPorEmail($dtu->getEmail());
         if ($usuarioConEmail !== null && $usuarioConEmail->getId() !== $dtu->getId()) {
             throw new Exception("Ya existe un usuario con ese email");
+        }
+
+        if (!empty($nuevaPassword)) {
+            $passwordHash = password_hash($nuevaPassword, PASSWORD_DEFAULT);
+        } else {
+            $passwordHash = $usuario->getPasswordHash();
         }
 
         $fechaNac = $dtu->getFechaNacimiento() ? new DateTime($dtu->getFechaNacimiento()) : null;
@@ -76,7 +85,7 @@ class UsuarioController implements IUsuarioController {
             $dtu->getNombre(),
             $dtu->getApellido(),
             $dtu->getEmail(),
-            $usuario->getPasswordHash(),
+            $passwordHash,
             $usuario->getActivo(),
             $usuario->getFechaRegistro(),
             [],
