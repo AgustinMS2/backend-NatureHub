@@ -164,6 +164,33 @@ class PublicacionController implements IPublicacionController {
         return $resultado;
     }
 
+    public function listarPublicacionesTitulo(string $titulo): array{
+        $repositorio = PublicacionRepositorio::getInstance();
+
+        $publicacion = $repositorio->obtenerPublicacionTitulo($titulo);
+        $resultado = [];
+            $dtp = new DTPublicacion(
+                $publicacion->getId(),
+                $publicacion->getTitulo(),
+                $publicacion->getFoto(),
+                $publicacion->getNombreCientifico(),
+                $publicacion->getAreasHabitat(),
+                $publicacion->getDieta(),
+                $publicacion->getHorasActivas(),
+                $publicacion->getEstado()->value,
+                $publicacion->getFechaCreacion()->format("Y-m-d H-i-s"),
+                $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
+                $publicacion->getAutor(),
+                $publicacion->getCamposExtra(),
+                $publicacion->getSeccion(),
+                [],
+                []
+            );
+            $resultado[] = $dtp;
+
+        return $resultado;
+    }
+
     public function agregarCampoExtra(DTCampoExtra $dtc): void{
         $repositorio = PublicacionRepositorio::getInstance();
 

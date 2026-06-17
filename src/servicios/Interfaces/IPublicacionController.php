@@ -6,6 +6,7 @@ interface IPublicacionController {
     public function moderarPublicacion(DTModera $dtm): void;
     public function listarPublicaciones(): array;
     public function listarPublicacionesPropias(int $id): array;
+    public function listarPublicacionesTitulo(string $titulo): array;
     public function agregarCampoExtra(DTCampoExtra $dtc): void;
     public function eliminarCampoExtra(int $id): void;
     public function modificarCampoExtra(DTCampoExtra $dtc): void;
