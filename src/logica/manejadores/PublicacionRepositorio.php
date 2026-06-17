@@ -88,7 +88,7 @@ class PublicacionRepositorio {
     }
 
     public function obtenerPublicacionTitulo(string $titulo): ?Publicacion{
-        $sql = "SELECT * FROM PUBLICACION WHERE titulo = ?";
+        $sql = "SELECT * FROM PUBLICACION WHERE titulo = ? AND activo = true";
         $consulta = $this->mysql->prepare($sql);
         $consulta->bind_param("s", $titulo);
         $consulta->execute();
@@ -112,9 +112,9 @@ class PublicacionRepositorio {
                 [],
                 $fila["id_seccion"]
             );
-    }
+        }
 
-    return null;
+        return null;
     }
 
     public function modificarPublicacion(Publicacion $publicacion): void {
