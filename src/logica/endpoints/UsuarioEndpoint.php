@@ -105,7 +105,7 @@ class UsuarioEndpoint {
             $datos->nombre,
             $datos->apellido,
             $datos->email,
-            null,
+            $datos->password,
             null,
             null,
             $datos->sexo ?? null,
@@ -116,7 +116,8 @@ class UsuarioEndpoint {
         );
 
         try {
-            $this->controlador->modificarUsuario($dtu);
+            $nuevaPassword = $datos->nuevaPassword ?? null;
+            $this->controlador->modificarUsuario($dtu, $nuevaPassword);
             http_response_code(200);
             echo json_encode(["mensaje" => "Usuario modificado correctamente"]);
         } catch (Exception $e) {
