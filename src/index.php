@@ -9,8 +9,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-include_once __DIR__ . "/inicializar.php";
-
 include __DIR__ . "/logica/modelos/Usuario.php";
 include __DIR__ . "/logica/modelos/Moderador.php";
 include __DIR__ . "/logica/modelos/Administrador.php";
