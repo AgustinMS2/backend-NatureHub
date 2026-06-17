@@ -57,7 +57,7 @@ CREATE TABLE PUBLICACION (
     areas_habitat TEXT,
     dieta VARCHAR(200),
     horas_activas VARCHAR(100),
-    estado ENUM('BORRADOR', 'PENDIENTE_REVISION', 'APROBADA', 'RECHAZADA') NOT NULL,
+    estado ENUM('PENDIENTE_REVISION', 'APROBADA', 'RECHAZADA') NOT NULL,
     fecha_creacion TIMESTAMP NOT NULL,
     fecha_modificacion TIMESTAMP NOT NULL,
     activo BOOLEAN NOT NULL,
