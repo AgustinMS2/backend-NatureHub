@@ -7,11 +7,6 @@ CREATE TABLE SECCION (
     descripcion TEXT
 );
 
-INSERT INTO SECCION VALUES
-(1, 'Mamíferos', 'Vertebrados de sangre caliente con pelo o pelaje y lactancia de sus crías'),
-(2, 'Aves', 'Vertebrados con plumas, bípedos, generalmente alados y de sangre caliente'),
-(3, 'Reptiles', 'Vertebrados ectotérmicos con escamas o placas óseas en la piel');
-
 CREATE TABLE USUARIO (
     id_usuario INT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -21,10 +16,6 @@ CREATE TABLE USUARIO (
     activo BOOLEAN NOT NULL,
     fecha_registro TIMESTAMP NOT NULL
 );
-
-INSERT INTO USUARIO VALUES
-(1, 'Juan', 'Pérez', 'juan@example.com', 'password_hash', 1, NOW()),
-(2, 'María', 'García', 'maria@example.com', 'password_hash', 1, NOW());
 
 CREATE TABLE PERFIL (
     id_usuario INT PRIMARY KEY,
