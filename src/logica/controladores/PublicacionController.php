@@ -39,6 +39,7 @@ class PublicacionController implements IPublicacionController {
         );
 
         $repositorio->agregarPublicacion($publicacion);
+        $repositorio->eliminarBorradorPorAutor($dtp->getAutor());
         
     }
 
@@ -325,6 +326,65 @@ class PublicacionController implements IPublicacionController {
         );
  
         $repositorio->moderarPublicacion($moderacion);
+    }
+
+    public function guardarBorrador(
+        int $idAutor,
+        ?int $idSeccion,
+        ?string $titulo,
+        ?string $nombreCientifico,
+        ?string $fotoUrl,
+        ?string $areasHabitat,
+        ?string $dieta,
+        ?string $horasActivas,
+        array $camposExtra
+    ): array {
+        $repositorio = PublicacionRepositorio::getInstance();
+        $camposExtraJson = json_encode($camposExtra);
+        $idBorrador = $repositorio->guardarBorrador(
+            $idAutor,
+            $idSeccion,
+            $titulo,
+            $nombreCientifico,
+            $fotoUrl,
+            $areasHabitat,
+            $dieta,
+            $horasActivas,
+            $camposExtraJson
+        );
+
+        return ["id_borrador" => $idBorrador, "mensaje" => "Borrador guardado correctamente"];
+    }
+
+    public function obtenerBorradorPorAutor(int $idAutor): ?array {
+        $repositorio = PublicacionRepositorio::getInstance();
+        $borrador = $repositorio->obtenerBorradorPorAutor($idAutor);
+
+        if ($borrador === null) {
+            return null;
+        }
+
+        $camposExtra = json_decode($borrador["campos_extra"] ?? '[]', true) ?: [];
+
+        return [
+            "id_borrador" => (int) $borrador["id_borrador"],
+            "autor" => (int) $borrador["id_autor"],
+            "seccion" => $borrador["id_seccion"] !== null ? (int) $borrador["id_seccion"] : null,
+            "titulo" => $borrador["titulo"] ?? '',
+            "nombreCientifico" => $borrador["nombre_cientifico"] ?? '',
+            "foto" => $borrador["foto_url"] ?? '',
+            "areasHabitat" => $borrador["areas_habitat"] ?? '',
+            "dieta" => $borrador["dieta"] ?? '',
+            "horasActivas" => $borrador["horas_activas"] ?? '',
+            "camposExtra" => $camposExtra,
+            "fechaModificacion" => $borrador["fecha_modificacion"],
+            "estado" => "BORRADOR",
+        ];
+    }
+
+    public function eliminarBorradorPorAutor(int $idAutor): void {
+        $repositorio = PublicacionRepositorio::getInstance();
+        $repositorio->eliminarBorradorPorAutor($idAutor);
     }
 
 

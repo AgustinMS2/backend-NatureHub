@@ -402,6 +402,108 @@ class PublicacionEndpoint {
         }
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/guardarBorrador
+    public function guardarBorrador(): void {
+        $datos = (object) $_POST;
+        $fotoUrl = $datos->fotoUrl ?? $datos->foto ?? null;
+
+        try {
+            if (!empty($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../../uploads/publicaciones/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+
+                $file = $_FILES['foto'];
+                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $filename = uniqid('draft_', true) . ($extension ? ".{$extension}" : '');
+                $destination = $uploadDir . $filename;
+
+                if (!move_uploaded_file($file['tmp_name'], $destination)) {
+                    throw new Exception("No se pudo guardar la imagen del borrador.");
+                }
+
+                $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+                $fotoUrl = sprintf('%s://%s%s/uploads/publicaciones/%s', $scheme, $host, $path, $filename);
+            }
+
+            $camposExtra = json_decode($datos->camposExtra ?? '[]', true) ?: [];
+            $areasHabitat = $datos->areasHabitat ?? '';
+            if (is_string($areasHabitat) && str_starts_with($areasHabitat, '[')) {
+                $decoded = json_decode($areasHabitat, true);
+                if (is_array($decoded)) {
+                    $areasHabitat = implode(', ', $decoded);
+                }
+            }
+
+            $idSeccion = isset($datos->seccion) && $datos->seccion !== '' ? (int) $datos->seccion : null;
+
+            $resultado = $this->controlador->guardarBorrador(
+                (int) $datos->autor,
+                $idSeccion,
+                $datos->titulo ?? null,
+                $datos->nombreCientifico ?? null,
+                $fotoUrl,
+                $areasHabitat ?: null,
+                $datos->dieta ?? null,
+                $datos->horasActivas ?? null,
+                $camposExtra
+            );
+
+            http_response_code(200);
+            echo json_encode($resultado);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/obtenerBorrador?idAutor=1
+    public function obtenerBorrador(): void {
+        $idAutor = (int) ($_GET['idAutor'] ?? 0);
+
+        try {
+            if ($idAutor <= 0) {
+                throw new Exception("Debe indicar el autor del borrador");
+            }
+
+            $borrador = $this->controlador->obtenerBorradorPorAutor($idAutor);
+
+            if ($borrador === null) {
+                http_response_code(200);
+                echo json_encode(null);
+                return;
+            }
+
+            http_response_code(200);
+            echo json_encode($borrador);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/eliminarBorrador
+    public function eliminarBorrador(): void {
+        $datos = json_decode(file_get_contents("php://input"));
+        $idAutor = (int) ($datos->idAutor ?? 0);
+
+        try {
+            if ($idAutor <= 0) {
+                throw new Exception("Debe indicar el autor del borrador");
+            }
+
+            $this->controlador->eliminarBorradorPorAutor($idAutor);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Borrador eliminado correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
 }
 
 ?>

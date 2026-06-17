@@ -508,5 +508,84 @@ class PublicacionRepositorio {
         return $fila["proximo_id"];
     }
 
+    public function obtenerBorradorPorAutor(int $idAutor): ?array {
+        $sql = "SELECT * FROM BORRADOR WHERE id_autor = ?";
+        $consulta = $this->mysql->prepare($sql);
+        $consulta->bind_param("i", $idAutor);
+        $consulta->execute();
+        $resultado = $consulta->get_result();
+        $fila = $resultado->fetch_assoc();
+        return $fila ?: null;
+    }
+
+    public function guardarBorrador(
+        int $idAutor,
+        ?int $idSeccion,
+        ?string $titulo,
+        ?string $nombreCientifico,
+        ?string $fotoUrl,
+        ?string $areasHabitat,
+        ?string $dieta,
+        ?string $horasActivas,
+        ?string $camposExtraJson
+    ): int {
+        $existente = $this->obtenerBorradorPorAutor($idAutor);
+        $fechaModificacion = (new DateTime())->format("Y-m-d H:i:s");
+
+        if ($existente !== null) {
+            $sql = "UPDATE BORRADOR SET id_seccion = ?, titulo = ?, nombre_cientifico = ?, foto_url = ?, areas_habitat = ?, dieta = ?, horas_activas = ?, campos_extra = ?, fecha_modificacion = ? WHERE id_autor = ?";
+            $consulta = $this->mysql->prepare($sql);
+            $consulta->bind_param(
+                "issssssssi",
+                $idSeccion,
+                $titulo,
+                $nombreCientifico,
+                $fotoUrl,
+                $areasHabitat,
+                $dieta,
+                $horasActivas,
+                $camposExtraJson,
+                $fechaModificacion,
+                $idAutor
+            );
+            $consulta->execute();
+            return (int) $existente["id_borrador"];
+        }
+
+        $idBorrador = $this->obtenerSiguienteIdBorrador();
+        $sql = "INSERT INTO BORRADOR (id_borrador, id_autor, id_seccion, titulo, nombre_cientifico, foto_url, areas_habitat, dieta, horas_activas, campos_extra, fecha_modificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $consulta = $this->mysql->prepare($sql);
+        $consulta->bind_param(
+            "iiissssssss",
+            $idBorrador,
+            $idAutor,
+            $idSeccion,
+            $titulo,
+            $nombreCientifico,
+            $fotoUrl,
+            $areasHabitat,
+            $dieta,
+            $horasActivas,
+            $camposExtraJson,
+            $fechaModificacion
+        );
+        $consulta->execute();
+        return $idBorrador;
+    }
+
+    public function eliminarBorradorPorAutor(int $idAutor): void {
+        $sql = "DELETE FROM BORRADOR WHERE id_autor = ?";
+        $consulta = $this->mysql->prepare($sql);
+        $consulta->bind_param("i", $idAutor);
+        $consulta->execute();
+    }
+
+    public function obtenerSiguienteIdBorrador(): int {
+        $sql = "SELECT COALESCE(MAX(id_borrador), 0) + 1 AS proximo_id FROM BORRADOR";
+        $resultado = $this->mysql->query($sql);
+        $fila = $resultado->fetch_assoc();
+        return $fila["proximo_id"];
+    }
+
 }
 ?>
