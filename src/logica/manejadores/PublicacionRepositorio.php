@@ -132,12 +132,38 @@ class PublicacionRepositorio {
         $areasHabitat = json_encode($publicacion->getAreasHabitat());
         $dieta = $publicacion->getDieta();
         $horasActivas = $publicacion->getHorasActivas();
-        //$estado = 'PENDIENTE_REVISION';
-        $estado= EstadoPublicacion::from('PENDIENTE_REVISION')->value;
+        $estado = $publicacion->getEstado()->value;
         $fechaUltimaModificacion = $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s");
 
         $consulta->bind_param("iissssssssi", $seccion, $autor, $titulo, $nombreCientifico, $foto, $areasHabitat, $dieta, $horasActivas, $estado, $fechaUltimaModificacion, $id);
         $consulta->execute();
+    }
+
+    public function reemplazarCamposExtra(int $idPublicacion, array $camposExtra): void {
+        $sqlDelete = "DELETE FROM CAMPO_EXTRA WHERE id_publicacion = ?";
+        $consultaDelete = $this->mysql->prepare($sqlDelete);
+        $consultaDelete->bind_param("i", $idPublicacion);
+        $consultaDelete->execute();
+
+        if (empty($camposExtra)) {
+            return;
+        }
+
+        $sqlInsert = "INSERT INTO CAMPO_EXTRA (id_publicacion, etiqueta, valor, tipo) VALUES (?, ?, ?, ?)";
+        $consultaInsert = $this->mysql->prepare($sqlInsert);
+
+        foreach ($camposExtra as $campo) {
+            $etiqueta = is_object($campo) ? ($campo->etiqueta ?? '') : ($campo['etiqueta'] ?? '');
+            $valor = is_object($campo) ? ($campo->valor ?? '') : ($campo['valor'] ?? '');
+            $tipo = is_object($campo) ? ($campo->tipo ?? 'texto') : ($campo['tipo'] ?? 'texto');
+
+            if ($etiqueta === '') {
+                continue;
+            }
+
+            $consultaInsert->bind_param("isss", $idPublicacion, $etiqueta, $valor, $tipo);
+            $consultaInsert->execute();
+        }
     }
 
     public function obtenerSiguienteId(): int {
