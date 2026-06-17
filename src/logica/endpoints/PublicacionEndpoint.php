@@ -437,6 +437,17 @@ class PublicacionEndpoint {
             echo json_encode(["error" => $e->getMessage()]);
         }
     }
+    
+    public function listarSecciones(): void {
+        try {
+            $secciones = $this->controlador->listarSecciones();
+            http_response_code(200);
+            echo json_encode($secciones);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/guardarBorrador
     public function guardarBorrador(): void {

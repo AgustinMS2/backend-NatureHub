@@ -70,6 +70,7 @@ match([$metodo, $ruta]) {
     ['POST', '/publicaciones/reportePublicacion'] => $publicacionEndpoint->reportePublicacion(),
     ['GET', '/publicaciones/listarPublicacionFiltro'] => $publicacionEndpoint->listarPublicacionFiltro(),
     ['POST', '/publicaciones/moderarPublicacion'] => $publicacionEndpoint->moderarPublicacion(),
+    ['GET', '/publicaciones/listarSecciones'] => $publicacionEndpoint->listarSecciones(),
     ['POST', '/publicaciones/guardarBorrador'] => $publicacionEndpoint->guardarBorrador(),
     ['GET', '/publicaciones/obtenerBorrador'] => $publicacionEndpoint->obtenerBorrador(),
     ['DELETE', '/publicaciones/eliminarBorrador'] => $publicacionEndpoint->eliminarBorrador(),

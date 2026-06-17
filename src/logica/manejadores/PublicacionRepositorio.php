@@ -522,6 +522,22 @@ class PublicacionRepositorio {
         return $fila["proximo_id"];
     }
 
+    public function listarSecciones(): array {
+        $sql = "SELECT id_seccion, nombre, descripcion FROM SECCION ORDER BY id_seccion";
+        $resultado = $this->mysql->query($sql);
+        $secciones = [];
+        foreach ($resultado as $fila) {
+            $secciones[] = [
+                'id_seccion' =>  $fila['id_seccion'],
+                'nombre' => $fila['nombre'],
+                'descripcion' => $fila['descripcion']
+            ];
+        }
+
+        
+        return $secciones;
+    }
+
     public function obtenerBorradorPorAutor(int $idAutor): ?array {
         $sql = "SELECT * FROM BORRADOR WHERE id_autor = ?";
         $consulta = $this->mysql->prepare($sql);

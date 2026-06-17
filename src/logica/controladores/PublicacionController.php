@@ -355,6 +355,12 @@ class PublicacionController implements IPublicacionController {
         $repositorio->moderarPublicacion($moderacion);
     }
 
+    public function listarSecciones(): array {
+        $repositorio = PublicacionRepositorio::getInstance();
+        $secciones = $repositorio->listarSecciones();
+        return $secciones;
+    }
+
     public function guardarBorrador(
         int $idAutor,
         ?int $idSeccion,
