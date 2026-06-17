@@ -53,27 +53,43 @@ class PublicacionController implements IPublicacionController {
         $repositorio->eliminarPublicacion($id);
     }
 
-    public function modificarPublicacion(DTPublicacion $dtp): void{
+    public function modificarPublicacion(DTPublicacion $dtp): array{
         $repositorio = PublicacionRepositorio::getInstance();
 
-        $publicacionExistente = $repositorio->obtenerPublicacionTitulo($dtp->getTitulo());
-        if ($publicacionExistente == null){
-            throw new Exception("No existe una publicacion con ese Titulo");
+        $publicacionExistente = $repositorio->obtenerPublicacionId($dtp->getId());
+        if ($publicacionExistente === null){
+            throw new Exception("No existe una publicacion con ese id");
         }
 
-        $fechaCreacion = new DateTime();
+        if ($publicacionExistente->getAutor() !== $dtp->getAutor()) {
+            throw new Exception("No tenés permiso para modificar esta publicación");
+        }
+
+        if ($dtp->getTitulo() !== $publicacionExistente->getTitulo()) {
+            $otraConMismoTitulo = $repositorio->obtenerPublicacionTitulo($dtp->getTitulo());
+            if ($otraConMismoTitulo !== null) {
+                throw new Exception("Ya existe una publicacion con ese titulo");
+            }
+        }
+
+        $nuevoEstado = $publicacionExistente->getEstado();
+        if ($publicacionExistente->getEstado() === EstadoPublicacion::APROBADA) {
+            $nuevoEstado = EstadoPublicacion::PENDIENTE_REVISION;
+        }
+
+        $foto = $dtp->getFoto() ?: $publicacionExistente->getFoto();
         $fechaUltimaModificacion = new DateTime();
 
         $publicacion = new Publicacion(
             $publicacionExistente->getId(),
             $dtp->getTitulo(),
-            $dtp->getFoto(),
+            $foto,
             $dtp->getNombreCientifico(),
             $dtp->getAreasHabitat(),
             $dtp->getDieta(),
             $dtp->getHorasActivas(),
-            EstadoPublicacion::PENDIENTE_REVISION,
-            $fechaCreacion,
+            $nuevoEstado,
+            $publicacionExistente->getFechaCreacion(),
             $fechaUltimaModificacion,
             $dtp->getAutor(),
             [],
@@ -81,7 +97,9 @@ class PublicacionController implements IPublicacionController {
         );
 
         $repositorio->modificarPublicacion($publicacion);
+        $repositorio->reemplazarCamposExtra($publicacion->getId(), $dtp->getCamposExtra());
 
+        return ["estado" => $nuevoEstado->value];
     }
 
     public function listarPublicaciones(): array{

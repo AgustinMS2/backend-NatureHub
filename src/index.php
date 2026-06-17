@@ -58,6 +58,7 @@ match([$metodo, $ruta]) {
     ['POST', '/publicaciones/altaPublicacion'] => $publicacionEndpoint->altaPublicacion(),
     ['DELETE', '/publicaciones/bajaPublicacion'] => $publicacionEndpoint->bajaPublicacion(),
     ['PUT', '/publicaciones/modificarPublicacion'] => $publicacionEndpoint->modificarPublicacion(),
+    ['POST', '/publicaciones/modificarPublicacion'] => $publicacionEndpoint->modificarPublicacion(),
     ['GET', '/publicaciones/listarPublicaciones'] => $publicacionEndpoint->listarPublicaciones(),
     ['GET', '/publicaciones/listarPublicacionesPropias'] => $publicacionEndpoint->listarPublicacionesPropias(),
     ['POST', '/publicaciones/agregarCampoExtra'] => $publicacionEndpoint->agregarCampoExtra(),
