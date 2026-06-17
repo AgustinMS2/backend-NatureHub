@@ -87,34 +87,48 @@ class PublicacionRepositorio {
         return null;
     }
 
-    public function obtenerPublicacionTitulo(string $titulo): ?Publicacion{
-        $sql = "SELECT * FROM PUBLICACION WHERE titulo = ? AND activo = true";
+    public function obtenerPublicacionTitulo(string $titulo): ?Publicacion {
+        $sql = "SELECT p.*, c.id_campo, c.etiqueta, c.valor, c.tipo FROM PUBLICACION p LEFT JOIN CAMPO_EXTRA c ON p.id_publicacion = c.id_publicacion WHERE p.activo = true AND p.titulo = ? ORDER BY c.id_campo";
+
         $consulta = $this->mysql->prepare($sql);
         $consulta->bind_param("s", $titulo);
         $consulta->execute();
 
         $resultado = $consulta->get_result();
-        $fila = $resultado->fetch_assoc();
 
-        if ($fila) {
-            return new Publicacion(
-                $fila["id_publicacion"],
-                $fila["titulo"],
-                $fila["foto_url"],
-                $fila["nombre_cientifico"],
-                json_decode($fila["areas_habitat"], true),
-                $fila["dieta"],
-                $fila["horas_activas"],
-                EstadoPublicacion::from($fila["estado"]),
-                new DateTime($fila["fecha_creacion"]),
-                new DateTime($fila["fecha_modificacion"]),
-                $fila["id_autor"],
-                [],
-                $fila["id_seccion"]
-            );
+        $publicacion = null;
+
+        while ($fila = $resultado->fetch_assoc()) {
+
+            if ($publicacion === null) {
+                $publicacion = new Publicacion(
+                    $fila["id_publicacion"],
+                    $fila["titulo"],
+                    $fila["foto_url"],
+                    $fila["nombre_cientifico"],
+                    json_decode($fila["areas_habitat"], true),
+                    $fila["dieta"],
+                    $fila["horas_activas"],
+                    EstadoPublicacion::from($fila["estado"]),
+                    new DateTime($fila["fecha_creacion"]),
+                    new DateTime($fila["fecha_modificacion"]),
+                    $fila["id_autor"],
+                    [],
+                    $fila["id_seccion"]
+                );
+            }
+
+            if ($fila["id_campo"] !== null) {
+                $publicacion->setCamposExtra([
+                    "id" => $fila["id_campo"],
+                    "etiqueta" => $fila["etiqueta"],
+                    "valor" => $fila["valor"],
+                    "tipo" => $fila["tipo"]
+                ]);
+            }
         }
 
-        return null;
+        return $publicacion;
     }
 
     public function modificarPublicacion(Publicacion $publicacion): void {
