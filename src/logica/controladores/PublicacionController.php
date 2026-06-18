@@ -33,9 +33,7 @@ class PublicacionController implements IPublicacionController {
             $fechaUltimaModificacion,
             $dtp->getAutor(),
             $dtp->getCamposExtra(),
-            $dtp->getSeccion(),
-            [],
-            []
+            $dtp->getSeccion()
         );
 
         $repositorio->agregarPublicacion($publicacion);
@@ -123,9 +121,7 @@ class PublicacionController implements IPublicacionController {
                 $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
                 $publicacion->getAutor(),
                 $publicacion->getCamposExtra(),
-                $publicacion->getSeccion(),
-                [],
-                []
+                $publicacion->getSeccion()
             );
             $resultado[] = $dtp;
         }
@@ -154,9 +150,7 @@ class PublicacionController implements IPublicacionController {
                 $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
                 $publicacion->getAutor(),
                 $publicacion->getCamposExtra(),
-                $publicacion->getSeccion(),
-                [],
-                []
+                $publicacion->getSeccion()
             );
             $resultado[] = $dtp;
         }
@@ -182,9 +176,7 @@ class PublicacionController implements IPublicacionController {
                 $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
                 $publicacion->getAutor(),
                 $publicacion->getCamposExtra(),
-                $publicacion->getSeccion(),
-                [],
-                []
+                $publicacion->getSeccion()
             );
             $resultado[] = $dtp;
 
@@ -261,9 +253,7 @@ class PublicacionController implements IPublicacionController {
                 $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
                 $publicacion->getAutor(),
                 $publicacion->getCamposExtra(),
-                $publicacion->getSeccion(),
-                [],
-                []
+                $publicacion->getSeccion()
             );
             $resultado[] = $dtp;
         }
@@ -291,9 +281,7 @@ class PublicacionController implements IPublicacionController {
                 $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
                 $publicacion->getAutor(),
                 $publicacion->getCamposExtra(),
-                $publicacion->getSeccion(),
-                [],
-                []
+                $publicacion->getSeccion()
             );
             $resultado[] = $dtp;
         }
@@ -361,17 +349,7 @@ class PublicacionController implements IPublicacionController {
         return $secciones;
     }
 
-    public function guardarBorrador(
-        int $idAutor,
-        ?int $idSeccion,
-        ?string $titulo,
-        ?string $nombreCientifico,
-        ?string $fotoUrl,
-        ?string $areasHabitat,
-        ?string $dieta,
-        ?string $horasActivas,
-        array $camposExtra
-    ): array {
+    public function guardarBorrador(int $idAutor, ?int $idSeccion, ?string $titulo, ?string $nombreCientifico, ?string $fotoUrl, ?string $areasHabitat, ?string $dieta, ?string $horasActivas, array $camposExtra): array {
         $repositorio = PublicacionRepositorio::getInstance();
         $camposExtraJson = json_encode($camposExtra);
         $idBorrador = $repositorio->guardarBorrador(

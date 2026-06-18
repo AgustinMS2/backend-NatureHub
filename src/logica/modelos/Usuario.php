@@ -13,11 +13,8 @@ class Usuario {
     protected ?string $pais;
     protected ?string $bio;
     protected ?string $fotoUrl;
-    protected Sesion $sesion;
-    protected array $reportes;
-    protected array $publicaciones;
 
-    public function __construct(int $id, string $nombre, string $apellido, string $email, string $passwordHash, bool $activo, DateTime $fechaRegistro, array $reportes, array $publicaciones, ?string $sexo, ?DateTime $fechaNacimiento, ?string $pais, ?string $bio, ?string $fotoUrl) {
+    public function __construct(int $id, string $nombre, string $apellido, string $email, string $passwordHash, bool $activo, DateTime $fechaRegistro, ?string $sexo, ?DateTime $fechaNacimiento, ?string $pais, ?string $bio, ?string $fotoUrl) {
         $this->id = $id;
         $this->nombre = $nombre;
         $this->apellido = $apellido;
@@ -25,8 +22,6 @@ class Usuario {
         $this->passwordHash = $passwordHash;
         $this->activo = $activo;
         $this->fechaRegistro = $fechaRegistro;
-        $this->reportes = $reportes;
-        $this->publicaciones = $publicaciones;
         $this->sexo = $sexo;
         $this->fechaNacimiento = $fechaNacimiento;
         $this->pais = $pais;
@@ -81,27 +76,6 @@ class Usuario {
     }
     public function setFechaRegistro(DateTime $fechaRegistro): void {
         $this->fechaRegistro = $fechaRegistro;
-    }
-
-    public function getSesion(): Sesion {
-        return $this->sesion;
-    }
-    public function setSesion(Sesion $sesion): void {
-        $this->sesion = $sesion;
-    }
-
-    public function getReportes(): array {
-        return $this->reportes;
-    }
-    public function setReportes(array $reportes): void {
-        $this->reportes = $reportes;
-    }
-
-    public function getPublicaciones(): array {
-        return $this->publicaciones;
-    }
-    public function setPublicaciones(array $publicaciones): void {
-        $this->publicaciones = $publicaciones;
     }
 
     public function getSexo(): ?string {

@@ -14,8 +14,6 @@ class Publicacion {
     protected DateTime $fechaCreacion;
     protected DateTime $fechaUltimaModificacion;
     protected array $camposExtra;
-    protected array $moderaciones;
-    protected array $reportes;
 
     public function __construct(int $id, string $titulo, string $foto, string $nombreCientifico, array $areasHabitat, string $dieta, string $horasActivas, EstadoPublicacion $estado, DateTime $fechaCreacion, DateTime $fechaUltimaModificacion, ?int $autor, array $camposExtra, ?int $seccion) {
         $this->id = $id;
@@ -31,8 +29,6 @@ class Publicacion {
         $this->fechaCreacion = $fechaCreacion;
         $this->fechaUltimaModificacion = $fechaUltimaModificacion;
         $this->camposExtra = $camposExtra;
-        $this->moderaciones = [];
-        $this->reportes = [];
     }
 
     public function getId(): int {
@@ -124,20 +120,6 @@ class Publicacion {
     }
     public function setSeccion(int $seccion): void {
         $this->seccion = $seccion;
-    }
-
-    public function getModeraciones(): array {
-        return $this->moderaciones;
-    }
-    public function setModeraciones(array $moderaciones): void {
-        $this->moderaciones = $moderaciones;
-    }
-
-    public function getReportes(): array {
-        return $this->reportes;
-    }
-    public function setReportes(array $reportes): void {
-        $this->reportes = $reportes;
     }
 
 }

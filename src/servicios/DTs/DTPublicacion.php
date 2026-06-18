@@ -14,10 +14,8 @@
     protected ?string $fechaCreacion;
     protected ?string $fechaUltimaModificacion;
     protected ?array $camposExtra;
-    protected ?array $moderaciones;
-    protected ?array $reportes;
 
-    public function __construct(int $id, string $titulo, string $foto, string $nombreCientifico, array $areasHabitat, string $dieta, string $horasActivas, ?string $estado, ?string $fechaCreacion, ?string $fechaUltimaModificacion, int $autor, array $camposExtra, int $seccion, array $moderaciones, array $reportes) {
+    public function __construct(int $id, string $titulo, string $foto, string $nombreCientifico, array $areasHabitat, string $dieta, string $horasActivas, ?string $estado, ?string $fechaCreacion, ?string $fechaUltimaModificacion, int $autor, array $camposExtra, int $seccion) {
         $this->id = $id;
         $this->seccion = $seccion;
         $this->autor = $autor;
@@ -31,8 +29,6 @@
         $this->fechaCreacion = $fechaCreacion;
         $this->fechaUltimaModificacion = $fechaUltimaModificacion;
         $this->camposExtra = $camposExtra;
-        $this->moderaciones = $moderaciones;
-        $this->reportes = $reportes;
     }
 
     public function getId(): int {
@@ -125,22 +121,6 @@
 
     public function setCamposExtra(array $camposExtra): void {
         $this->camposExtra[] = $camposExtra;
-    }
-
-    public function getModeraciones(): array{
-        return $this->moderaciones;
-    }
-
-    public function setModeraciones(array $moderaciones): void{
-        $this->moderaciones[] = $moderaciones;
-    }
-
-    public function getReportes(): array{
-        return $this->reportes;
-    }
-
-    public function setReportes(array $reportes): void{
-        $this->reportes[] = $reportes;
     }
     
  }

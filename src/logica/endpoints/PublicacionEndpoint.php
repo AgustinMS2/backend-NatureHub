@@ -51,9 +51,7 @@ class PublicacionEndpoint {
                 null,
                 $datos->autor,
                 $camposExtra,
-                $datos->seccion,
-                [], 
-                []                
+                $datos->seccion          
             );
             
 
@@ -126,9 +124,7 @@ class PublicacionEndpoint {
                 null,
                 (int) $datos->autor,
                 $camposExtra,
-                (int) $datos->seccion,
-                [],
-                []
+                (int) $datos->seccion
             );
 
             $resultado = $this->controlador->modificarPublicacion($dtp);
