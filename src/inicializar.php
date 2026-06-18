@@ -27,9 +27,11 @@ try {
     }
 
     $usuarios = [
-        [1, 'Carlos', 'Mendoza', 'usuario@naturehub.com'],
+        [1, 'Carlos', 'Mendoza', 'usuario1@naturehub.com'],
         [2, 'Laura', 'Fernandez', 'moderador@naturehub.com'],
         [3, 'Gualberto', 'Brito', 'administrador@naturehub.com'],
+        [4, 'Mariana', 'Silva', 'usuario2@naturehub.com'],
+        [5, 'Esteban', 'Quito', 'usuario3@naturehub.com'],
     ];
 
     foreach ($usuarios as $usuario) {
@@ -46,6 +48,8 @@ try {
         [1, 'Naturalista aficionado.', 'https://picsum.photos/seed/carlos-nh/200/200', 'Masculino', '1998-04-12', 'Colombia'],
         [2, 'Bióloga y moderadora de contenido en NatureHub.', 'https://picsum.photos/seed/laura-nh/200/200', 'Femenino', '1992-09-03', 'Argentina'],
         [3, 'Administrador del sistema.', 'https://picsum.photos/seed/admin-nh/200/200', 'Masculino', '1988-11-25', 'Uruguay'],
+        [4, 'Fotógrafa de naturaleza y entusiasta del ecoturismo.', 'https://picsum.photos/seed/mariana-nh/200/200', 'Femenino', '1995-07-19', 'Uruguay'],
+        [5, 'Estudiante de ciencias ambientales.', 'https://picsum.photos/seed/esteban-nh/200/200', 'Masculino', '2001-02-02', 'Argentina'],
     ];
 
     foreach ($perfiles as $perfil) {
@@ -77,6 +81,12 @@ try {
         [4, 4, 1, 'Sapito Común', 'Physalaemus biligonigerus', 'https://picsum.photos/seed/sapito/600/400', '["Humedales","Pastizales"]', 'Insectívoro', 'Nocturno', 'APROBADA'],
         [5, 5, 1, 'Pejerrey', 'Odontesthes bonariensis', 'https://picsum.photos/seed/pejerrey/600/400', '["Ríos","Lagunas"]', 'Carnívoro', 'Diurno', 'RECHAZADA'],
         [6, 6, 1, 'Mariposa Monarca', 'Danaus plexippus', 'https://picsum.photos/seed/monarca/600/400', '["Campos con flores","Jardines"]', 'Herbívoro (larva)', 'Diurno', 'RECHAZADA'],
+        [7, 1, 4, 'Carpincho', 'Hydrochoerus hydrochaeris', 'https://picsum.photos/seed/carpincho-pub/600/400', '["Humedales","Orillas de ríos"]', 'Herbívoro', 'Crepuscular', 'APROBADA'],
+        [8, 2, 5, 'Hornero', 'Furnarius rufus', 'https://picsum.photos/seed/hornero-pub/600/400', '["Campos abiertos","Zonas urbanas"]', 'Insectívoro', 'Diurno', 'APROBADA'],
+        [9, 7, 4, 'Araña Lobo', 'Lycosa erythrognatha', 'https://picsum.photos/seed/spider-wolf/600/400', '["Jardines","Praderas"]', 'Insectívoro', 'Nocturno', 'APROBADA'],
+        [10, 8, 5, 'Cangrejo de Río', 'Aegla uruguayana', 'https://picsum.photos/seed/crab-river/600/400', '["Arroyos con fondo de piedra","Ríos"]', 'Detritívoro', 'Nocturno', 'APROBADA'],
+        [11, 9, 1, 'Ceibo', 'Erythrina crista-galli', 'https://picsum.photos/seed/ceibo-tree/600/400', '["Zonas inundables","Riberas"]', 'Autótrofo', 'Diurno', 'APROBADA'],
+        [12, 1, 4, 'Mano Pelada', 'Procyon cancrivorus', 'https://picsum.photos/seed/raccoon-crab/600/400', '["Monte nativo","Riberas","Arroyos"]', 'Omnívoro', 'Nocturno', 'APROBADA'],
     ];
 
     foreach ($publicaciones as $pub) {
@@ -95,6 +105,14 @@ try {
         [2, 4, 2, 'APROBADA', null],
         [3, 5, 2, 'RECHAZADA', 'La información sobre hábitat es insuficiente y carece de fuentes verificables.'],
         [4, 6, 2, 'RECHAZADA', 'El nombre científico no coincide con la descripción proporcionada.'],
+        [5, 5, 2, 'APROBADA', null],
+        [6, 6, 2, 'APROBADA', null],
+        [7, 7, 2, 'APROBADA', null],
+        [8, 8, 2, 'APROBADA', null],
+        [9, 9, 2, 'APROBADA', null],
+        [10, 10, 2, 'APROBADA', null],
+        [11, 11, 2, 'APROBADA', null],
+        [12, 12, 2, 'APROBADA', null],
     ];
 
     foreach ($moderaciones as $mod) {
@@ -110,6 +128,7 @@ try {
     $camposExtra = [
         [3, 'Longitud máxima', '1.5 metros', 'TEXTO'],
         [4, 'Estado de conservación', 'Preocupación menor', 'TEXTO'],
+        [11, 'Flor Nacional', 'Uruguay y Argentina', 'TEXTO'],
     ];
 
     foreach ($camposExtra as $campo) {
