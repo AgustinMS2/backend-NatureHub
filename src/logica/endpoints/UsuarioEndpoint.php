@@ -235,35 +235,6 @@ class UsuarioEndpoint {
         }
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/usuarios/altaModerador
-    public function altaModerador(): void {
-        $datos = json_decode(file_get_contents("php://input"));
-
-        $dtu = new DTUsuario(
-            null,
-            $datos->nombre,
-            $datos->apellido,
-            $datos->email,
-            $datos->password,
-            null,
-            null,
-            $datos->sexo ?? null,
-            $datos->fechaNacimiento ?? null,
-            $datos->pais ?? null,
-            $datos->bio ?? null,
-            $datos->fotoUrl ?? null
-        );
-
-        try {
-            $this->controlador->altaModerador($dtu);
-            http_response_code(201);
-            echo json_encode(["mensaje" => "Moderador creado correctamente"]);
-        } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode(["error" => $e->getMessage()]);
-        }
-    }
-
     // http://localhost/backend-NatureHub/src/index.php/usuarios/promoverUsuario
     public function promoverUsuario(): void {
         $dato = json_decode(file_get_contents("php://input"));
