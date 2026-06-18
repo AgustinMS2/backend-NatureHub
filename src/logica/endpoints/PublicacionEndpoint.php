@@ -551,6 +551,33 @@ class PublicacionEndpoint {
         }
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarReportes
+    public function listarReportes(): void {
+        try {
+            $reportes = $this->controlador->listarReportes();
+            http_response_code(200);
+            echo json_encode($reportes);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+ 
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/resolverReporte
+    public function resolverReporte(): void {
+        $datos = json_decode(file_get_contents("php://input"));
+        $idReporte = $datos->idReporte;
+ 
+        try {
+            $this->controlador->resolverReporte($idReporte);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Reporte marcado como resuelto"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
 }
 
 ?>

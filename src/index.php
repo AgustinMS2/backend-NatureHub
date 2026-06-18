@@ -72,6 +72,8 @@ match([$metodo, $ruta]) {
     ['POST', '/publicaciones/guardarBorrador'] => $publicacionEndpoint->guardarBorrador(),
     ['GET', '/publicaciones/obtenerBorrador'] => $publicacionEndpoint->obtenerBorrador(),
     ['DELETE', '/publicaciones/eliminarBorrador'] => $publicacionEndpoint->eliminarBorrador(),
+    ['GET',  '/publicaciones/listarReportes']   => $publicacionEndpoint->listarReportes(),
+    ['POST', '/publicaciones/resolverReporte']  => $publicacionEndpoint->resolverReporte(),
 
         default => http_response_code(404)
     };

@@ -617,5 +617,41 @@ class PublicacionRepositorio {
         return $fila["proximo_id"];
     }
 
+    public function listarReportes(): array {
+        $sql = "SELECT id_reporte, id_publicacion, id_usuario, motivo, fecha, resuelto
+                FROM REPORTE
+                ORDER BY resuelto ASC, fecha DESC";
+        $resultado = $this->mysql->query($sql);
+        $reportes = [];
+        foreach ($resultado as $fila) {
+            $reportes[] = [
+                'id_reporte' => $fila['id_reporte'],
+                'id_publicacion' => $fila['id_publicacion'],
+                'id_usuario' => $fila['id_usuario'],
+                'motivo' => $fila['motivo'],
+                'fecha' => $fila['fecha'],
+                'resuelto' => $fila['resuelto'],
+            ];
+        }
+        return $reportes;
+    }
+ 
+    public function obtenerReportePorId(int $idReporte): ?array {
+        $sql = "SELECT id_reporte, resuelto FROM REPORTE WHERE id_reporte = ?";
+        $consulta = $this->mysql->prepare($sql);
+        $consulta->bind_param("i", $idReporte);
+        $consulta->execute();
+        $resultado = $consulta->get_result();
+        $fila = $resultado->fetch_assoc();
+        return $fila ?: null;
+    }
+ 
+    public function resolverReporte(int $idReporte): void {
+        $sql = "UPDATE REPORTE SET resuelto = true WHERE id_reporte = ?";
+        $consulta = $this->mysql->prepare($sql);
+        $consulta->bind_param("i", $idReporte);
+        $consulta->execute();
+    }
+
 }
 ?>

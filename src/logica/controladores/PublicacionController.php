@@ -420,6 +420,25 @@ class PublicacionController implements IPublicacionController {
         $repositorio->eliminarBorradorPorAutor($idAutor);
     }
 
+    public function listarReportes(): array {
+        $repositorio = PublicacionRepositorio::getInstance();
+        return $repositorio->listarReportes();
+    }
+ 
+    public function resolverReporte(int $idReporte): void {
+        $repositorio = PublicacionRepositorio::getInstance();
+ 
+        $reporte = $repositorio->obtenerReportePorId($idReporte);
+        if ($reporte === null) {
+            throw new Exception("No existe un reporte con ese id");
+        }
+        if ($reporte['resuelto']) {
+            throw new Exception("El reporte ya estaba marcado como resuelto");
+        }
+ 
+        $repositorio->resolverReporte($idReporte);
+    }
+
 
     
 
