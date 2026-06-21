@@ -163,11 +163,6 @@ class UsuarioEndpoint {
         }
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/usuarios/moderarUsuario
-    public function moderarUsuario(): void {
-
-    }
-
     // http://localhost/backend-NatureHub/src/index.php/usuarios/iniciarSesion
     public function iniciarSesion(): void {
         $datos = json_decode(file_get_contents("php://input"));

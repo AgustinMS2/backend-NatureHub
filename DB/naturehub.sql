@@ -8,7 +8,7 @@ CREATE TABLE SECCION (
 );
 
 CREATE TABLE USUARIO (
-    id_usuario INT PRIMARY KEY,
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
@@ -38,7 +38,7 @@ CREATE TABLE ADMINISTRADOR (
 );
 
 CREATE TABLE SESION (
-    id_sesion INT PRIMARY KEY,
+    id_sesion INT AUTO_INCREMENT  PRIMARY KEY,
     id_usuario INT NOT NULL,
     token VARCHAR(512) NOT NULL UNIQUE,
     fecha_inicio TIMESTAMP NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE SESION (
 );
 
 CREATE TABLE PUBLICACION (
-    id_publicacion INT PRIMARY KEY,
+    id_publicacion INT AUTO_INCREMENT PRIMARY KEY,
     id_seccion INT NOT NULL,
     id_autor INT NOT NULL,
     titulo VARCHAR(200) NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE CAMPO_EXTRA (
 );
 
 CREATE TABLE MODERA (
-    id_modera INT PRIMARY KEY,
+    id_modera INT AUTO_INCREMENT PRIMARY KEY,
     id_publicacion INT NOT NULL,
     id_moderador INT NOT NULL,
     resultado ENUM('APROBADA', 'RECHAZADA') NOT NULL,
@@ -97,7 +97,7 @@ CREATE TABLE REPORTE (
 );
 
 CREATE TABLE BORRADOR (
-    id_borrador INT PRIMARY KEY,
+    id_borrador INT AUTO_INCREMENT PRIMARY KEY,
     id_autor INT NOT NULL UNIQUE,
     id_seccion INT NULL,
     titulo VARCHAR(200) NULL,

@@ -24,10 +24,9 @@ class PublicacionRepositorio {
     }
 
     public function agregarPublicacion(Publicacion $publicacion): void {
-        $sql = "INSERT INTO PUBLICACION (id_publicacion, id_seccion, id_autor, titulo, nombre_cientifico, foto_url, areas_habitat, dieta, horas_activas, estado, fecha_creacion, fecha_modificacion, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+        $sql = "INSERT INTO PUBLICACION (id_seccion, id_autor, titulo, nombre_cientifico, foto_url, areas_habitat, dieta, horas_activas, estado, fecha_creacion, fecha_modificacion, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $consulta = $this->mysql->prepare($sql);
 
-        $id = $publicacion->getId();
         $seccion = $publicacion->getSeccion();
         $autor = $publicacion->getAutor();
         $titulo = $publicacion->getTitulo();
@@ -41,25 +40,23 @@ class PublicacionRepositorio {
         $fechaUltimaModificacion = $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s");
         $activo = true;
 
-        $consulta->bind_param("iiissssssssss", $id, $seccion, $autor, $titulo, $nombreCientifico, $foto, $areasHabitat, $dieta, $horasActivas, $estado, $fechaCreacion, $fechaUltimaModificacion, $activo);
+        $consulta->bind_param("iissssssssss", $seccion, $autor, $titulo, $nombreCientifico, $foto, $areasHabitat, $dieta, $horasActivas, $estado, $fechaCreacion, $fechaUltimaModificacion, $activo);
         $consulta->execute();
-        
+
+        $publicacion->setId($this->mysql->insert_id);
+
         $camposExtra = $publicacion->getCamposExtra();
 
         $sqlCampo = "INSERT INTO CAMPO_EXTRA(id_publicacion, etiqueta, valor, tipo) VALUES (?, ?, ?, ?)";
-
         $consultaCampo = $this->mysql->prepare($sqlCampo);
 
         foreach ($camposExtra as $campo) {
-
             $idPublicacion = $publicacion->getId();
-
             $etiqueta = $campo->etiqueta;
             $valor = $campo->valor;
             $tipo = $campo->tipo;
 
             $consultaCampo->bind_param("isss", $idPublicacion, $etiqueta, $valor, $tipo);
-
             $consultaCampo->execute();
         }
     }
@@ -201,13 +198,6 @@ class PublicacionRepositorio {
             $consultaInsert->bind_param("isss", $idPublicacion, $etiqueta, $valor, $tipo);
             $consultaInsert->execute();
         }
-    }
-
-    public function obtenerSiguienteId(): int {
-        $sql = "SELECT COALESCE(MAX(id_publicacion), 0) + 1 AS proximo_id FROM PUBLICACION";
-        $resultado = $this->mysql->query($sql);
-        $fila = $resultado->fetch_assoc();
-        return $fila["proximo_id"];
     }
 
     public function eliminarPublicacion(int $id): void {
@@ -513,17 +503,16 @@ class PublicacionRepositorio {
         try {
             $this->mysql->begin_transaction();
 
-            $sqlModera = "INSERT INTO MODERA (id_modera, id_publicacion, id_moderador, resultado, motivo_rechazo, fecha_revision) VALUES (?, ?, ?, ?, ?, ?)";
+            $sqlModera = "INSERT INTO MODERA (id_publicacion, id_moderador, resultado, motivo_rechazo, fecha_revision) VALUES (?, ?, ?, ?, ?)";
             $consultaModera = $this->mysql->prepare($sqlModera);
 
-            $idModera = $moderacion->getId();
             $idPublicacion = $moderacion->getPublicacion();
             $idModerador = $moderacion->getModerador();
             $resultadoEnum = $moderacion->getResultado()->value;
-            $fechaRevision = $moderacion->getFechaRevision()->format("Y-m-d H:i:s");;
+            $fechaRevision = $moderacion->getFechaRevision()->format("Y-m-d H:i:s");
             $motivoRechazo = $moderacion->getMotivoRechazo();
 
-            $consultaModera->bind_param("iiisss", $idModera, $idPublicacion, $idModerador, $resultadoEnum, $motivoRechazo, $fechaRevision);
+            $consultaModera->bind_param("iisss", $idPublicacion, $idModerador, $resultadoEnum, $motivoRechazo, $fechaRevision);
             $consultaModera->execute();
  
             $sqlUpdate = "UPDATE PUBLICACION SET estado = ?, fecha_modificacion = ? WHERE id_publicacion = ?";
@@ -536,13 +525,6 @@ class PublicacionRepositorio {
             $this->mysql->rollback();
             throw $e;
         }
-    }
- 
-    public function obtenerSiguienteIdModera(): int {
-        $sql = "SELECT COALESCE(MAX(id_modera), 0) + 1 AS proximo_id FROM MODERA";
-        $resultado = $this->mysql->query($sql);
-        $fila = $resultado->fetch_assoc();
-        return $fila["proximo_id"];
     }
 
     public function listarSecciones(): array {
@@ -571,17 +553,7 @@ class PublicacionRepositorio {
         return $fila ?: null;
     }
 
-    public function guardarBorrador(
-        int $idAutor,
-        ?int $idSeccion,
-        ?string $titulo,
-        ?string $nombreCientifico,
-        ?string $fotoUrl,
-        ?string $areasHabitat,
-        ?string $dieta,
-        ?string $horasActivas,
-        ?string $camposExtraJson
-    ): int {
+    public function guardarBorrador(int $idAutor, ?int $idSeccion, ?string $titulo, ?string $nombreCientifico, ?string $fotoUrl, ?string $areasHabitat, ?string $dieta, ?string $horasActivas, ?string $camposExtraJson): int {
         $existente = $this->obtenerBorradorPorAutor($idAutor);
         $fechaModificacion = (new DateTime())->format("Y-m-d H:i:s");
 
@@ -605,25 +577,11 @@ class PublicacionRepositorio {
             return (int) $existente["id_borrador"];
         }
 
-        $idBorrador = $this->obtenerSiguienteIdBorrador();
-        $sql = "INSERT INTO BORRADOR (id_borrador, id_autor, id_seccion, titulo, nombre_cientifico, foto_url, areas_habitat, dieta, horas_activas, campos_extra, fecha_modificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO BORRADOR (id_autor, id_seccion, titulo, nombre_cientifico, foto_url, areas_habitat, dieta, horas_activas, campos_extra, fecha_modificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $consulta = $this->mysql->prepare($sql);
-        $consulta->bind_param(
-            "iiissssssss",
-            $idBorrador,
-            $idAutor,
-            $idSeccion,
-            $titulo,
-            $nombreCientifico,
-            $fotoUrl,
-            $areasHabitat,
-            $dieta,
-            $horasActivas,
-            $camposExtraJson,
-            $fechaModificacion
-        );
+        $consulta->bind_param("iissssssss", $idAutor, $idSeccion, $titulo, $nombreCientifico, $fotoUrl, $areasHabitat, $dieta, $horasActivas, $camposExtraJson, $fechaModificacion);
         $consulta->execute();
-        return $idBorrador;
+        return $this->mysql->insert_id;
     }
 
     public function eliminarBorradorPorAutor(int $idAutor): void {
@@ -631,13 +589,6 @@ class PublicacionRepositorio {
         $consulta = $this->mysql->prepare($sql);
         $consulta->bind_param("i", $idAutor);
         $consulta->execute();
-    }
-
-    public function obtenerSiguienteIdBorrador(): int {
-        $sql = "SELECT COALESCE(MAX(id_borrador), 0) + 1 AS proximo_id FROM BORRADOR";
-        $resultado = $this->mysql->query($sql);
-        $fila = $resultado->fetch_assoc();
-        return $fila["proximo_id"];
     }
 
     public function listarReportes(): array {

@@ -30,13 +30,12 @@ class UsuarioController implements IUsuarioController {
             throw new Exception("Ya existe un usuario con ese email");
         }
 
-        $id = $repositorio->obtenerSiguienteId();
         $passwordHash = password_hash($dtu->getPassword(), PASSWORD_DEFAULT);
         $fechaRegistro = new DateTime();
         $fechaNac = $dtu->getFechaNacimiento() ? new DateTime($dtu->getFechaNacimiento()) : null;
 
         $usuario = new Usuario(
-            $id,
+            0,
             $dtu->getNombre(),
             $dtu->getApellido(),
             $dtu->getEmail(),
@@ -191,11 +190,6 @@ class UsuarioController implements IUsuarioController {
     return $resultado;
 }
 
-    public function moderarUsuario(): void{
-        $repositorio = UsuarioRepositorio::getInstance();
-
-    }
-
     public function iniciarSesion(DTUsuario $dtu): array {
         $repositorio = UsuarioRepositorio::getInstance();
 
@@ -210,12 +204,11 @@ class UsuarioController implements IUsuarioController {
             throw new Exception("El usuario se encuentra dado de baja");
         }
 
-        $idSesion = $repositorio->obtenerSiguienteIdSesion();
         $token = bin2hex(random_bytes(32));
         $fechaInicio = new DateTime();
 
         $sesion = new Sesion(
-            $idSesion, 
+            null, 
             $usuario, 
             $token, 
             $fechaInicio,

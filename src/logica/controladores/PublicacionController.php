@@ -28,13 +28,12 @@ class PublicacionController implements IPublicacionController {
             throw new Exception("Ya existe una publicacion con ese titulo");
         }
 
-        $id = $repositorio->obtenerSiguienteId();
         $fechaCreacion = new DateTime();
         $fechaUltimaModificacion = new DateTime();
         //$d = [$dtp->getAreasHabitat()];
 
         $publicacion = new Publicacion(
-            $id,
+            0,
             $dtp->getTitulo(),
             $dtp->getFoto(),
             $dtp->getNombreCientifico(),
@@ -341,11 +340,10 @@ class PublicacionController implements IPublicacionController {
             throw new Exception("El resultado debe ser APROBADA o RECHAZADA");
         }
 
-        $id = $repositorio->obtenerSiguienteIdModera();
         $fecha = new DateTime();
 
         $moderacion= new Modera(
-            $id,
+            0,
             $dtm->getMotivoRechazo(),
             $resultadoEnum,
             $dtm->getModerador(),
