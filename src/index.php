@@ -58,6 +58,7 @@ try {
         ['GET',  '/publicaciones/listarReportes']   => $publicacionEndpoint->listarReportes(),
         ['POST', '/publicaciones/resolverReporte']  => $publicacionEndpoint->resolverReporte(),
         ['POST', '/publicaciones/obtenerPublicacionPorId']  => $publicacionEndpoint->obtenerPublicacionPorId(),
+        ['GET', '/publicaciones/generarPdfPublicacion']  => $publicacionEndpoint->generarPdfPublicacion(),
 
         default => http_response_code(404)
     };

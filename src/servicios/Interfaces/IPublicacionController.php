@@ -21,7 +21,6 @@ interface IPublicacionController {
     public function listarReportes(): array;
     public function resolverReporte(int $idReporte): void;
     public function obtenerPublicacionPorId(int $id): DTPublicacion;
-    
-    
+    public function generarPdfPublicacion(int $id): array;
 }
 ?>

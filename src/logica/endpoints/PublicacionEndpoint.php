@@ -574,6 +574,31 @@ class PublicacionEndpoint {
         }
     }
 
+    // http://localhost/backend-NatureHub/src/index.php/publicaciones/generarPdfPublicacion?id=1
+    public function generarPdfPublicacion(): void {
+        $id = (int) ($_GET['id'] ?? 0);
+
+        try {
+            if ($id <= 0) {
+                throw new Exception("Debe indicar el id de la publicación");
+            }
+
+            $resultado = $this->controlador->generarPdfPublicacion($id);
+
+            header_remove('Content-Type');
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . $resultado['filename'] . '"');
+            header('Content-Length: ' . strlen($resultado['content']));
+            header('Cache-Control: private, max-age=0, must-revalidate');
+            http_response_code(200);
+            echo $resultado['content'];
+        } catch (Exception $e) {
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
     // http://localhost/backend-Naturehub/src/index.php/publicaciones/obtenerPublicacionPorId
     public function obtenerPublicacionPorId(): void {
         $datos = json_decode(file_get_contents("php://input"));
