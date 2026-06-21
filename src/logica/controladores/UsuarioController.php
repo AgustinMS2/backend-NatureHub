@@ -59,7 +59,6 @@ class UsuarioController implements IUsuarioController {
 
             $mail = new PHPMailer(true);
 
-            // Configuración SMTP
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
@@ -70,19 +69,16 @@ class UsuarioController implements IUsuarioController {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
-            // Remitente
             $mail->setFrom(
                 'Naturehub3.0@gmail.com',
                 'NatureHub'
             );
 
-            // Destinatario
             $mail->addAddress(
                 $correoDestinatario,
                 $nombreDestinatario
             );
 
-            // Contenido
             $mail->isHTML(true);
 
             $mail->Subject = 'Creacion de Perfil';
@@ -97,13 +93,9 @@ class UsuarioController implements IUsuarioController {
 
             $mail->send();
 
-            echo "Mail enviado correctamente";
 
         } catch (Exception $e) {
-
-            echo "Error al enviar correo: "
-                . $mail->ErrorInfo;
-
+            file_put_contents(__DIR__ . '/../../mail_error.log', date('Y-m-d H:i:s') . ' - ' . $mail->ErrorInfo . PHP_EOL, FILE_APPEND);
         }
     }
 
