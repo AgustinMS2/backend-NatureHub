@@ -50,3 +50,5 @@ class DTCampoExtra {
         $this->valor = $valor;
     }
 }
+
+?>

@@ -50,3 +50,5 @@ class CampoExtra {
         $this->valor = $valor;
     }
 }
+
+?>

@@ -13,3 +13,5 @@ class Conectar extends mysqli {
         }
     }
 }
+
+?>

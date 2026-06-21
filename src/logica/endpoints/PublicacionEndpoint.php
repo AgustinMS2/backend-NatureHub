@@ -585,6 +585,10 @@ class PublicacionEndpoint {
 
             $resultado = $this->controlador->generarPdfPublicacion($id);
 
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+
             header_remove('Content-Type');
             header('Content-Type: application/pdf');
             header('Content-Disposition: attachment; filename="' . $resultado['filename'] . '"');
@@ -633,5 +637,4 @@ class PublicacionEndpoint {
 
 
 }
-
 ?>

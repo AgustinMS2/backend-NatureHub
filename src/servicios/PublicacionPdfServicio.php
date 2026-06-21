@@ -205,3 +205,4 @@ class PublicacionPdfServicio {
         return utf8_decode($texto);
     }
 }
+?>
