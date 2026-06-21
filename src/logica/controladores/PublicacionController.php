@@ -430,6 +430,34 @@ class PublicacionController implements IPublicacionController {
         $repositorio->resolverReporte($idReporte);
     }
 
+    public function obtenerPublicacionPorId(int $id): DTPublicacion {
+        $repositorio = PublicacionRepositorio::getInstance();
+
+        $publicacion = $repositorio->obtenerPublicacionId($id);
+        if ($publicacion === null) {
+            throw new Exception("No existe una publicacion con ese id");
+        }
+
+        $dtp = new DTPublicacion(
+            $publicacion->getId(),
+            $publicacion->getTitulo(),
+            $publicacion->getFoto(),
+            $publicacion->getNombreCientifico(),
+            $publicacion->getAreasHabitat(),
+            $publicacion->getDieta(),
+            $publicacion->getHorasActivas(),
+            $publicacion->getEstado()->value,
+            $publicacion->getFechaCreacion()->format("Y-m-d H-i-s"),
+            $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
+            $publicacion->getAutor(),
+            $publicacion->getCamposExtra(),
+            $publicacion->getSeccion()
+        );
+
+        return $dtp;
+
+    }
+
 
     
 

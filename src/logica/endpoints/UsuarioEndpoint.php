@@ -350,6 +350,42 @@ class UsuarioEndpoint {
             echo json_encode(["error" => $e->getMessage()]);
         }
     }
+
+    // http://localhost/backend-Naturehub/src/index.php/usuarios/obtenerUsuarioId
+    public function obtenerUsuarioId(): void {
+        $datos = json_decode(file_get_contents("php://input"));
+        $id = $datos->id;
+        try{
+            $dtu = $this->controlador->obtenerUsuarioId($id);
+
+            $rol = match(true) {
+                $dtu instanceof DTAdministrador => "ADMINISTRADOR",
+                $dtu instanceof DTModerador => "MODERADOR",
+                default => "USUARIO"
+            };
+
+            $resultado = [
+                "id" => $dtu->getId(),
+                "nombre" => $dtu->getNombre(),
+                "apellido" => $dtu->getApellido(),
+                "email" => $dtu->getEmail(),
+                "activo" => $dtu->getActivo(),
+                "fechaRegistro" => $dtu->getFechaRegistro(),
+                "sexo" => $dtu->getSexo(),
+                "fechaNacimiento" => $dtu->getFechaNacimiento(),
+                "pais" => $dtu->getPais(),
+                "bio" => $dtu->getBio(),
+                "fotoUrl" => $dtu->getFotoUrl(),
+                "rol" => $rol
+            ];
+            
+            http_response_code(200);
+            echo json_encode($resultado);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
 }
 
 ?>

@@ -14,6 +14,7 @@ interface IUsuarioController {
     public function agregarFavoritas(int $idUsuario, int $idPublicacion): void;
     public function eliminarFavorita(int $idUsuario, int $idPublicacion): void;
     public function listarFavoritas(int $idUsuario): array;
+    public function obtenerUsuarioId(int $idUsuario): DTUsuario;
 
 }
 ?>

@@ -348,6 +348,41 @@ class UsuarioController implements IUsuarioController {
         return $resultado;
     }
 
+    public function obtenerUsuarioId(int $idUsuario): DTUsuario {
+        $repositorio = UsuarioRepositorio::getInstance();
+
+        $usuario = $repositorio->obtenerUsuarioPorId($idUsuario);
+        if ($usuario === null) {
+            throw new Exception("No existe un usuario con ese id");
+        }
+
+        $args = [
+            $usuario->getId(),
+            $usuario->getNombre(),
+            $usuario->getApellido(),
+            $usuario->getEmail(),
+            null,
+            $usuario->getActivo(),
+            $usuario->getFechaRegistro()->format("Y-m-d H:i:s"),
+            $usuario->getSexo(),
+            $usuario->getFechaNacimiento() ? $usuario->getFechaNacimiento()->format("Y-m-d H:i:s") : null,
+            $usuario->getPais(),
+            $usuario->getBio(),
+            $usuario->getFotoUrl()
+        ];
+
+        $dtUsuario = match(true) {
+            $usuario instanceof Administrador => new DTAdministrador(...$args),
+            $usuario instanceof Moderador => new DTModerador(...$args),
+            $usuario instanceof Usuario => new DTUsuario(...$args)
+        };
+
+        return $dtUsuario;
+
+    }
+
+
+
 
 }
 ?>

@@ -288,7 +288,7 @@ class PublicacionEndpoint {
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/modificarCampoExtra
     public function modificarCampoExtra(): void{
         $datos = json_decode(file_get_contents("php://input"));
-;
+
         $dtc = new DTCampoExtra(
             $datos->id,
             $datos->idPublicacion,
@@ -573,6 +573,39 @@ class PublicacionEndpoint {
             echo json_encode(["error" => $e->getMessage()]);
         }
     }
+
+    // http://localhost/backend-Naturehub/src/index.php/publicaciones/obtenerPublicacionPorId
+    public function obtenerPublicacionPorId(): void {
+        $datos = json_decode(file_get_contents("php://input"));
+        $id = $datos->id;
+
+        try{
+            $dpu = $this->controlador->obtenerPublicacionPorId($id);
+
+            $resultado = [
+                "id" => $dpu->getId(),
+                "titulo" => $dpu->getTitulo(),
+                "foto" => $dpu->getFoto(),
+                "nombreCientifico" => $dpu->getNombreCientifico(),
+                "areasHabitat" => $dpu->getAreasHabitat(),
+                "dieta" => $dpu->getDieta(),
+                "horasActivas" => $dpu->getHorasActivas(),
+                "estado" => $dpu->getEstado(),
+                "fechaCreacion" => $dpu->getFechaCreacion(),
+                "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
+                "autor" => $dpu->getAutor(),
+                "camposExtra" => $dpu->getCamposExtra(),
+                "seccion" => $dpu->getSeccion()
+            ];
+            
+            http_response_code(200);
+            echo json_encode($resultado);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
 
 }
 

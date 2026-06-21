@@ -20,6 +20,7 @@ interface IPublicacionController {
     public function eliminarBorradorPorAutor(int $idAutor): void;
     public function listarReportes(): array;
     public function resolverReporte(int $idReporte): void;
+    public function obtenerPublicacionPorId(int $id): DTPublicacion;
     
     
 }
