@@ -11,5 +11,9 @@ interface IUsuarioController {
     public function degradarModerador(int $id): void;
     public function promoverModerador(int $id): void;
     public function degradarAdministrador(int $id): void;
+    public function agregarFavoritas(int $idUsuario, int $idPublicacion): void;
+    public function eliminarFavorita(int $idUsuario, int $idPublicacion): void;
+    public function listarFavoritas(int $idUsuario): array;
+
 }
 ?>

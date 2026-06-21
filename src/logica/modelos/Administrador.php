@@ -1,5 +1,7 @@
 <?php
 
+include_once __DIR__ . "/Moderador.php"; 
+
 class Administrador extends Moderador {
 
     public function __construct(int $id, string $nombre, string $apellido, string $email, string $passwordHash, bool $activo, DateTime $fechaRegistro, ?string $sexo, ?DateTime $fechaNacimiento, ?string $pais, ?string $bio, ?string $fotoUrl) {

@@ -1,5 +1,10 @@
 <?php
 include_once __DIR__ . "/../../persistencia/Conectar.php";
+include_once __DIR__ . "/../../logica/modelos/Usuario.php";
+include_once __DIR__ . "/../../logica/modelos/Moderador.php";
+include_once __DIR__ . "/../../logica/modelos/Administrador.php";
+include_once __DIR__ . "/../../logica/modelos/Sesion.php";
+include_once __DIR__ . "/../../logica/modelos/Publicacion.php";
 
 class UsuarioRepositorio {
     private static ?UsuarioRepositorio $instancia = null;
@@ -324,6 +329,68 @@ class UsuarioRepositorio {
             $consulta = $this->mysql->prepare($sql);
             $consulta->bind_param("i", $idUsuario);
             $consulta->execute();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function agregarAFavoritas(int $idUsuario, int $idPublicacion): void {
+        try{
+            $sql = "INSERT INTO PUBLICACIONES_FAVORITAS (id_usuario, id_publicacion) VALUES (?, ?)";
+            $consulta = $this->mysql->prepare($sql);
+
+            $consulta->bind_param("ii", $idUsuario, $idPublicacion);
+            $consulta->execute();
+        } catch (Exception $e) {
+            throw $e;
+        }
+
+    }
+
+    public function eliminarDeFavoritas(int $idUsuario, int $idPublicacion): void {
+        try{
+            $sql = "DELETE FROM PUBLICACIONES_FAVORITAS WHERE id_usuario = ? AND id_publicacion = ?";
+            $consulta = $this->mysql->prepare($sql);
+
+            $consulta->bind_param("ii", $idUsuario, $idPublicacion);
+            $consulta->execute();
+        } catch (Exception $e) {
+            throw $e;
+        }
+
+    }
+
+    public function listarLasFavoritas(int $idUsuario): array {
+        try{
+            $sql = "SELECT pf.id_publicacion, p.*
+                    FROM PUBLICACIONES_FAVORITAS pf
+                    LEFT JOIN PUBLICACION p ON pf.id_publicacion = p.id_publicacion
+                    WHERE pf.id_usuario = ? AND p.activo = true";
+            $consulta = $this->mysql->prepare($sql);
+            $consulta->bind_param("i", $idUsuario);
+            $consulta->execute();
+
+            $resultado = $consulta->get_result();
+            $publicaciones = [];
+            foreach ($resultado as $fila) {
+                $publicaciones[] = new Publicacion(
+                    $fila["id_publicacion"],
+                    $fila["titulo"],
+                    $fila["foto_url"],
+                    $fila["nombre_cientifico"],
+                    json_decode($fila["areas_habitat"], true),
+                    $fila["dieta"],
+                    $fila["horas_activas"],
+                    EstadoPublicacion::from($fila["estado"]),
+                    new DateTime($fila["fecha_creacion"]),
+                    new DateTime($fila["fecha_modificacion"]),
+                    $fila["id_autor"],
+                    [],
+                    $fila["id_seccion"]
+                );
+            }
+
+            return $publicaciones;
         } catch (Exception $e) {
             throw $e;
         }

@@ -1,7 +1,20 @@
 <?php
 include_once __DIR__ . "/../../servicios/Interfaces/IPublicacionController.php";
 include_once __DIR__ . "/../../logica/manejadores/PublicacionRepositorio.php";
+include_once __DIR__ . "/../../logica/manejadores/UsuarioRepositorio.php";
 include_once __DIR__ . "/../../logica/modelos/EstadoPublicacion.php";
+include_once __DIR__ . "/../../logica/modelos/Publicacion.php";
+include_once __DIR__ . "/../../logica/modelos/CampoExtra.php";
+include_once __DIR__ . "/../../logica/modelos/TipoCampo.php";
+include_once __DIR__ . "/../../logica/modelos/Reporte.php";
+include_once __DIR__ . "/../../logica/modelos/Modera.php";
+include_once __DIR__ . "/../../logica/modelos/ResultadoRevision.php";
+include_once __DIR__ . "/../../logica/modelos/Moderador.php";
+
+include_once __DIR__ . "/../../servicios/DTs/DTPublicacion.php";
+include_once __DIR__ . "/../../servicios/DTs/DTCampoExtra.php";
+include_once __DIR__ . "/../../servicios/DTs/DTReporte.php";
+include_once __DIR__ . "/../../servicios/DTs/DTModera.php";
 
 class PublicacionController implements IPublicacionController {
 

@@ -1,5 +1,7 @@
 <?php
 
+include_once __DIR__ . "/Usuario.php";
+
 class Sesion {
     private ?int $id;
     private ?string $token;

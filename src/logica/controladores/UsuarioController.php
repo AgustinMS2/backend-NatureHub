@@ -1,6 +1,17 @@
 <?php
 include_once __DIR__ . "/../../servicios/Interfaces/IUsuarioController.php";
 include_once __DIR__ . "/../../logica/manejadores/UsuarioRepositorio.php";
+include_once __DIR__ . "/../../logica/manejadores/PublicacionRepositorio.php";
+include_once __DIR__ . "/../../logica/modelos/Usuario.php";
+include_once __DIR__ . "/../../logica/modelos/Moderador.php";
+include_once __DIR__ . "/../../logica/modelos/Administrador.php";
+include_once __DIR__ . "/../../logica/modelos/Sesion.php";
+
+include_once __DIR__ . "/../../servicios/DTs/DTUsuario.php";
+include_once __DIR__ . "/../../servicios/DTs/DTAdministrador.php";
+include_once __DIR__ . "/../../servicios/DTs/DTModerador.php";
+include_once __DIR__ . "/../../servicios/DTs/DTSesion.php";
+include_once __DIR__ . "/../../servicios/DTs/DTPublicacion.php";
 
 class UsuarioController implements IUsuarioController {
 
@@ -268,6 +279,73 @@ class UsuarioController implements IUsuarioController {
         }
 
         $repositorio->degradarAAdministrador($id);
+    }
+
+    public function agregarFavoritas(int $idUsuario, int $idPublicacion): void {
+        $repositorioU = UsuarioRepositorio::getInstance();
+        $repositorioP = PublicacionRepositorio::getInstance();
+
+        $usuario = $repositorioU->obtenerUsuarioPorId($idUsuario);
+        if ($usuario === null) {
+            throw new Exception("No existe un usuario con ese id");
+        }
+
+        $publicacion = $repositorioP->obtenerPublicacionId($idPublicacion);
+        if ($publicacion === null) {
+            throw new Exception("No existe una publicacion con ese id");
+        }
+
+        $repositorioU->agregarAFavoritas($idUsuario, $idPublicacion);
+    }
+
+    public function eliminarFavorita(int $idUsuario, int $idPublicacion): void {
+        $repositorioU = UsuarioRepositorio::getInstance();
+        $repositorioP = PublicacionRepositorio::getInstance();
+
+        $usuario = $repositorioU->obtenerUsuarioPorId($idUsuario);
+        if ($usuario === null) {
+            throw new Exception("No existe un usuario con ese id");
+        }
+
+        $publicacion = $repositorioP->obtenerPublicacionId($idPublicacion);
+        if ($publicacion === null) {
+            throw new Exception("No existe una publicacion con ese id");
+        }
+
+        $repositorioU->eliminarDeFavoritas($idUsuario, $idPublicacion);
+    }
+
+    public function listarFavoritas(int $idUsuario): array {
+        $repositorio = UsuarioRepositorio::getInstance();
+
+        $usuario = $repositorio->obtenerUsuarioPorId($idUsuario);
+        if ($usuario === null) {
+            throw new Exception("No existe un usuario con ese id");
+        }
+
+        $publicaciones = $repositorio->listarLasFavoritas($idUsuario);
+
+        $resultado = [];
+        foreach ($publicaciones as $publicacion) {
+            $dtp = new DTPublicacion(
+                $publicacion->getId(),
+                $publicacion->getTitulo(),
+                $publicacion->getFoto(),
+                $publicacion->getNombreCientifico(),
+                $publicacion->getAreasHabitat(),
+                $publicacion->getDieta(),
+                $publicacion->getHorasActivas(),
+                $publicacion->getEstado()->value,
+                $publicacion->getFechaCreacion()->format("Y-m-d H-i-s"),
+                $publicacion->getFechaUltimaModificacion()->format("Y-m-d H:i:s"),
+                $publicacion->getAutor(),
+                $publicacion->getCamposExtra(),
+                $publicacion->getSeccion()
+            );
+            $resultado[] = $dtp;
+        }
+
+        return $resultado;
     }
 
 

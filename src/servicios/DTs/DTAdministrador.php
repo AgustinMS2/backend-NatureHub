@@ -1,5 +1,7 @@
 <?php
 
+include_once __DIR__ . "/DTModerador.php";
+
 class DTAdministrador extends DTModerador {
 
     public function __construct(?int $id, ?string $nombre, ?string $apellido, ?string $email, ?string $password, ?bool $activo, ?string $fechaRegistro, ?string $sexo, ?string $fechaNacimiento, ?string $pais, ?string $bio, ?string $fotoUrl) {

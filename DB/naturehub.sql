@@ -111,3 +111,11 @@ CREATE TABLE BORRADOR (
     FOREIGN KEY (id_autor) REFERENCES USUARIO(id_usuario),
     FOREIGN KEY (id_seccion) REFERENCES SECCION(id_seccion)
 );
+
+CREATE TABLE PUBLICACIONES_FAVORITAS (
+    id_usuario INT NOT NULL,
+    id_publicacion INT NOT NULL,
+    PRIMARY KEY (id_usuario, id_publicacion),
+    FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario),
+    FOREIGN KEY (id_publicacion) REFERENCES PUBLICACION(id_publicacion)
+);

@@ -1,5 +1,12 @@
 <?php
 include_once __DIR__ . "/../../persistencia/Conectar.php";
+include_once __DIR__ . "/../../logica/modelos/Publicacion.php";
+include_once __DIR__ . "/../../logica/modelos/EstadoPublicacion.php";
+include_once __DIR__ . "/../../logica/modelos/CampoExtra.php";
+include_once __DIR__ . "/../../logica/modelos/TipoCampo.php";
+include_once __DIR__ . "/../../logica/modelos/Modera.php";
+include_once __DIR__ . "/../../logica/modelos/ResultadoRevision.php";
+include_once __DIR__ . "/../../logica/modelos/Reporte.php";
 
 class PublicacionRepositorio {
     private static ?PublicacionRepositorio $instancia = null;

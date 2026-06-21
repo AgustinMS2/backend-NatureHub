@@ -290,6 +290,66 @@ class UsuarioEndpoint {
             echo json_encode(["error" => $e->getMessage()]);
         }
     }
+
+    // http://localhost/backend-Naturehub/src/index.php/usuarios/agregarFavoritas
+    public function agregarFavoritas(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try{
+            $this->controlador->agregarFavoritas($dato->idUsuario, $dato->idPublicacion);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Publicacion agregada a favoritas correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    // http://localhost/backend-Naturehub/src/index.php/usuarios/eliminarFavorita
+    public function eliminarFavorita(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try{
+            $this->controlador->eliminarFavorita($dato->idUsuario, $dato->idPublicacion);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Publicacion eliminada de favoritas correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    // http://localhost/backend-Naturehub/src/index.php/usuarios/listarFavoritas
+    public function listarFavoritas(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try{
+            $publicaciones = $this->controlador->listarFavoritas($dato->idUsuario, $dato->idPublicacion);
+
+            foreach ($publicaciones as $dpu) {
+                $resultado[] = [
+                    "id" => $dpu->getId(),
+                    "titulo" => $dpu->getTitulo(),
+                    "foto" => $dpu->getFoto(),
+                    "nombreCientifico" => $dpu->getNombreCientifico(),
+                    "areasHabitat" => $dpu->getAreasHabitat(),
+                    "dieta" => $dpu->getDieta(),
+                    "horasActivas" => $dpu->getHorasActivas(),
+                    "estado" => $dpu->getEstado(),
+                    "fechaCreacion" => $dpu->getFechaCreacion(),
+                    "fechaUltimaModificacion" => $dpu->getFechaUltimaModificacion(),
+                    "autor" => $dpu->getAutor(),
+                    "seccion" => $dpu->getSeccion()
+                ];
+            }
+
+            http_response_code(200);
+            echo json_encode([$resultado]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
 }
 
 ?>
