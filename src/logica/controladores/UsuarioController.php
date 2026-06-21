@@ -13,6 +13,11 @@ include_once __DIR__ . "/../../servicios/DTs/DTModerador.php";
 include_once __DIR__ . "/../../servicios/DTs/DTSesion.php";
 include_once __DIR__ . "/../../servicios/DTs/DTPublicacion.php";
 
+require_once __DIR__ . '/../../../vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 class UsuarioController implements IUsuarioController {
 
     public function __construct() {}
@@ -46,6 +51,60 @@ class UsuarioController implements IUsuarioController {
         );
 
         $repositorio->agregarUsuario($usuario);
+
+        $correoDestinatario = $dtu->getEmail();
+        $nombreDestinatario = $dtu->getNombre();
+
+        try {
+
+            $mail = new PHPMailer(true);
+
+            // Configuración SMTP
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+
+            $mail->Username = 'Naturehub3.0@gmail.com';
+            $mail->Password = 'jhaf glsd kxuy lgyg';
+
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            // Remitente
+            $mail->setFrom(
+                'Naturehub3.0@gmail.com',
+                'NatureHub'
+            );
+
+            // Destinatario
+            $mail->addAddress(
+                $correoDestinatario,
+                $nombreDestinatario
+            );
+
+            // Contenido
+            $mail->isHTML(true);
+
+            $mail->Subject = 'Creacion de Perfil';
+
+            $mail->Body = "
+                <h2>Bienvenido a NatureHub</h2>
+                <p>Tu perfil fue creado correctamente.</p>
+            ";
+
+            $mail->AltBody =
+                'Tu perfil fue creado correctamente.';
+
+            $mail->send();
+
+            echo "Mail enviado correctamente";
+
+        } catch (Exception $e) {
+
+            echo "Error al enviar correo: "
+                . $mail->ErrorInfo;
+
+        }
     }
 
     public function bajaUsuario(int $id): void{
