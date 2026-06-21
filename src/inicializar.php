@@ -166,6 +166,52 @@ try {
         $stmt->close();
     }
 
+    $favoritas = [
+        [1, 3], 
+        [1, 7], 
+        [1, 11],
+        [4, 1], 
+        [4, 9], 
+        [4, 12],
+        [5, 3], 
+        [5, 8], 
+        [5, 10],
+        [2, 4], 
+        [2, 11],
+    ];
+
+    foreach ($favoritas as $fav) {
+        $stmt = $conexion->prepare("INSERT IGNORE INTO PUBLICACIONES_FAVORITAS (id_usuario, id_publicacion) VALUES (?, ?)");
+        $stmt->bind_param("ii", $fav[0], $fav[1]);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    $reportes = [
+        [7, 1, 'El contenido contiene información incorrecta sobre la dieta del animal.', false],
+        [1, 4, 'La publicación contiene contenido inapropiado o spam.', false],
+        [11, 5, 'La imagen no corresponde a la especie descrita.', true],
+        [3, 2, 'Información duplicada con otra publicación existente.', true],
+        [9, 5, 'El nombre científico parece estar mal escrito.', false],
+    ];
+
+    foreach ($reportes as $rep) {
+        $check = $conexion->prepare("SELECT 1 FROM REPORTE WHERE id_publicacion = ? AND id_usuario = ? AND motivo = ? LIMIT 1");
+        $check->bind_param("iis", $rep[0], $rep[1], $rep[2]);
+        $check->execute();
+        $existe = $check->get_result()->fetch_assoc();
+        $check->close();
+
+        if ($existe) {
+            continue;
+        }
+
+        $stmt = $conexion->prepare("INSERT INTO REPORTE (id_publicacion, id_usuario, motivo, fecha, resuelto) VALUES (?, ?, ?, NOW(), ?)");
+        $stmt->bind_param("iisi", $rep[0], $rep[1], $rep[2], $rep[3]);
+        $stmt->execute();
+        $stmt->close();
+    }
+
     $conexion->close();
 
 } catch (Exception $e) {
