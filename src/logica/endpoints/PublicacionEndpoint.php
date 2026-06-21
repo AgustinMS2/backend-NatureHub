@@ -84,7 +84,7 @@ class PublicacionEndpoint {
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/modificarPublicacion
     public function modificarPublicacion(): void{
         $datos = (object) $_POST;
-        $fotoUrl = $datos->foto ?? $datos->fotoUrl ?? null;
+        $fotoUrl = $datos->fotoUrl ?? null;
 
         try {
             if (!empty($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
