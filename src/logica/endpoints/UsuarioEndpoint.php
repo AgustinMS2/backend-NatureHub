@@ -324,8 +324,9 @@ class UsuarioEndpoint {
         $dato = json_decode(file_get_contents("php://input"));
 
         try{
-            $publicaciones = $this->controlador->listarFavoritas($dato->idUsuario, $dato->idPublicacion);
+            $publicaciones = $this->controlador->listarFavoritas($dato->idUsuario);
 
+            $resultado = [];
             foreach ($publicaciones as $dpu) {
                 $resultado[] = [
                     "id" => $dpu->getId(),
@@ -344,7 +345,7 @@ class UsuarioEndpoint {
             }
 
             http_response_code(200);
-            echo json_encode([$resultado]);
+            echo json_encode($resultado);
         } catch (Exception $e) {
             http_response_code(400);
             echo json_encode(["error" => $e->getMessage()]);
