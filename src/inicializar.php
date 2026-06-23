@@ -187,6 +187,22 @@ try {
         $stmt->close();
     }
 
+    $usuariosFavoritos = [
+        [1, 2],
+        [1, 4],
+        [4, 1],
+        [4, 2],
+        [5, 3],
+        [2, 3],
+    ];
+
+    foreach ($usuariosFavoritos as $ufav) {
+        $stmt = $conexion->prepare("INSERT IGNORE INTO USUARIOS_FAVORITOS (id_usuario, id_usuario_favorito) VALUES (?, ?)");
+        $stmt->bind_param("ii", $ufav[0], $ufav[1]);
+        $stmt->execute();
+        $stmt->close();
+    }
+
     $reportes = [
         [7, 1, 'El contenido contiene información incorrecta sobre la dieta del animal.', false],
         [1, 4, 'La publicación contiene contenido inapropiado o spam.', false],

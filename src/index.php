@@ -35,6 +35,9 @@ try {
         ['DELETE', '/usuarios/eliminarFavorita'] => $usuarioEndpoint->eliminarFavorita(),
         ['POST', '/usuarios/listarFavoritas'] => $usuarioEndpoint->listarFavoritas(),
         ['POST', '/usuarios/obtenerUsuarioId'] => $usuarioEndpoint->obtenerUsuarioId(),
+        ['POST', '/usuarios/agregarUsuarioFavorito'] => $usuarioEndpoint->agregarUsuarioFavorito(),
+        ['DELETE', '/usuarios/eliminarUsuarioFavorito'] => $usuarioEndpoint->eliminarUsuarioFavorito(),
+        ['POST', '/usuarios/listarUsuariosFavoritos'] => $usuarioEndpoint->listarUsuariosFavoritos(),
 
         ['POST', '/publicaciones/altaPublicacion'] => $publicacionEndpoint->altaPublicacion(),
         ['DELETE', '/publicaciones/bajaPublicacion'] => $publicacionEndpoint->bajaPublicacion(),

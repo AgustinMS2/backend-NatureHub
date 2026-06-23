@@ -382,6 +382,74 @@ class UsuarioEndpoint {
             echo json_encode(["error" => $e->getMessage()]);
         }
     }
+
+
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/agregarUsuarioFavorito
+    public function agregarUsuarioFavorito(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try {
+            $this->controlador->agregarUsuarioFavorito($dato->idUsuario, $dato->idUsuarioFavorito);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Usuario agregado a favoritos correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/eliminarUsuarioFavorito
+    public function eliminarUsuarioFavorito(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try {
+            $this->controlador->eliminarUsuarioFavorito($dato->idUsuario, $dato->idUsuarioFavorito);
+            http_response_code(200);
+            echo json_encode(["mensaje" => "Usuario eliminado de favoritos correctamente"]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    // http://localhost/backend-NatureHub/src/index.php/usuarios/listarUsuariosFavoritos
+    public function listarUsuariosFavoritos(): void {
+        $dato = json_decode(file_get_contents("php://input"));
+
+        try {
+            $usuarios = $this->controlador->listarUsuariosFavoritos($dato->idUsuario);
+
+            $resultado = [];
+            foreach ($usuarios as $dtu) {
+                $rol = match(true) {
+                    $dtu instanceof DTAdministrador => "ADMINISTRADOR",
+                    $dtu instanceof DTModerador => "MODERADOR",
+                    default => "USUARIO"
+                };
+
+                $resultado[] = [
+                    "id" => $dtu->getId(),
+                    "nombre" => $dtu->getNombre(),
+                    "apellido" => $dtu->getApellido(),
+                    "email" => $dtu->getEmail(),
+                    "activo" => $dtu->getActivo(),
+                    "fechaRegistro" => $dtu->getFechaRegistro(),
+                    "sexo" => $dtu->getSexo(),
+                    "fechaNacimiento" => $dtu->getFechaNacimiento(),
+                    "pais" => $dtu->getPais(),
+                    "bio" => $dtu->getBio(),
+                    "fotoUrl" => $dtu->getFotoUrl(),
+                    "rol" => $rol
+                ];
+            }
+
+            http_response_code(200);
+            echo json_encode($resultado);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
 }
 
 ?>

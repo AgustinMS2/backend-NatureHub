@@ -425,6 +425,81 @@ class UsuarioController implements IUsuarioController {
 
     }
 
+    public function agregarUsuarioFavorito(int $idUsuario, int $idUsuarioFavorito): void {
+        $repositorio = UsuarioRepositorio::getInstance();
+
+        $usuario = $repositorio->obtenerUsuarioPorId($idUsuario);
+        if ($usuario === null) {
+            throw new Exception("No existe un usuario con ese id");
+        }
+
+        $usuarioFavorito = $repositorio->obtenerUsuarioPorId($idUsuarioFavorito);
+        if ($usuarioFavorito === null) {
+            throw new Exception("No existe el usuario que se quiere agregar a favoritos");
+        }
+
+        if ($idUsuario === $idUsuarioFavorito) {
+            throw new Exception("Un usuario no puede agregarse a sí mismo como favorito");
+        }
+
+        $repositorio->agregarUsuarioFavorito($idUsuario, $idUsuarioFavorito);
+    }
+
+    public function eliminarUsuarioFavorito(int $idUsuario, int $idUsuarioFavorito): void {
+        $repositorio = UsuarioRepositorio::getInstance();
+
+        $usuario = $repositorio->obtenerUsuarioPorId($idUsuario);
+        if ($usuario === null) {
+            throw new Exception("No existe un usuario con ese id");
+        }
+
+        $usuarioFavorito = $repositorio->obtenerUsuarioPorId($idUsuarioFavorito);
+        if ($usuarioFavorito === null) {
+            throw new Exception("No existe el usuario que se quiere eliminar de favoritos");
+        }
+
+        $repositorio->eliminarUsuarioFavorito($idUsuario, $idUsuarioFavorito);
+    }
+
+    public function listarUsuariosFavoritos(int $idUsuario): array {
+        $repositorio = UsuarioRepositorio::getInstance();
+
+        $usuario = $repositorio->obtenerUsuarioPorId($idUsuario);
+        if ($usuario === null) {
+            throw new Exception("No existe un usuario con ese id");
+        }
+
+        $usuarios = $repositorio->listarUsuariosFavoritos($idUsuario);
+
+        $resultado = [];
+        foreach ($usuarios as $usuarioFav) {
+            $args = [
+                $usuarioFav->getId(),
+                $usuarioFav->getNombre(),
+                $usuarioFav->getApellido(),
+                $usuarioFav->getEmail(),
+                null,
+                $usuarioFav->getActivo(),
+                $usuarioFav->getFechaRegistro() ? $usuarioFav->getFechaRegistro()->format("Y-m-d H:i:s") : null,
+                $usuarioFav->getSexo(),
+                $usuarioFav->getFechaNacimiento() ? $usuarioFav->getFechaNacimiento()->format("Y-m-d H:i:s") : null,
+                $usuarioFav->getPais(),
+                $usuarioFav->getBio(),
+                $usuarioFav->getFotoUrl()
+            ];
+
+            $dtu = match(true) {
+                $usuarioFav instanceof Administrador => new DTAdministrador(...$args),
+                $usuarioFav instanceof Moderador => new DTModerador(...$args),
+                default => new DTUsuario(...$args)
+            };
+
+            $resultado[] = $dtu;
+            }
+
+        return $resultado;
+    }
+
 
 
 

@@ -119,3 +119,11 @@ CREATE TABLE PUBLICACIONES_FAVORITAS (
     FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario),
     FOREIGN KEY (id_publicacion) REFERENCES PUBLICACION(id_publicacion)
 );
+
+CREATE TABLE USUARIOS_FAVORITOS (
+    id_usuario INT NOT NULL,
+    id_usuario_favorito INT NOT NULL,
+    PRIMARY KEY (id_usuario, id_usuario_favorito),
+    FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario),
+    FOREIGN KEY (id_usuario_favorito) REFERENCES USUARIO(id_usuario)
+);

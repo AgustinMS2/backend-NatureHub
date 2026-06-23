@@ -318,5 +318,63 @@ class UsuarioRepositorio {
         return $publicaciones;
     }
 
+    
+    public function agregarUsuarioFavorito(int $idUsuario, int $idUsuarioFavorito): void {
+        $sql = "INSERT INTO USUARIOS_FAVORITOS (id_usuario, id_usuario_favorito) VALUES (?, ?)";
+        $consulta = $this->mysql->prepare($sql);
+
+        $consulta->bind_param("ii", $idUsuario, $idUsuarioFavorito);
+        $consulta->execute();
+    }
+
+    public function eliminarUsuarioFavorito(int $idUsuario, int $idUsuarioFavorito): void {
+        $sql = "DELETE FROM USUARIOS_FAVORITOS WHERE id_usuario = ? AND id_usuario_favorito = ?";
+        $consulta = $this->mysql->prepare($sql);
+        
+        $consulta->bind_param("ii", $idUsuario, $idUsuarioFavorito);
+        $consulta->execute();
+    }
+
+    public function listarUsuariosFavoritos(int $idUsuario): array {
+        $sql = "SELECT u.*, p.bio, p.foto_url, p.sexo, p.fecha_nacimiento, p.pais, 
+                    m.id_usuario AS es_moderador, a.id_usuario AS es_admin
+                FROM USUARIOS_FAVORITOS uf
+                LEFT JOIN USUARIO u ON uf.id_usuario_favorito = u.id_usuario
+                LEFT JOIN PERFIL p ON p.id_usuario = u.id_usuario
+                LEFT JOIN MODERADOR m ON m.id_usuario = u.id_usuario
+                LEFT JOIN ADMINISTRADOR a ON a.id_usuario = u.id_usuario
+                WHERE uf.id_usuario = ? AND u.activo = true";
+                
+        $consulta = $this->mysql->prepare($sql);
+        $consulta->bind_param("i", $idUsuario);
+        $consulta->execute();
+        $resultado = $consulta->get_result();
+
+        $usuarios = [];
+        foreach ($resultado as $fila) {
+            $args = [
+                $fila["id_usuario"],
+                $fila["nombre"],
+                $fila["apellido"],
+                $fila["email"],
+                $fila["password_hash"],
+                $fila["activo"],
+                new DateTime($fila["fecha_registro"]),
+                $fila["sexo"],
+                new DateTime($fila["fecha_nacimiento"]),
+                $fila["pais"],
+                $fila["bio"],
+                $fila["foto_url"]
+            ];
+
+            $usuarios[] = match(true) {
+                !empty($fila["es_admin"]) => new Administrador(...$args),
+                !empty($fila["es_moderador"]) => new Moderador(...$args),
+                default => new Usuario(...$args)
+            };
+        }
+        return $usuarios;
+    }
+
 }
 ?>
