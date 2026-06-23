@@ -317,10 +317,6 @@ class PublicacionController implements IPublicacionController {
         $repositorio->reportePublicacion($reporte);
 
     }
-
-    public function listarPublicacionFiltro(string $filtro): void{
-        $repositorio = PublicacionRepositorio::getInstance();
-    }
     
    public function moderarPublicacion(DTModera $dtm): void {
         $repositorio = PublicacionRepositorio::getInstance();

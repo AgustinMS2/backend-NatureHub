@@ -3,9 +3,11 @@ include_once __DIR__ . "/../../servicios/Fabrica.php";
 
 class UsuarioEndpoint {
     private IUsuarioController $controlador;
+    private ?DTUsuario $usuarioAutenticado;
 
-    public function __construct() {
+    public function __construct(?DTUsuario $usuarioAutenticado = null) {
         $this->controlador = Fabrica::getInstance()->getIUsuarioController();
+        $this->usuarioAutenticado = $usuarioAutenticado;
     }
 
     // http://localhost/backend-NatureHub/src/index.php/usuarios/altaUsuario
@@ -65,6 +67,12 @@ class UsuarioEndpoint {
 
         $id = $dato->id;
 
+        if (!($this->usuarioAutenticado instanceof DTAdministrador) && $id!==$this->usuarioAutenticado->getId()) {
+            http_response_code(403);
+            echo json_encode(["error" => "No tienes permiso para dar de baja a otro usuario"]);
+            return;
+        }
+
         try {
             $this->controlador->bajaUsuario($id);
             http_response_code(200);
@@ -79,6 +87,9 @@ class UsuarioEndpoint {
     public function modificarUsuario(): void {
         $datos = (object) $_POST;
         $fotoUrl = $datos->fotoUrl ?? null;
+
+        $datos->id = $this->usuarioAutenticado->getId();
+
         if (!empty($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . '/../../uploads/usuarios/';
             if (!is_dir($uploadDir)) {
@@ -290,8 +301,10 @@ class UsuarioEndpoint {
     public function agregarFavoritas(): void {
         $dato = json_decode(file_get_contents("php://input"));
 
+        $idUsuario = $this->usuarioAutenticado->getId();
+
         try{
-            $this->controlador->agregarFavoritas($dato->idUsuario, $dato->idPublicacion);
+            $this->controlador->agregarFavoritas($idUsuario, $dato->idPublicacion);
             http_response_code(200);
             echo json_encode(["mensaje" => "Publicacion agregada a favoritas correctamente"]);
         } catch (Exception $e) {
@@ -304,8 +317,10 @@ class UsuarioEndpoint {
     public function eliminarFavorita(): void {
         $dato = json_decode(file_get_contents("php://input"));
 
+        $idUsuario = $this->usuarioAutenticado->getId();
+
         try{
-            $this->controlador->eliminarFavorita($dato->idUsuario, $dato->idPublicacion);
+            $this->controlador->eliminarFavorita($idUsuario, $dato->idPublicacion);
             http_response_code(200);
             echo json_encode(["mensaje" => "Publicacion eliminada de favoritas correctamente"]);
         } catch (Exception $e) {
@@ -316,10 +331,10 @@ class UsuarioEndpoint {
 
     // http://localhost/backend-Naturehub/src/index.php/usuarios/listarFavoritas
     public function listarFavoritas(): void {
-        $dato = json_decode(file_get_contents("php://input"));
+        $idUsuario = $this->usuarioAutenticado->getId();
 
         try{
-            $publicaciones = $this->controlador->listarFavoritas($dato->idUsuario);
+            $publicaciones = $this->controlador->listarFavoritas($idUsuario);
 
             $resultado = [];
             foreach ($publicaciones as $dpu) {
@@ -383,13 +398,14 @@ class UsuarioEndpoint {
         }
     }
 
-
     // http://localhost/backend-NatureHub/src/index.php/usuarios/agregarUsuarioFavorito
     public function agregarUsuarioFavorito(): void {
         $dato = json_decode(file_get_contents("php://input"));
 
+        $idUsuario = $this->usuarioAutenticado->getId();
+
         try {
-            $this->controlador->agregarUsuarioFavorito($dato->idUsuario, $dato->idUsuarioFavorito);
+            $this->controlador->agregarUsuarioFavorito($idUsuario, $dato->idUsuarioFavorito);
             http_response_code(200);
             echo json_encode(["mensaje" => "Usuario agregado a favoritos correctamente"]);
         } catch (Exception $e) {
@@ -402,8 +418,10 @@ class UsuarioEndpoint {
     public function eliminarUsuarioFavorito(): void {
         $dato = json_decode(file_get_contents("php://input"));
 
+        $idUsuario = $this->usuarioAutenticado->getId();
+
         try {
-            $this->controlador->eliminarUsuarioFavorito($dato->idUsuario, $dato->idUsuarioFavorito);
+            $this->controlador->eliminarUsuarioFavorito($idUsuario, $dato->idUsuarioFavorito);
             http_response_code(200);
             echo json_encode(["mensaje" => "Usuario eliminado de favoritos correctamente"]);
         } catch (Exception $e) {
@@ -414,10 +432,10 @@ class UsuarioEndpoint {
 
     // http://localhost/backend-NatureHub/src/index.php/usuarios/listarUsuariosFavoritos
     public function listarUsuariosFavoritos(): void {
-        $dato = json_decode(file_get_contents("php://input"));
+        $idUsuario = $this->usuarioAutenticado->getId();
 
         try {
-            $usuarios = $this->controlador->listarUsuariosFavoritos($dato->idUsuario);
+            $usuarios = $this->controlador->listarUsuariosFavoritos($idUsuario);
 
             $resultado = [];
             foreach ($usuarios as $dtu) {

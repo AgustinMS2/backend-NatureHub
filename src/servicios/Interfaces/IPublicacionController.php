@@ -13,7 +13,6 @@ interface IPublicacionController {
     public function listarPublicacionesPendientes(): array;
     public function listarPublicacionesPorSeccion(string $seccion): array;
     public function reportePublicacion(DTReporte $dtr): void;
-    public function listarPublicacionFiltro(string $filtro): void;
     public function listarSecciones(): array;
     public function guardarBorrador(int $idAutor, ?int $idSeccion, ?string $titulo, ?string $nombreCientifico, ?string $fotoUrl, ?string $areasHabitat, ?string $dieta, ?string $horasActivas, array $camposExtra): array;
     public function obtenerBorradorPorAutor(int $idAutor): ?array;

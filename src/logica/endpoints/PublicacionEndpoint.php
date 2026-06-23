@@ -3,9 +3,11 @@ include_once __DIR__ . "/../../servicios/Fabrica.php";
 
 class PublicacionEndpoint {
     private IPublicacionController $controlador;
+    private ?DTUsuario $usuarioAutenticado;
 
-    public function __construct() {
+    public function __construct(?DTUsuario $usuarioAutenticado = null) {
         $this->controlador = Fabrica::getInstance()->getIPublicacionController();
+        $this->usuarioAutenticado = $usuarioAutenticado;
     }
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/altaPublicacion
@@ -38,6 +40,8 @@ class PublicacionEndpoint {
             $camposExtra = json_decode($datos->camposExtra ?? '[]');
             $areasHabitat = json_decode($datos->areasHabitat ?? '[]');
 
+            $idAutor = $this->usuarioAutenticado->getId();
+
             $dtp = new DTPublicacion(
                 0,
                 $datos->titulo,
@@ -49,7 +53,7 @@ class PublicacionEndpoint {
                 null, 
                 null, 
                 null,
-                $datos->autor,
+                $idAutor,
                 $camposExtra,
                 $datos->seccion          
             );
@@ -71,9 +75,15 @@ class PublicacionEndpoint {
 
         $id = $dato->id;
 
+        if (!($this->usuarioAutenticado instanceof DTAdministrador) && $publicacion->getAutor()!==$this->usuarioAutenticado->getId()) {
+            http_response_code(403);
+            echo json_encode(["error" => "No tienes permiso para eliminar esta publicación"]);
+            return;
+        }
+
         try {
             $this->controlador->bajaPublicacion($id);
-            http_response_code(201);
+            http_response_code(200);
             echo json_encode(["mensaje" => "Publicacion eliminada correctamente"]);
         } catch (Exception $e) {
             http_response_code(400);
@@ -111,6 +121,8 @@ class PublicacionEndpoint {
             $camposExtra = json_decode($datos->camposExtra ?? '[]');
             $areasHabitat = json_decode($datos->areasHabitat ?? '[]');
 
+            $idAutor = $this->usuarioAutenticado->getId();
+
             $dtp = new DTPublicacion(
                 (int) $datos->id,
                 $datos->titulo,
@@ -122,7 +134,7 @@ class PublicacionEndpoint {
                 null,
                 null,
                 null,
-                (int) $datos->autor,
+                $idAutor,
                 $camposExtra,
                 (int) $datos->seccion
             );
@@ -176,9 +188,7 @@ class PublicacionEndpoint {
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionesPropias
     public function listarPublicacionesPropias(): void{
-        $dato = json_decode(file_get_contents("php://input"));
-
-        $id = $dato->id;
+        $id = $this->usuarioAutenticado->getId();
 
         try{
             $publicaciones = $this->controlador->listarPublicacionesPropias($id);
@@ -382,7 +392,7 @@ class PublicacionEndpoint {
         $datos = json_decode(file_get_contents("php://input"));
 
         $idPublicacion = $datos->idPublicacion;
-        $idUsuario = $datos->idUsuario;
+        $idUsuario = $this->usuarioAutenticado->getId();
         $motivo = $datos->motivo;
         $fecha = new DateTime();
         $resuelto = false;
@@ -406,20 +416,17 @@ class PublicacionEndpoint {
         }
     }
 
-    // http://localhost/backend-NatureHub/src/index.php/publicaciones/listarPublicacionFiltro
-    public function listarPublicacionFiltro(string $filtro): void{
-        
-    }
-
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/moderarPublicacion
     public function moderarPublicacion(): void{
         $datos = json_decode(file_get_contents("php://input"));
  
+        $idModerador = $this->usuarioAutenticado->getId();
+
         $dtm = new DTModera(
             null,
             $datos->motivoRechazo ?? null,
             $datos->resultado,
-            $datos->idModerador,
+            $idModerador,
             $datos->idPublicacion,
             null
         );
@@ -483,8 +490,10 @@ class PublicacionEndpoint {
 
             $idSeccion = isset($datos->seccion) && $datos->seccion !== '' ? (int) $datos->seccion : null;
 
+            $idAutor = $this->usuarioAutenticado->getId();
+
             $resultado = $this->controlador->guardarBorrador(
-                (int) $datos->autor,
+                $idAutor,
                 $idSeccion,
                 $datos->titulo ?? null,
                 $datos->nombreCientifico ?? null,
@@ -505,13 +514,9 @@ class PublicacionEndpoint {
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/obtenerBorrador?idAutor=1
     public function obtenerBorrador(): void {
-        $idAutor = (int) ($_GET['idAutor'] ?? 0);
+        $idAutor = $this->usuarioAutenticado->getId();
 
         try {
-            if ($idAutor <= 0) {
-                throw new Exception("Debe indicar el autor del borrador");
-            }
-
             $borrador = $this->controlador->obtenerBorradorPorAutor($idAutor);
 
             if ($borrador === null) {
@@ -530,14 +535,9 @@ class PublicacionEndpoint {
 
     // http://localhost/backend-NatureHub/src/index.php/publicaciones/eliminarBorrador
     public function eliminarBorrador(): void {
-        $datos = json_decode(file_get_contents("php://input"));
-        $idAutor = (int) ($datos->idAutor ?? 0);
+        $idAutor = $this->usuarioAutenticado->getId();
 
         try {
-            if ($idAutor <= 0) {
-                throw new Exception("Debe indicar el autor del borrador");
-            }
-
             $this->controlador->eliminarBorradorPorAutor($idAutor);
             http_response_code(200);
             echo json_encode(["mensaje" => "Borrador eliminado correctamente"]);

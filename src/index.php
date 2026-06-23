@@ -17,45 +17,46 @@ $metodo = $_SERVER['REQUEST_METHOD'];
 $ruta = $_SERVER['PATH_INFO'] ?? '';
 
 $rutasProtegidas = [
-    'DELETE /usuarios/bajaUsuario'              => [],
-    'POST /usuarios/modificarUsuario'           => [],
-    'POST /usuarios/promoverUsuario'            => ['ADMINISTRADOR'],
-    'POST /usuarios/degradarModerador'          => ['ADMINISTRADOR'],
-    'POST /usuarios/promoverModerador'          => ['ADMINISTRADOR'],
-    'POST /usuarios/degradarAdministrador'      => ['ADMINISTRADOR'],
-    'POST /usuarios/agregarFavoritas'           => [],
-    'DELETE /usuarios/eliminarFavorita'         => [],
-    'POST /usuarios/listarFavoritas'            => [],
-    'POST /usuarios/agregarUsuarioFavorito'     => [],
-    'DELETE /usuarios/eliminarUsuarioFavorito'  => [],
-    'POST /usuarios/listarUsuariosFavoritos'    => [],
+    'DELETE /usuarios/bajaUsuario' => [],
+    'POST /usuarios/modificarUsuario' => [],
+    'POST /usuarios/promoverUsuario' => ['ADMINISTRADOR'],
+    'POST /usuarios/degradarModerador' => ['ADMINISTRADOR'],
+    'POST /usuarios/promoverModerador' => ['ADMINISTRADOR'],
+    'POST /usuarios/degradarAdministrador' => ['ADMINISTRADOR'],
+    'POST /usuarios/agregarFavoritas' => [],
+    'DELETE /usuarios/eliminarFavorita' => [],
+    'POST /usuarios/listarFavoritas' => [],
+    'POST /usuarios/agregarUsuarioFavorito' => [],
+    'DELETE /usuarios/eliminarUsuarioFavorito' => [],
+    'POST /usuarios/listarUsuariosFavoritos' => [],
 
-    'POST /publicaciones/altaPublicacion'             => [],
-    'DELETE /publicaciones/bajaPublicacion'           => [],
-    'PUT /publicaciones/modificarPublicacion'         => [],
-    'POST /publicaciones/modificarPublicacion'        => [],
-    'POST /publicaciones/listarPublicacionesPropias'  => [],
-    'POST /publicaciones/agregarCampoExtra'           => [],
-    'DELETE /publicaciones/eliminarCampoExtra'        => [],
-    'PUT /publicaciones/modificarCampoExtra'          => [],
+    'POST /publicaciones/altaPublicacion' => [],
+    'DELETE /publicaciones/bajaPublicacion' => [],
+    'PUT /publicaciones/modificarPublicacion' => [],
+    'POST /publicaciones/modificarPublicacion' => [],
+    'POST /publicaciones/listarPublicacionesPropias' => [],
+    'POST /publicaciones/agregarCampoExtra' => [],
+    'DELETE /publicaciones/eliminarCampoExtra' => [],
+    'PUT /publicaciones/modificarCampoExtra' => [],
     'GET /publicaciones/listarPublicacionesPendientes'=> ['MODERADOR', 'ADMINISTRADOR'],
-    'POST /publicaciones/reportePublicacion'          => [],
-    'POST /publicaciones/moderarPublicacion'          => ['MODERADOR', 'ADMINISTRADOR'],
-    'POST /publicaciones/guardarBorrador'             => [],
-    'GET /publicaciones/obtenerBorrador'              => [],
-    'DELETE /publicaciones/eliminarBorrador'          => [],
-    'GET /publicaciones/listarReportes'               => ['MODERADOR', 'ADMINISTRADOR'],
-    'POST /publicaciones/resolverReporte'             => ['MODERADOR', 'ADMINISTRADOR'],
+    'POST /publicaciones/reportePublicacion' => [],
+    'POST /publicaciones/moderarPublicacion' => ['MODERADOR', 'ADMINISTRADOR'],
+    'POST /publicaciones/guardarBorrador' => [],
+    'GET /publicaciones/obtenerBorrador' => [],
+    'DELETE /publicaciones/eliminarBorrador' => [],
+    'GET /publicaciones/listarReportes' => ['MODERADOR', 'ADMINISTRADOR'],
+    'POST /publicaciones/resolverReporte' => ['MODERADOR', 'ADMINISTRADOR'],
 ];
 
 try {
     $claveRuta = "$metodo $ruta";
+    $usuarioAutenticado = null;
     if (array_key_exists($claveRuta, $rutasProtegidas)) {
-        Autenticacion::autenticar($rutasProtegidas[$claveRuta]);
+        $usuarioAutenticado = Autenticacion::autenticar($rutasProtegidas[$claveRuta]);
     }
 
-    $usuarioEndpoint = new UsuarioEndpoint();
-    $publicacionEndpoint = new PublicacionEndpoint();
+    $usuarioEndpoint = new UsuarioEndpoint($usuarioAutenticado);
+    $publicacionEndpoint = new PublicacionEndpoint($usuarioAutenticado);
 
     match([$metodo, $ruta]) {
         ['POST', '/usuarios/altaUsuario'] => $usuarioEndpoint->altaUsuario(),
@@ -79,7 +80,6 @@ try {
 
         ['POST', '/publicaciones/altaPublicacion'] => $publicacionEndpoint->altaPublicacion(),
         ['DELETE', '/publicaciones/bajaPublicacion'] => $publicacionEndpoint->bajaPublicacion(),
-        ['PUT', '/publicaciones/modificarPublicacion'] => $publicacionEndpoint->modificarPublicacion(),
         ['POST', '/publicaciones/modificarPublicacion'] => $publicacionEndpoint->modificarPublicacion(),
         ['GET', '/publicaciones/listarPublicaciones'] => $publicacionEndpoint->listarPublicaciones(),
         ['POST', '/publicaciones/listarPublicacionesPropias'] => $publicacionEndpoint->listarPublicacionesPropias(),
