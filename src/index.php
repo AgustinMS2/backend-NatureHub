@@ -60,7 +60,6 @@ try {
 
     match([$metodo, $ruta]) {
         ['POST', '/usuarios/altaUsuario'] => $usuarioEndpoint->altaUsuario(),
-        ['POST', '/usuarios/altaModerador'] => $usuarioEndpoint->altaModerador(),
         ['DELETE','/usuarios/bajaUsuario'] => $usuarioEndpoint->bajaUsuario(),
         ['POST',  '/usuarios/modificarUsuario'] => $usuarioEndpoint->modificarUsuario(),
         ['GET',  '/usuarios/listarUsuarios'] => $usuarioEndpoint->listarUsuarios(),

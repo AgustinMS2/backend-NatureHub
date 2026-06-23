@@ -1,0 +1,1407 @@
+{
+  "info": {
+    "name": "NatureHub API",
+    "description": "Colección de endpoints de NatureHub. La variable {{baseUrl}} apunta al servidor local. El token se guarda automáticamente al iniciar sesión.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost/backend-NatureHub/src/index.php",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Autenticación",
+      "item": [
+        {
+          "name": "Iniciar Sesión (Usuario)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "  pm.collectionVariables.set('token', res.token);",
+                  "  console.log('Token guardado:', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario1@naturehub.com\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/iniciarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "iniciarSesion"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Iniciar Sesión (Moderador)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "  pm.collectionVariables.set('token', res.token);",
+                  "  console.log('Token guardado:', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"moderador@naturehub.com\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/iniciarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "iniciarSesion"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Iniciar Sesión (Administrador)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "  pm.collectionVariables.set('token', res.token);",
+                  "  console.log('Token guardado:', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"administrador@naturehub.com\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/iniciarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "iniciarSesion"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cerrar Sesión",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/cerrarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "cerrarSesion"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Alta Usuario",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Pedro",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Ramirez",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "pedro@naturehub.com",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "123456",
+                  "type": "text"
+                },
+                {
+                  "key": "sexo",
+                  "value": "Masculino",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "1995-03-20",
+                  "type": "text"
+                },
+                {
+                  "key": "pais",
+                  "value": "Uruguay",
+                  "type": "text"
+                },
+                {
+                  "key": "bio",
+                  "value": "Amante de la naturaleza uruguaya.",
+                  "type": "text"
+                },
+                {
+                  "key": "fotoUrl",
+                  "value": "https://picsum.photos/seed/pedro-nh/200/200",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/altaUsuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "altaUsuario"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar Usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/listarUsuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "listarUsuarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Usuario por ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/obtenerUsuarioId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "obtenerUsuarioId"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Modificar Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Carlos",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Mendoza",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "usuario1@naturehub.com",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "123456",
+                  "type": "text"
+                },
+                {
+                  "key": "nuevaPassword",
+                  "value": "nueva123",
+                  "type": "text"
+                },
+                {
+                  "key": "sexo",
+                  "value": "Masculino",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "1998-04-12",
+                  "type": "text"
+                },
+                {
+                  "key": "pais",
+                  "value": "Colombia",
+                  "type": "text"
+                },
+                {
+                  "key": "bio",
+                  "value": "Naturalista aficionado actualizado.",
+                  "type": "text"
+                },
+                {
+                  "key": "fotoUrl",
+                  "value": "https://picsum.photos/seed/carlos-nh/200/200",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/modificarUsuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "modificarUsuario"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Baja Usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/bajaUsuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "bajaUsuario"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Promover Usuario a Moderador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/promoverUsuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "promoverUsuario"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Degradar Moderador a Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/degradarModerador",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "degradarModerador"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Promover Moderador a Administrador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/promoverModerador",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "promoverModerador"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Degradar Administrador a Moderador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/degradarAdministrador",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "degradarAdministrador"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Favoritas de Usuario",
+      "item": [
+        {
+          "name": "Agregar Publicación Favorita",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPublicacion\": 8\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/agregarFavoritas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "agregarFavoritas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar Publicación Favorita",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPublicacion\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/eliminarFavorita",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "eliminarFavorita"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar Publicaciones Favoritas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/listarFavoritas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "listarFavoritas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Agregar Usuario Favorito",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idUsuarioFavorito\": 4\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/agregarUsuarioFavorito",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "agregarUsuarioFavorito"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar Usuario Favorito",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idUsuarioFavorito\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/eliminarUsuarioFavorito",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "eliminarUsuarioFavorito"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar Usuarios Favoritos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/listarUsuariosFavoritos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "listarUsuariosFavoritos"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Publicaciones",
+      "item": [
+        {
+          "name": "Listar Publicaciones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/listarPublicaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "listarPublicaciones"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Publicación por ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/obtenerPublicacionPorId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "obtenerPublicacionPorId"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar Publicaciones por Sección",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seccion\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/listarPublicacionesPorSeccion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "listarPublicacionesPorSeccion"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar Publicaciones por Título",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Carpincho\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/listarPublicacionesTitulo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "listarPublicacionesTitulo"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar Publicaciones Pendientes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/listarPublicacionesPendientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "listarPublicacionesPendientes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar Publicaciones Propias",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/listarPublicacionesPropias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "listarPublicacionesPropias"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Alta Publicación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "titulo",
+                  "value": "Ñandú",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreCientifico",
+                  "value": "Rhea americana",
+                  "type": "text"
+                },
+                {
+                  "key": "fotoUrl",
+                  "value": "https://picsum.photos/seed/nandu-nh/600/400",
+                  "type": "text"
+                },
+                {
+                  "key": "areasHabitat",
+                  "value": "[\"Pastizales\",\"Pampas\"]",
+                  "type": "text"
+                },
+                {
+                  "key": "dieta",
+                  "value": "Omnívoro",
+                  "type": "text"
+                },
+                {
+                  "key": "horasActivas",
+                  "value": "Diurno",
+                  "type": "text"
+                },
+                {
+                  "key": "seccion",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "camposExtra",
+                  "value": "[]",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/altaPublicacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "altaPublicacion"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Modificar Publicación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "titulo",
+                  "value": "Zorro Pampeano (actualizado)",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreCientifico",
+                  "value": "Lycalopex gymnocercus",
+                  "type": "text"
+                },
+                {
+                  "key": "fotoUrl",
+                  "value": "https://picsum.photos/seed/fox-pampa/600/400",
+                  "type": "text"
+                },
+                {
+                  "key": "areasHabitat",
+                  "value": "[\"Pampas\",\"Pastizales del sur de Sudamérica\"]",
+                  "type": "text"
+                },
+                {
+                  "key": "dieta",
+                  "value": "Omnívoro",
+                  "type": "text"
+                },
+                {
+                  "key": "horasActivas",
+                  "value": "Crepuscular y nocturno",
+                  "type": "text"
+                },
+                {
+                  "key": "seccion",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "camposExtra",
+                  "value": "[]",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/modificarPublicacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "modificarPublicacion"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Baja Publicación",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/bajaPublicacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "bajaPublicacion"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Generar PDF de Publicación",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/generarPdfPublicacion?id=3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "generarPdfPublicacion"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "3",
+                  "description": "id 3 = Lagarto Overo (APROBADA)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar Secciones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/listarSecciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "listarSecciones"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Campos Extra",
+      "item": [
+        {
+          "name": "Agregar Campo Extra",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPublicacion\": 7,\n  \"etiqueta\": \"Peso promedio\",\n  \"valor\": \"50 kg\",\n  \"tipo\": \"TEXTO\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/agregarCampoExtra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "agregarCampoExtra"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Modificar Campo Extra",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"idPublicacion\": 3,\n  \"etiqueta\": \"Longitud máxima\",\n  \"valor\": \"1.8 metros\",\n  \"tipo\": \"TEXTO\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/modificarCampoExtra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "modificarCampoExtra"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar Campo Extra",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idCampo\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/eliminarCampoExtra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "eliminarCampoExtra"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Moderación",
+      "item": [
+        {
+          "name": "Moderar Publicación (Aprobar)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPublicacion\": 1,\n  \"resultado\": \"APROBADA\",\n  \"motivoRechazo\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/moderarPublicacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "moderarPublicacion"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Moderar Publicación (Rechazar)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPublicacion\": 2,\n  \"resultado\": \"RECHAZADA\",\n  \"motivoRechazo\": \"La información sobre el hábitat es insuficiente.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/moderarPublicacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "moderarPublicacion"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reportes",
+      "item": [
+        {
+          "name": "Reportar Publicación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPublicacion\": 8,\n  \"motivo\": \"La imagen no corresponde a la especie descrita.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/reportePublicacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "reportePublicacion"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar Reportes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/listarReportes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "listarReportes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resolver Reporte",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idReporte\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/resolverReporte",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "resolverReporte"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Borradores",
+      "item": [
+        {
+          "name": "Guardar Borrador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "titulo",
+                  "value": "Ñandú borrador",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreCientifico",
+                  "value": "Rhea americana",
+                  "type": "text"
+                },
+                {
+                  "key": "fotoUrl",
+                  "value": "https://picsum.photos/seed/nandu-draft/600/400",
+                  "type": "text"
+                },
+                {
+                  "key": "areasHabitat",
+                  "value": "[\"Pastizales\"]",
+                  "type": "text"
+                },
+                {
+                  "key": "dieta",
+                  "value": "Omnívoro",
+                  "type": "text"
+                },
+                {
+                  "key": "horasActivas",
+                  "value": "Diurno",
+                  "type": "text"
+                },
+                {
+                  "key": "seccion",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "camposExtra",
+                  "value": "[{\"etiqueta\":\"Altura\",\"valor\":\"1.5 m\",\"tipo\":\"TEXTO\"}]",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/guardarBorrador",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "guardarBorrador"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Borrador",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/obtenerBorrador",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "obtenerBorrador"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar Borrador",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Auth-Token",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/eliminarBorrador",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "eliminarBorrador"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
