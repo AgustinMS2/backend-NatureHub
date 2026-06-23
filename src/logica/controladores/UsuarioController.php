@@ -269,6 +269,47 @@ class UsuarioController implements IUsuarioController {
         $repositorio->cerrarSesion($sesion);
     }
 
+    public function validarToken(string $token): DTUsuario {
+        $repositorio = UsuarioRepositorio::getInstance();
+
+        $sesion = $repositorio->obtenerSesionPorToken($token);
+        if ($sesion === null) {
+            throw new Exception("Token inválido");
+        }
+        if (!$sesion->getActiva()) {
+            throw new Exception("Sesión cerrada");
+        }
+        if ($sesion->getFechaFin() !== null && $sesion->getFechaFin() < new DateTime()) {
+            throw new Exception("Sesión expirada");
+        }
+
+        $usuario = $sesion->getUsuario();
+        if ($usuario === null || !$usuario->getActivo()) {
+            throw new Exception("Usuario inválido");
+        }
+
+        $args = [
+            $usuario->getId(),
+            $usuario->getNombre(),
+            $usuario->getApellido(),
+            $usuario->getEmail(),
+            null,
+            $usuario->getActivo(),
+            $usuario->getFechaRegistro()->format("Y-m-d H:i:s"),
+            $usuario->getSexo(),
+            $usuario->getFechaNacimiento() ? $usuario->getFechaNacimiento()->format("Y-m-d H:i:s") : null,
+            $usuario->getPais(),
+            $usuario->getBio(),
+            $usuario->getFotoUrl()
+        ];
+
+        return match(true) {
+            $usuario instanceof Administrador => new DTAdministrador(...$args),
+            $usuario instanceof Moderador => new DTModerador(...$args),
+            default => new DTUsuario(...$args)
+        };
+    }
+
     public function promoverUsuario(int $id): void {
         $repositorio = UsuarioRepositorio::getInstance();
 

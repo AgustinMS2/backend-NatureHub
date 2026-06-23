@@ -2,7 +2,7 @@
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
-header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Headers: Content-Type, X-Auth-Token");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -11,11 +11,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 include __DIR__ . "/logica/endpoints/UsuarioEndpoint.php";
 include __DIR__ . "/logica/endpoints/PublicacionEndpoint.php";
+include __DIR__ . "/logica/Autenticacion.php";
 
 $metodo = $_SERVER['REQUEST_METHOD'];
 $ruta = $_SERVER['PATH_INFO'] ?? '';
 
+$rutasProtegidas = [
+    'DELETE /usuarios/bajaUsuario'              => [],
+    'POST /usuarios/modificarUsuario'           => [],
+    'POST /usuarios/promoverUsuario'            => ['ADMINISTRADOR'],
+    'POST /usuarios/degradarModerador'          => ['ADMINISTRADOR'],
+    'POST /usuarios/promoverModerador'          => ['ADMINISTRADOR'],
+    'POST /usuarios/degradarAdministrador'      => ['ADMINISTRADOR'],
+    'POST /usuarios/agregarFavoritas'           => [],
+    'DELETE /usuarios/eliminarFavorita'         => [],
+    'POST /usuarios/listarFavoritas'            => [],
+    'POST /usuarios/agregarUsuarioFavorito'     => [],
+    'DELETE /usuarios/eliminarUsuarioFavorito'  => [],
+    'POST /usuarios/listarUsuariosFavoritos'    => [],
+
+    'POST /publicaciones/altaPublicacion'             => [],
+    'DELETE /publicaciones/bajaPublicacion'           => [],
+    'PUT /publicaciones/modificarPublicacion'         => [],
+    'POST /publicaciones/modificarPublicacion'        => [],
+    'POST /publicaciones/listarPublicacionesPropias'  => [],
+    'POST /publicaciones/agregarCampoExtra'           => [],
+    'DELETE /publicaciones/eliminarCampoExtra'        => [],
+    'PUT /publicaciones/modificarCampoExtra'          => [],
+    'GET /publicaciones/listarPublicacionesPendientes'=> ['MODERADOR', 'ADMINISTRADOR'],
+    'POST /publicaciones/reportePublicacion'          => [],
+    'POST /publicaciones/moderarPublicacion'          => ['MODERADOR', 'ADMINISTRADOR'],
+    'POST /publicaciones/guardarBorrador'             => [],
+    'GET /publicaciones/obtenerBorrador'              => [],
+    'DELETE /publicaciones/eliminarBorrador'          => [],
+    'GET /publicaciones/listarReportes'               => ['MODERADOR', 'ADMINISTRADOR'],
+    'POST /publicaciones/resolverReporte'             => ['MODERADOR', 'ADMINISTRADOR'],
+];
+
 try {
+    $claveRuta = "$metodo $ruta";
+    if (array_key_exists($claveRuta, $rutasProtegidas)) {
+        Autenticacion::autenticar($rutasProtegidas[$claveRuta]);
+    }
+
     $usuarioEndpoint = new UsuarioEndpoint();
     $publicacionEndpoint = new PublicacionEndpoint();
 

@@ -136,10 +136,6 @@ class UsuarioRepositorio {
         return $usuarios;
     }
 
-    public function moderarUsuario(): void {
-
-    }
-
     public function crearSesion(Sesion $sesion): void {
         $sql = "INSERT INTO SESION (id_usuario, token, fecha_inicio, fecha_fin, activa) VALUES (?, ?, ?, ?, ?)";
         $consulta = $this->mysql->prepare($sql);
@@ -164,6 +160,29 @@ class UsuarioRepositorio {
 
         $consulta->bind_param("iss", $activa, $fechaFin, $token);
         $consulta->execute();
+    }
+
+    public function obtenerSesionPorToken(string $token): ?Sesion {
+        $sql = "SELECT * FROM SESION WHERE token = ?";
+        $consulta = $this->mysql->prepare($sql);
+        $consulta->bind_param("s", $token);
+        $consulta->execute();
+
+        $resultado = $consulta->get_result();
+        $fila = $resultado->fetch_assoc();
+
+        if (!$fila) return null;
+
+        $usuario = $this->obtenerUsuarioPorId($fila["id_usuario"]);
+
+        return new Sesion(
+            $fila["id_sesion"],
+            $usuario,
+            $fila["token"],
+            new DateTime($fila["fecha_inicio"]),
+            $fila["fecha_fin"] ? new DateTime($fila["fecha_fin"]) : null,
+            $fila["activa"]
+        );
     }
 
     public function obtenerUsuarioPorId(int $id): ?Usuario {

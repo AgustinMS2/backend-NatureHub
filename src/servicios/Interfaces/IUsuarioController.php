@@ -6,6 +6,7 @@ interface IUsuarioController {
     public function listarUsuarios(): array;
     public function iniciarSesion(DTUsuario $dtu): array;
     public function cerrarSesion(string $token): void;
+    public function validarToken(string $token): DTUsuario;
     public function promoverUsuario(int $id): void;
     public function degradarModerador(int $id): void;
     public function promoverModerador(int $id): void;
