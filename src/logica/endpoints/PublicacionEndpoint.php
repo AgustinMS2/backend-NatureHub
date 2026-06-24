@@ -1,5 +1,6 @@
 <?php
 include_once __DIR__ . "/../../servicios/Fabrica.php";
+include_once __DIR__ . "/../UrlUtil.php";
 
 class PublicacionEndpoint {
     private IPublicacionController $controlador;
@@ -31,10 +32,7 @@ class PublicacionEndpoint {
                     throw new Exception("No se pudo guardar la imagen de perfil.");
                 }
 
-                $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-                $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-                $fotoUrl = sprintf('%s://%s%s/uploads/publicaciones/%s', $scheme, $host, $path, $filename);
+                $fotoUrl = obtenerUrlBase() . "/uploads/publicaciones/{$filename}";
             }
             
             $camposExtra = json_decode($datos->camposExtra ?? '[]');
@@ -112,10 +110,7 @@ class PublicacionEndpoint {
                     throw new Exception("No se pudo guardar la imagen.");
                 }
 
-                $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-                $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-                $fotoUrl = sprintf('%s://%s%s/uploads/publicaciones/%s', $scheme, $host, $path, $filename);
+                $fotoUrl = obtenerUrlBase() . "/uploads/publicaciones/{$filename}";
             }
 
             $camposExtra = json_decode($datos->camposExtra ?? '[]');
@@ -473,10 +468,7 @@ class PublicacionEndpoint {
                     throw new Exception("No se pudo guardar la imagen del borrador.");
                 }
 
-                $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-                $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-                $fotoUrl = sprintf('%s://%s%s/uploads/publicaciones/%s', $scheme, $host, $path, $filename);
+                $fotoUrl = obtenerUrlBase() . "/uploads/publicaciones/{$filename}";
             }
 
             $camposExtra = json_decode($datos->camposExtra ?? '[]', true) ?: [];

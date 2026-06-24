@@ -1,5 +1,6 @@
 <?php
 include_once __DIR__ . "/../../servicios/Fabrica.php";
+include_once __DIR__ . "/../UrlUtil.php";
 
 class UsuarioEndpoint {
     private IUsuarioController $controlador;
@@ -31,10 +32,7 @@ class UsuarioEndpoint {
                     throw new Exception("No se pudo guardar la imagen de perfil.");
                 }
 
-                $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-                $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-                $fotoUrl = sprintf('%s://%s%s/uploads/usuarios/%s', $scheme, $host, $path, $filename);
+                $fotoUrl = obtenerUrlBase() . "/uploads/usuarios/{$filename}";
             }
             
             $dtu = new DTUsuario(
@@ -105,10 +103,7 @@ class UsuarioEndpoint {
                 throw new Exception("No se pudo guardar la imagen de perfil.");
             }
 
-            $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-            $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-            $fotoUrl = sprintf('%s://%s%s/uploads/usuarios/%s', $scheme, $host, $path, $filename);
+            $fotoUrl = obtenerUrlBase() . "/uploads/usuarios/{$filename}";
         }
 
         $dtu = new DTUsuario(

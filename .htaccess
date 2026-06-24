@@ -1,0 +1,10 @@
+RewriteEngine On
+RewriteBase /backend-NatureHub/
+
+# Archivos estáticos existentes (uploads, etc.)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Redirigir rutas de la API a index.php
+RewriteRule ^(.*)$ src/index.php/$1 [L,QSA]
