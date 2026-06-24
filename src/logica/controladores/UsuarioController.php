@@ -158,47 +158,47 @@ class UsuarioController implements IUsuarioController {
     }
 
     public function listarUsuarios(): array {
-    $repositorio = UsuarioRepositorio::getInstance();
-    $usuarios = $repositorio->listarUsuarios();
+        $repositorio = UsuarioRepositorio::getInstance();
+        $usuarios = $repositorio->listarUsuarios();
 
-    $resultado = [];
-    foreach ($usuarios as $usuario) {
-        $args = [
-            $usuario->getId(),
-            $usuario->getNombre(),
-            $usuario->getApellido(),
-            $usuario->getEmail(),
-            null,
-            $usuario->getActivo(),
-            $usuario->getFechaRegistro() ? $usuario->getFechaRegistro()->format("Y-m-d H:i:s") : null,
-            $usuario->getSexo(),
-            $usuario->getFechaNacimiento() ? $usuario->getFechaNacimiento()->format("Y-m-d H:i:s") : null,
-            $usuario->getPais(),
-            $usuario->getBio(),
-            $usuario->getFotoUrl()
-        ];
+        $resultado = [];
+        foreach ($usuarios as $usuario) {
+            $args = [
+                $usuario->getId(),
+                $usuario->getNombre(),
+                $usuario->getApellido(),
+                $usuario->getEmail(),
+                null,
+                $usuario->getActivo(),
+                $usuario->getFechaRegistro() ? $usuario->getFechaRegistro()->format("Y-m-d H:i:s") : null,
+                $usuario->getSexo(),
+                $usuario->getFechaNacimiento() ? $usuario->getFechaNacimiento()->format("Y-m-d H:i:s") : null,
+                $usuario->getPais(),
+                $usuario->getBio(),
+                $usuario->getFotoUrl()
+            ];
 
-        $dtu = match(true) {
-            $usuario instanceof Administrador => new DTAdministrador(...$args),
-            $usuario instanceof Moderador => new DTModerador(...$args),
-            default => new DTUsuario(...$args)
-        };
+            $dtu = match(true) {
+                $usuario instanceof Administrador => new DTAdministrador(...$args),
+                $usuario instanceof Moderador => new DTModerador(...$args),
+                default => new DTUsuario(...$args)
+            };
 
-        $resultado[] = $dtu;
+            $resultado[] = $dtu;
+        }
+
+        return $resultado;
     }
-
-    return $resultado;
-}
 
     public function iniciarSesion(DTUsuario $dtu): array {
         $repositorio = UsuarioRepositorio::getInstance();
 
         $usuario = $repositorio->obtenerUsuarioPorEmail($dtu->getEmail());
         if ($usuario === null) {
-            throw new Exception("Email inválido");
+            throw new Exception("Email o contraseña inválido");
         }
         if (!password_verify($dtu->getPassword(), $usuario->getPasswordHash())) {
-            throw new Exception("Contraseña incorrecta");
+            throw new Exception("Email o contraseña inválido");
         }
         if(!$usuario->getActivo()) {
             throw new Exception("El usuario se encuentra dado de baja");
