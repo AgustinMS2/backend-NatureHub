@@ -7,7 +7,7 @@ header("Access-Control-Allow-Headers: Content-Type, X-Auth-Token");
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
-}
+}       
 
 include __DIR__ . "/logica/endpoints/UsuarioEndpoint.php";
 include __DIR__ . "/logica/endpoints/PublicacionEndpoint.php";
