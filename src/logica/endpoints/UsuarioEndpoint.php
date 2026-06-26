@@ -106,12 +106,19 @@ class UsuarioEndpoint {
             $fotoUrl = obtenerUrlBase() . "/uploads/usuarios/{$filename}";
         }
 
+        $passwordActual = trim((string) ($datos->passwordActual ?? $datos->password ?? ''));
+        if ($passwordActual === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "Debés ingresar tu contraseña actual."]);
+            return;
+        }
+
         $dtu = new DTUsuario(
             $datos->id,
             $datos->nombre,
             $datos->apellido,
             $datos->email,
-            $datos->password,
+            $passwordActual,
             null,
             null,
             $datos->sexo ?? null,

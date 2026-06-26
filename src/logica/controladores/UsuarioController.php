@@ -122,7 +122,12 @@ class UsuarioController implements IUsuarioController {
         if (!$usuario->getActivo()) {
             throw new Exception("El usuario se encuentra dado de baja");
         }
-        if (!password_verify($dtu->getPassword(), $usuario->getPasswordHash())) {
+
+        $passwordActual = trim((string) ($dtu->getPassword() ?? ''));
+        if ($passwordActual === '') {
+            throw new Exception("Debés ingresar tu contraseña actual.");
+        }
+        if (!password_verify($passwordActual, $usuario->getPasswordHash())) {
             throw new Exception("La contraseña actual introducida es incorrecta.");
         }
 
